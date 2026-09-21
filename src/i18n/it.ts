@@ -343,6 +343,8 @@ export const dict = {
       cookies: {
         heading: "Niente cookie, niente tracciamento",
         body: "Questo sito non imposta cookie e non usa analytics o tracker. Leggere queste pagine non lascia alcuna traccia presso di noi.",
+        storage:
+          "Una sola cosa resta nel tuo browser: la lingua che hai scelto, così la prossima volta il sito si apre in quella lingua. Non ci viene mai inviata.",
       },
       form: {
         heading: "Il modulo di contatto",

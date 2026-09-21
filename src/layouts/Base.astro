@@ -5,6 +5,7 @@ import { ClientRouter } from "astro:transitions";
 import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
 import WhatsAppFloat from "../components/WhatsAppFloat.astro";
+import { LANGUAGE_STORAGE_KEY } from "../i18n/languageStorage";
 import {
   alternateUrls,
   DEFAULT_LOCALE,
@@ -157,6 +158,49 @@ const jsonLd = {
     <link rel="manifest" href={`${base}site.webmanifest`} />
 
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />
+
+    {
+      /* Language detection. Runs on every default-locale page load: before
+         first paint on a hard load, and again after the swap on a soft
+         navigation (data-astro-rerun, since the ClientRouter otherwise runs a
+         given inline script once per session). A remembered choice (only the
+         picker stores one) wins; otherwise the browser language decides each
+         time. Localized pages never redirect, so a shared /hi/ link opens as
+         sent and nothing can loop. Crawlers report English and stay. */
+      locale === DEFAULT_LOCALE && (
+        <script
+          is:inline
+          data-astro-rerun
+          define:vars={{
+            base,
+            path: pagePath,
+            defaultLocale: DEFAULT_LOCALE,
+            locales: LOCALES,
+            available,
+            key: LANGUAGE_STORAGE_KEY,
+          }}
+        >
+          (() => {
+            let stored = null;
+            try {
+              stored = localStorage.getItem(key);
+            } catch {}
+            let code = stored && locales.includes(stored) ? stored : null;
+            if (!code) {
+              for (const tag of navigator.languages || []) {
+                const primary = tag.toLowerCase().split("-")[0];
+                if (locales.includes(primary)) {
+                  code = primary;
+                  break;
+                }
+              }
+            }
+            if (!code || code === defaultLocale || !available.includes(code)) return;
+            location.replace(base + code + "/" + path + location.search + location.hash);
+          })();
+        </script>
+      )
+    }
 
     {/* Per-page head extras (LCP preloads, page-specific meta). */}
     <slot name="head" />

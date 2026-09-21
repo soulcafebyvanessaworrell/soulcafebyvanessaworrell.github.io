@@ -342,6 +342,8 @@ export const dict = {
       cookies: {
         heading: "Fără cookie-uri, fără urmărire",
         body: "Acest site nu setează cookie-uri și nu rulează instrumente de analiză sau de urmărire. Simpla citire a acestor pagini nu lasă nicio urmă la noi.",
+        storage:
+          "Un singur lucru rămâne în propriul dumneavoastră browser: limba pe care ați ales-o, ca data viitoare site-ul să se deschidă în ea. Nu ne este trimisă niciodată.",
       },
       form: {
         heading: "Formularul de contact",

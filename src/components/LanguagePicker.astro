@@ -85,6 +85,7 @@ function targetFor(code: SiteLocale): string {
                   <li>
                     <a
                       href={targetFor(row.code)}
+                      data-locale={row.code}
                       hreflang={row.htmlLang}
                       lang={row.htmlLang}
                       aria-current={isCurrent ? "page" : undefined}

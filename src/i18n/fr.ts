@@ -344,6 +344,8 @@ export const dict = {
       cookies: {
         heading: "Ni cookies, ni suivi",
         body: "Ce site ne dépose aucun cookie et n’utilise ni outil d’analyse ni traceur. Le simple fait de lire ces pages ne laisse aucune trace chez nous.",
+        storage:
+          "Une seule chose reste dans votre propre navigateur : la langue que vous avez choisie, pour que le site s’ouvre dans cette langue la prochaine fois. Elle ne nous est jamais transmise.",
       },
       form: {
         heading: "Le formulaire de contact",

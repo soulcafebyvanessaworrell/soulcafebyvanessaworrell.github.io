@@ -1,4 +1,5 @@
-import { expect, test } from "@playwright/test";
+import { expect, type Page, test } from "@playwright/test";
+import { LANGUAGE_STORAGE_KEY } from "../src/i18n/languageStorage";
 import { LOCALE_TABLE, type LocaleMeta } from "../src/i18n/locales";
 import { SITE_BASE } from "../src/lib/constants";
 
@@ -348,6 +349,106 @@ test.describe("with motion allowed", () => {
   });
 });
 
+// Without these, the browser-language redirect in Base.astro could stop firing,
+// fire on the wrong pages, or override a visitor's choice, and only a visitor
+// would notice. In the "stays" tests the short wait after `load` is the real
+// negative: a `location.replace` issued while the head is parsed can commit
+// after `load` fires, so URL equality right after `goto` alone would pass even
+// when a redirect had been decided.
+test.describe("language detection", () => {
+  const storedLanguage = (page: Page) =>
+    page.evaluate((key) => localStorage.getItem(key), LANGUAGE_STORAGE_KEY);
+
+  test.describe("browser set to Hindi", () => {
+    test.use({ locale: "hi-IN" });
+    test("the English home and a deep page redirect to Hindi, and nothing is remembered", async ({
+      page,
+    }) => {
+      await page.goto(`${BASE}/`);
+      await expect(page).toHaveURL(`${BASE}/hi/`);
+      expect(await storedLanguage(page), "nothing remembered").toBeNull();
+      await page.goto(`${BASE}/about/`);
+      await expect(page).toHaveURL(`${BASE}/hi/about/`);
+    });
+    test("a remembered choice of English wins over the browser language", async ({ page }) => {
+      await page.goto(`${BASE}/hi/`, { waitUntil: "load" });
+      await page.evaluate((key) => localStorage.setItem(key, "en"), LANGUAGE_STORAGE_KEY);
+      await page.goto(`${BASE}/`, { waitUntil: "load" });
+      await page.waitForTimeout(200);
+      await expect(page).toHaveURL(`${BASE}/`);
+    });
+    test("the 404 page, which exists in no locale, stays", async ({ page }) => {
+      await page.goto(`${BASE}/no-such-page/`, { waitUntil: "load" });
+      await page.waitForTimeout(200);
+      await expect(page).toHaveURL(`${BASE}/no-such-page/`);
+    });
+    test("a language picked before window load, while images still load, is remembered", async ({
+      page,
+    }) => {
+      // Never answer the image requests, so window load (and with it
+      // astro:page-load) does not fire during the test.
+      await page.route("**/*.webp", () => {});
+      await page.goto(`${BASE}/hi/`, { waitUntil: "domcontentloaded" });
+      await page.locator("details[data-language-picker]:visible summary").first().click();
+      await page.locator('details[data-language-picker][open]:visible a[data-locale="en"]').click();
+      await expect(page).toHaveURL(`${BASE}/`);
+      expect(await storedLanguage(page), "remembered language").toBe("en");
+    });
+  });
+
+  test.describe("browser set to French", () => {
+    test.use({ locale: "fr-CA" });
+    test("a localized page never redirects", async ({ page }) => {
+      await page.goto(`${BASE}/hi/`, { waitUntil: "load" });
+      await page.waitForTimeout(200);
+      await expect(page).toHaveURL(`${BASE}/hi/`);
+    });
+  });
+
+  test.describe("browser set to English", () => {
+    test.use({ locale: "en-GB" });
+    test("the English home stays", async ({ page }) => {
+      await page.goto(`${BASE}/`, { waitUntil: "load" });
+      await page.waitForTimeout(200);
+      await expect(page).toHaveURL(`${BASE}/`);
+    });
+    test("a choice made after a soft navigation is applied when the router returns to a page it already ran the script on", async ({
+      page,
+    }) => {
+      await page.goto(`${BASE}/`, { waitUntil: "load" });
+      await page.locator(`nav a[href="${BASE}/about/"]:visible`).first().click();
+      await expect(page).toHaveURL(`${BASE}/about/`);
+      await page.evaluate((key) => localStorage.setItem(key, "hi"), LANGUAGE_STORAGE_KEY);
+      await page.goBack();
+      await expect(page).toHaveURL(`${BASE}/hi/`);
+    });
+    test("picking a language in the menu is remembered and applied on the next visit", async ({
+      page,
+    }) => {
+      await page.goto(`${BASE}/`, { waitUntil: "load" });
+      await page.locator("details[data-language-picker]:visible summary").first().click();
+      await page.locator('details[data-language-picker][open]:visible a[data-locale="hi"]').click();
+      await expect(page).toHaveURL(`${BASE}/hi/`);
+      expect(await storedLanguage(page), "remembered language").toBe("hi");
+      await page.goto(`${BASE}/`);
+      await expect(page).toHaveURL(`${BASE}/hi/`);
+      await page.locator("details[data-language-picker]:visible summary").first().click();
+      await page.locator('details[data-language-picker][open]:visible a[data-locale="en"]').click();
+      await expect(page).toHaveURL(`${BASE}/`);
+      expect(await storedLanguage(page), "remembered language").toBe("en");
+    });
+  });
+
+  test.describe("browser set to a language the site lacks", () => {
+    test.use({ locale: "ja-JP" });
+    test("the English home stays", async ({ page }) => {
+      await page.goto(`${BASE}/`, { waitUntil: "load" });
+      await page.waitForTimeout(200);
+      await expect(page).toHaveURL(`${BASE}/`);
+    });
+  });
+});
+
 // Without this, the privacy page could become an orphan again: it is in
 // CONTENT_PATHS, so the route suite loads it, but nothing else asserts a page
 // links to it. The footer is on every page, so the home page stands for all.
@@ -402,7 +503,7 @@ for (const row of SAMPLE_LOCALES.slice(0, 3)) {
 
 // Without this, a phone number, email, URL, handle, or copyright line added
 // without dir="ltr" renders reordered on right-to-left pages and nothing else
-// notices (AGENTS.md, "RTL rules"). Text runs are matched by shape, so a
+// notices (AGENTS.md, rule 5). Text runs are matched by shape, so a
 // translated sentence never trips it; the phone inputs are checked by their
 // tel role.
 const RTL_LOCALE = LOCALE_TABLE.find((row) => row.dir === "rtl") ?? DEFAULT_LOCALE;

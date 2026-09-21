@@ -351,6 +351,8 @@ export const en = {
       cookies: {
         heading: "No cookies, no tracking",
         body: "This website sets no cookies and runs no analytics or trackers. Simply reading these pages leaves no record with us.",
+        storage:
+          "One thing stays in your own browser: the language you chose, so the site opens in it next time. It is never sent to us.",
       },
       form: {
         heading: "The contact form",

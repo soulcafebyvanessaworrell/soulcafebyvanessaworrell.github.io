@@ -1,6 +1,8 @@
-// Client behavior for the site chrome. Dependency-free. Every binding is
-// (re)attached on `astro:page-load` so it survives Astro's view transitions,
-// which swap the DOM without a full reload.
+// Client behavior for the site chrome. Every binding is (re)attached on
+// `astro:page-load` so it survives Astro's view transitions, which swap the
+// DOM without a full reload, except the language picker, which must be live
+// before window load (see its comment).
+import { LANGUAGE_STORAGE_KEY } from "../i18n/languageStorage";
 
 function prefersReducedMotion(): boolean {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -93,14 +95,13 @@ function initWhatsAppFocusHide(): void {
 }
 
 // Language picker: the <details> works without JS; this closes it on Escape
-// and on a click outside, which native <details> does not do. Bound once at
-// module scope (the document persists across view transitions); the handlers
-// look the picker up per event so they track the freshly swapped DOM.
-let languagePickerBound = false;
-
+// and on a click outside, which native <details> does not do, and remembers a
+// picked language so the redirect in Base.astro honours the choice. Bound at
+// module evaluation, not on `astro:page-load`, which waits for window load: a
+// language picked during a slow first load would otherwise navigate unrecorded
+// and be bounced back by that redirect. The handlers look the picker up per
+// event so they track the freshly swapped DOM.
 function initLanguagePicker(): void {
-  if (languagePickerBound) return;
-  languagePickerBound = true;
   const openPickers = (): HTMLDetailsElement[] =>
     Array.from(
       document.querySelectorAll<HTMLDetailsElement>("details[data-language-picker][open]"),
@@ -114,6 +115,16 @@ function initLanguagePicker(): void {
     }
   });
   document.addEventListener("click", (event) => {
+    const picked =
+      event.target instanceof Element
+        ? event.target.closest("details[data-language-picker] a[data-locale]")
+        : null;
+    const code = picked?.getAttribute("data-locale");
+    if (code) {
+      try {
+        localStorage.setItem(LANGUAGE_STORAGE_KEY, code);
+      } catch {}
+    }
     for (const picker of openPickers()) {
       if (event.target instanceof Node && picker.contains(event.target)) continue;
       picker.open = false;
@@ -125,7 +136,7 @@ function init(): void {
   initReveal();
   initWhatsAppIntro();
   initWhatsAppFocusHide();
-  initLanguagePicker();
 }
 
+initLanguagePicker();
 document.addEventListener("astro:page-load", init);

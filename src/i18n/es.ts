@@ -343,6 +343,8 @@ export const dict = {
       cookies: {
         heading: "Sin cookies, sin rastreo",
         body: "Este sitio web no instala cookies ni utiliza herramientas de análisis ni rastreadores. Leer estas páginas no deja ningún rastro en nuestros sistemas.",
+        storage:
+          "Una sola cosa se guarda en tu propio navegador: el idioma que elegiste, para que la próxima vez el sitio se abra en él. Nunca se nos envía.",
       },
       form: {
         heading: "El formulario de contacto",
