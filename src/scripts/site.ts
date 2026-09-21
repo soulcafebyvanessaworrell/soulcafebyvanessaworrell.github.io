@@ -6,10 +6,12 @@ function prefersReducedMotion(): boolean {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-// Scroll reveal: headings, feature items, and cards fade in and rise the first
-// time they enter the viewport. Hiding is applied by JS only, so with scripting
-// off (or reduced motion) the content is simply visible. Recreated per page so
-// it tracks the freshly swapped DOM.
+// Scroll reveal: headings, feature items, and cards in the page body fade in
+// and rise the first time they enter the viewport. Cards in the chrome are
+// excluded: the language menu is a `.card` too, and a menu must appear at once.
+// Hiding is applied by JS only, so with scripting off (or reduced motion) the
+// content is simply visible. Recreated per page so it tracks the freshly
+// swapped DOM.
 let revealObserver: IntersectionObserver | null = null;
 
 function initReveal(): void {
@@ -17,9 +19,9 @@ function initReveal(): void {
   revealObserver = null;
   if (prefersReducedMotion() || !("IntersectionObserver" in window)) return;
 
-  const targets = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal], .card")).filter(
-    (el) => el.dataset.revealed !== "done",
-  );
+  const targets = Array.from(
+    document.querySelectorAll<HTMLElement>("[data-reveal], main .card"),
+  ).filter((el) => el.dataset.revealed !== "done");
   if (targets.length === 0) return;
 
   // Stagger siblings within the same parent so a grid or row cascades in.

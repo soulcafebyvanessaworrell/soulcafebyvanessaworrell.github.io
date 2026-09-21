@@ -349,6 +349,27 @@ for (const row of SAMPLE_LOCALES.slice(0, 3)) {
   });
 }
 
+// Without this, the language menu could join the scroll reveal again (it is a
+// `.card`, and site.ts once selected every `.card`): the panel would open at
+// opacity 0 and fade in over half a second. The rest of the suite runs with
+// reduced motion, where the reveal never starts, so this block opts back in.
+// The heading is the control that the reveal did run on this page.
+test.describe("with motion allowed", () => {
+  test.use({ reducedMotion: "no-preference" });
+  const row = SAMPLE_LOCALES[0];
+  test(`the language menu is not a scroll-reveal target: ${row.code}`, async ({ page }) => {
+    await page.goto(`${localeBase(row)}/`, { waitUntil: "load" });
+    const heading = page.locator("main h1[data-reveal]").first();
+    await expect(heading, "reveal ran on the page heading").toHaveClass(/reveal-pending/);
+    await page.locator("details[data-language-picker]:visible summary").first().click();
+    const panel = page.locator("details[data-language-picker][open]:visible > div");
+    await expect(panel).toHaveCount(1);
+    await expect(panel, "panel joined the reveal").not.toHaveClass(/reveal-pending/);
+    const opacity = await panel.evaluate((el) => getComputedStyle(el).opacity);
+    expect(opacity, "panel opacity right after opening").toBe("1");
+  });
+});
+
 // Without this, the privacy page could become an orphan again: it is in
 // CONTENT_PATHS, so the route suite loads it, but nothing else asserts a page
 // links to it. The footer is on every page, so the home page stands for all.
