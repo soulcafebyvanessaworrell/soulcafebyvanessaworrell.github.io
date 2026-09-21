@@ -340,7 +340,7 @@ export const dict = {
           "Jak The Soul Cafe obchodzi się z Twoimi danymi: bez plików cookie i narzędzi śledzących, formularz kontaktowy używany tylko po to, by Ci odpowiedzieć, a rezerwacje obsługiwane w serwisie Google.",
       },
       title: "Prywatność",
-      updated: "Ostatnia aktualizacja: lipiec 2026",
+      updated: "Ostatnia aktualizacja: {date}",
       cookies: {
         heading: "Bez plików cookie, bez śledzenia",
         body: "Ta strona nie zapisuje plików cookie i nie korzysta z żadnych narzędzi analitycznych ani śledzących. Samo czytanie tych stron nie zostawia u nas żadnego śladu.",

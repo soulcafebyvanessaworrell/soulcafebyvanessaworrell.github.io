@@ -4,15 +4,24 @@
 // and off-site bookings (Google Calendar). Plain-language sections; the two
 // paragraphs that carry an inline link are split around it in the dictionary.
 import ScriptHeading from "../../components/ScriptHeading.astro";
+import { localeMeta } from "../../i18n/locales";
 import { localeStaticPaths } from "../../i18n/routes";
 import { pages } from "../../i18n/ui";
 import Base from "../../layouts/Base.astro";
-import { CONTACT } from "../../lib/constants";
+import { CONTACT, PRIVACY_UPDATED } from "../../lib/constants";
 
 export const getStaticPaths = localeStaticPaths;
 
 const { locale } = Astro.props;
 const copy = pages(locale).privacy;
+
+// UTC so the month never slips across a boundary with the build machine's zone.
+const updatedDate = new Intl.DateTimeFormat(localeMeta(locale).dateLocale, {
+  month: "long",
+  year: "numeric",
+  timeZone: "UTC",
+}).format(new Date(PRIVACY_UPDATED));
+const updated = copy.updated.replace("{date}", updatedDate);
 
 const linkClass =
   "font-semibold text-ink underline decoration-2 underline-offset-2 transition-colors hover:text-coral-bright";
@@ -21,7 +30,7 @@ const linkClass =
 <Base title={copy.meta.title} description={copy.meta.description}>
   <section class="mx-auto max-w-xl px-5 py-16 sm:py-20">
     <ScriptHeading level={1} class="text-center">{copy.title}</ScriptHeading>
-    <p class="mt-3 text-center text-sm text-ink/60">{copy.updated}</p>
+    <p class="mt-3 text-center text-sm text-ink/60" data-privacy-updated>{updated}</p>
 
     <div class="mt-12 flex flex-col gap-8 text-lg leading-relaxed text-ink/90">
       <div>

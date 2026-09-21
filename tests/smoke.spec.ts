@@ -1,7 +1,8 @@
 import { expect, type Page, test } from "@playwright/test";
 import { LANGUAGE_STORAGE_KEY } from "../src/i18n/languageStorage";
 import { LOCALE_TABLE, type LocaleMeta } from "../src/i18n/locales";
-import { SITE_BASE } from "../src/lib/constants";
+import { dictionaries } from "../src/i18n/ui";
+import { PRIVACY_UPDATED, SITE_BASE } from "../src/lib/constants";
 
 // Base path the site is served under, without its trailing slash so it can be
 // joined with the leading-slash paths below (root base becomes "").
@@ -447,6 +448,27 @@ test.describe("language detection", () => {
       await expect(page).toHaveURL(`${BASE}/`);
     });
   });
+});
+
+// Without this, the privacy page could ship the literal "{date}" or a month
+// that disagrees with PRIVACY_UPDATED: the dictionaries carry only the label,
+// and only privacy.astro splices the formatted date in.
+test.describe("privacy page shows the policy date from the constant", () => {
+  for (const row of SAMPLE_LOCALES) {
+    test(`last-updated line is the label around the formatted date: ${row.code}`, async ({
+      page,
+    }) => {
+      await page.goto(`${localeBase(row)}/privacy/`, { waitUntil: "load" });
+      const date = new Intl.DateTimeFormat(row.dateLocale, {
+        month: "long",
+        year: "numeric",
+        timeZone: "UTC",
+      }).format(new Date(PRIVACY_UPDATED));
+      await expect(page.locator("[data-privacy-updated]")).toHaveText(
+        dictionaries[row.code].pages.privacy.updated.replace("{date}", date),
+      );
+    });
+  }
 });
 
 // Without this, the privacy page could become an orphan again: it is in

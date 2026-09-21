@@ -74,6 +74,18 @@ describe("crisis_note keeps its helpline placeholders", () => {
   }
 });
 
+// privacy.astro splices the formatted last-updated date into this placeholder;
+// a translation that dropped it would ship a policy with no date, and one that
+// typed a month by hand would drift from PRIVACY_UPDATED.
+describe("privacy.updated keeps its {date} placeholder", () => {
+  for (const locale of LOCALES) {
+    test(`${locale} has {date} exactly once`, () => {
+      const updated = dictionaries[locale].pages.privacy.updated;
+      expect(updated.split("{date}").length - 1).toBe(1);
+    });
+  }
+});
+
 // The brand voice bans em and en dashes in visible text. Prose is authored in
 // many files by many hands, so the check runs over every dictionary and every
 // blog post body rather than trusting each author.

@@ -339,7 +339,7 @@ export const dict = {
           "Come The Soul Cafe tratta le tue informazioni: nessun cookie o tracker, un modulo di contatto usato solo per risponderti e prenotazioni gestite sul sito di Google.",
       },
       title: "Privacy",
-      updated: "Ultimo aggiornamento: luglio 2026",
+      updated: "Ultimo aggiornamento: {date}",
       cookies: {
         heading: "Niente cookie, niente tracciamento",
         body: "Questo sito non imposta cookie e non usa analytics o tracker. Leggere queste pagine non lascia alcuna traccia presso di noi.",

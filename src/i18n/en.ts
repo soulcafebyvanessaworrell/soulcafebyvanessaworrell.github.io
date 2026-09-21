@@ -347,7 +347,7 @@ export const en = {
           "How The Soul Cafe handles your information: no cookies or trackers, a contact form used only to reply to you, and bookings handled on Google's own site.",
       },
       title: "Privacy",
-      updated: "Last updated: July 2026",
+      updated: "Last updated: {date}",
       cookies: {
         heading: "No cookies, no tracking",
         body: "This website sets no cookies and runs no analytics or trackers. Simply reading these pages leaves no record with us.",

@@ -339,7 +339,7 @@ export const dict = {
           "Hoe The Soul Cafe met je gegevens omgaat: geen cookies of trackers, een contactformulier dat alleen wordt gebruikt om je te antwoorden, en boekingen die op de eigen site van Google worden afgehandeld.",
       },
       title: "Privacy",
-      updated: "Laatst bijgewerkt: juli 2026",
+      updated: "Laatst bijgewerkt: {date}",
       cookies: {
         heading: "Geen cookies, geen tracking",
         body: "Deze website plaatst geen cookies en gebruikt geen analytics of trackers. Van het lezen van deze pagina's blijft bij ons niets bewaard.",

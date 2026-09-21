@@ -338,7 +338,7 @@ export const dict = {
           "Cum gestionează The Soul Cafe informațiile dumneavoastră: fără cookie-uri sau instrumente de urmărire, un formular de contact folosit doar pentru a vă răspunde și programări gestionate pe site-ul Google.",
       },
       title: "Confidențialitate",
-      updated: "Ultima actualizare: iulie 2026",
+      updated: "Ultima actualizare: {date}",
       cookies: {
         heading: "Fără cookie-uri, fără urmărire",
         body: "Acest site nu setează cookie-uri și nu rulează instrumente de analiză sau de urmărire. Simpla citire a acestor pagini nu lasă nicio urmă la noi.",

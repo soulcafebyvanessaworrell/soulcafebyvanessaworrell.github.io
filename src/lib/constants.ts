@@ -34,6 +34,11 @@ export const SITE_BASE = CORE_BASE ? `/${CORE_BASE}/` : "/";
 
 export const SITE_TITLE = "The Soul Cafe by Vanessa Worrell";
 
+/** The day the privacy policy last changed, as an ISO date. The privacy page
+ *  formats it as month and year in each locale, so every dictionary carries
+ *  only the label around it. Bump it whenever the policy text changes. */
+export const PRIVACY_UPDATED = "2026-09-21";
+
 /** Dev server port. Kept stable so bookmarks and docs don't drift. */
 export const DEV_PORT = 4321;
 
