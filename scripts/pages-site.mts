@@ -116,12 +116,24 @@ export function normalizeBase(base: string): string {
   return core ? `/${core}/` : "/";
 }
 
-function git(args: string[]): string {
-  const result = Bun.spawnSync(["git", ...args], { stdout: "pipe", stderr: "pipe" });
+/** Runs git against the repository at `cwd`. A git hook exports GIT_DIR and its siblings,
+ *  which would point every child git at the hook's repository instead; they are dropped. */
+function git(args: string[], cwd = process.cwd()): string {
+  const env = { ...process.env };
+  for (const key of ["GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE"]) delete env[key];
+  const result = Bun.spawnSync(["git", ...args], { cwd, env, stdout: "pipe", stderr: "pipe" });
   if (result.exitCode !== 0) {
     throw new Error(`git ${args.join(" ")} failed: ${result.stderr.toString().trim()}`);
   }
   return result.stdout.toString().trim();
+}
+
+/**
+ * The v* tags reachable from HEAD in the repository at `repo`. The deploy checks out the
+ * default branch, so a tag pushed on any other branch can never become the production root.
+ */
+export function reachableReleaseTags(repo = process.cwd()): string[] {
+  return git(["tag", "--list", "--merged", "HEAD", "v*"], repo).split("\n").filter(Boolean);
 }
 
 function run(command: string[], cwd: string, env: Record<string, string | undefined>): void {
@@ -196,7 +208,7 @@ function main(argv: string[]): void {
       "shallow clone: tags and their trees are needed (checkout with fetch-depth: 0)",
     );
   }
-  const tags = git(["tag", "--list", "v*"]).split("\n").filter(Boolean);
+  const tags = reachableReleaseTags();
   const tiers = planTiers(tags);
   const index = versionsIndex(tiers, base);
   const reserved = reservedNames(tiers);

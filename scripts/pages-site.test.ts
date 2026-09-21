@@ -2,11 +2,15 @@
 // The planner decides what lands at the production root and which tags keep a
 // directory, so a wrong answer here ships silently as a wrong live site.
 
-import { describe, expect, test } from "bun:test";
+import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { mkdtempSync, rmSync } from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import {
   keptTags,
   normalizeBase,
   planTiers,
+  reachableReleaseTags,
   reservedNames,
   resolveSite,
   versionsIndex,
@@ -117,5 +121,63 @@ describe("normalizeBase", () => {
     expect(normalizeBase("repo//")).toBe("/repo/");
     expect(normalizeBase("")).toBe("/");
     expect(normalizeBase("/")).toBe("/");
+  });
+});
+
+describe("reachableReleaseTags", () => {
+  // A throwaway repository in the OS temp dir: main carries v0.1.0, a side branch carries a
+  // newer v9.9.9 that main never merged. The fixture is built with no user or system git
+  // config, so a developer's commit signing, hooks path, or aliases cannot alter it.
+  let scratch: string;
+  let repo: string;
+
+  beforeAll(() => {
+    scratch = mkdtempSync(path.join(os.tmpdir(), "pages-site-tags-"));
+    repo = path.join(scratch, "repo");
+    const env = {
+      PATH: process.env.PATH,
+      GIT_CONFIG_GLOBAL: "/dev/null",
+      GIT_CONFIG_NOSYSTEM: "1",
+      GIT_AUTHOR_NAME: "example-user",
+      GIT_AUTHOR_EMAIL: "example-user@example.com",
+      GIT_COMMITTER_NAME: "example-user",
+      GIT_COMMITTER_EMAIL: "example-user@example.com",
+    };
+    const git = (...args: string[]) => {
+      const result = Bun.spawnSync(["git", ...args], { cwd: scratch, env, stderr: "pipe" });
+      if (result.exitCode !== 0) throw new Error(`git ${args[0]}: ${result.stderr.toString()}`);
+    };
+    git("init", "--quiet", "--initial-branch=main", repo);
+    git("-C", repo, "commit", "--quiet", "--allow-empty", "-m", "first");
+    git("-C", repo, "tag", "v0.1.0");
+    git("-C", repo, "checkout", "--quiet", "-b", "side");
+    git("-C", repo, "commit", "--quiet", "--allow-empty", "-m", "unmerged");
+    git("-C", repo, "tag", "v9.9.9");
+    git("-C", repo, "checkout", "--quiet", "main");
+  });
+
+  afterAll(() => {
+    rmSync(scratch, { recursive: true, force: true });
+  });
+
+  test("a release tag on an unmerged branch never reaches the plan", () => {
+    // Drift: listing every v* tag would let a tag pushed on any branch become the production
+    // root, since the planner ranks by semver alone.
+    expect(reachableReleaseTags(repo)).toEqual(["v0.1.0"]);
+  });
+
+  test("the listing reads the repository at the given path, not the one GIT_DIR names", () => {
+    // Drift: a git hook exports GIT_DIR, and git prefers it over the working directory. The
+    // pre-commit hook once ran this suite with GIT_DIR set, and the listing answered for the
+    // hook's repository, which had no tag. With GIT_DIR naming a non-repository, only a
+    // listing that drops it can find the fixture's tag.
+    const previous = process.env.GIT_DIR;
+    process.env.GIT_DIR = path.join(scratch, "not-a-repository");
+    try {
+      expect(reachableReleaseTags(repo)).toEqual(["v0.1.0"]);
+    } finally {
+      if (previous === undefined) delete process.env.GIT_DIR;
+      else process.env.GIT_DIR = previous;
+    }
   });
 });
