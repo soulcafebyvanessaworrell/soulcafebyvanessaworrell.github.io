@@ -20,8 +20,7 @@ name: Deploy website
 #               from GITHUB_REPOSITORY, so a rename or move needs no edit).
 #   - CUSTOM_DOMAIN set (repo variable, e.g. thesoulcafe.com) -> origin
 #               https://<domain>, base /. The script records it in a CNAME
-#               file; the domain itself is attached under Settings > Pages
-#               (see README).
+#               file; the domain itself is attached under Settings > Pages.
 # ASTRO_SITE/ASTRO_BASE carry the result into every tier build; constants.ts
 # reads them, so robots.txt and site.webmanifest flip with the domain too.
 on:

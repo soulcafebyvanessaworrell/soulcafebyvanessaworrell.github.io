@@ -117,7 +117,7 @@ export const BOOKING = {
 
 /** FormSubmit endpoint for the contact form. One-time activation required:
  *  the first real submission triggers a confirmation email the owner must
- *  click before the endpoint delivers mail. See README. */
+ *  click before the endpoint delivers mail. */
 export const FORMSUBMIT_ENDPOINT = `https://formsubmit.co/${CONTACT.email}`;
 
 /** Tele-MANAS, the Government of India's free 24x7 mental-health helpline. Shown

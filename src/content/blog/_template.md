@@ -2,10 +2,13 @@
 # HOW TO WRITE A POST
 # 1. Copy this file. Name the copy after your post and the language code, for
 #    example: a-quiet-week-en.md (English) or a-quiet-week-hi.md (Hindi). The
-#    README's "Translation review" table lists every code.
+#    codes are the `code` column of LOCALE_TABLE in src/i18n/locales.ts.
 # 2. Fill in the five lines below (keep the wording of the labels).
 # 3. Delete these comment lines (every line that starts with #).
 # 4. Write your post under the second "---" line.
+# 5. Commit with a subject that starts with `feat:` so the post goes into the
+#    next release. A plain subject publishes it to /latest/ only, until then.
+#    The post reaches the site root once the release pull request is merged.
 title: Your post title goes here
 description: One plain sentence. It shows in the blog list and in search results.
 pubDate: 2026-07-16      # the date you publish, written as YYYY-MM-DD

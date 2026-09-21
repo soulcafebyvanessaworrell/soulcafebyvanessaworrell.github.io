@@ -79,10 +79,10 @@ jobs:
               });
             } catch (error) {
               // 422 means the team cannot be requested: it has no access to this
-              // repository (README, "Repository setup", step 1: make the team
-              // visible and give it Write), or the slug in CODEOWNERS names no team
-              // of this org. Both are owner settings, not defects in this run, so
-              // the step warns and the pipeline stays green.
+              // repository (the owner makes the team visible and gives it Write),
+              // or the slug in CODEOWNERS names no team of this org. Both are owner
+              // settings, not defects in this run, so the step warns and the
+              // pipeline stays green.
               if (error.status === 422) {
                 core.warning(`could not request team ${team} on PR #${prNumber}: ${error.message}`);
                 return;

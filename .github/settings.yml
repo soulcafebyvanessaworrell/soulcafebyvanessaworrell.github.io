@@ -76,11 +76,10 @@ rulesets:
           dismiss_stale_reviews_on_push: false
           # The sole code owner is the org team named in .github/CODEOWNERS
           # (`maintainers`). GitHub honours it only while the team is Visible
-          # and has Write on this repo (README, "Repository setup"). Any team
-          # member other than the PR author satisfies this rule; a PR nobody
-          # else can review (a solo maintainer's own PR, or the release PR
-          # when the author is the only member) is merged via the admin
-          # bypass below.
+          # and has Write on this repo. Any team member other than the PR
+          # author satisfies this rule; a PR nobody else can review (a solo
+          # maintainer's own PR, or the release PR when the author is the
+          # only member) is merged via the admin bypass below.
           require_code_owner_review: true
           require_last_push_approval: false
           required_review_thread_resolution: false
