@@ -2,11 +2,12 @@
 // Site header on a mint band, two grouped rows on every screen.
 //
 // Desktop (lg+): a brand row with the centered logo and "Healing brewed
-// daily..." tagline, plus quiet ghost utilities (language, cart) at the inline end;
-// then, below a hairline and a slightly deeper mint tint, an action bar. The
-// action bar order is a fixed user requirement: home icon, then the Book a
-// Session primary, then the six cream nav pills (centred), then the Contact Us
-// outline secondary at the inline end.
+// daily..." tagline between two quiet ghost utilities, the language picker at
+// the inline start and the cart at the inline end; then, below a hairline and
+// a slightly deeper mint tint, an action bar. The action bar order is a fixed
+// user requirement: home icon, then the Book a Session primary, then the six
+// cream nav pills (centred), then the Contact Us outline secondary at the
+// inline end.
 //
 // Mobile (< lg): no hamburger. The same pieces stay permanently visible in a
 // compact stack: a brand row (home icon, logo + tagline, language + cart), then
@@ -71,10 +72,19 @@ const ghostControl =
         </span>
       </a>
 
-      {/* z-10: the translate makes this wrapper a stacking context, so without a
-          z-index the hero wrapper, painted later, covers the open language menu. */}
-      <div class="absolute top-1/2 end-6 z-10 flex -translate-y-1/2 items-center gap-2">
-        <LanguagePicker locale={locale} available={available} fallbackPath={fallbackPath} />
+      {/* One control at each edge so the centered logo sits between them, as on
+          mobile. Centred with flex, not a translate: a transform would make the
+          wrapper a stacking context and trap the open menu's z-index under
+          page content. */}
+      <div class="absolute inset-y-0 start-6 flex items-center">
+        <LanguagePicker
+          locale={locale}
+          available={available}
+          fallbackPath={fallbackPath}
+          align="start"
+        />
+      </div>
+      <div class="absolute inset-y-0 end-6 flex items-center">
         <a href={merchHref} class={ghostControl} aria-label={t(locale, "cart")}>
           <Icon name="lucide:shopping-cart" class="h-[1.15rem] w-[1.15rem]" aria-hidden="true" />
         </a>

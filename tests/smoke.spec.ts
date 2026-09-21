@@ -289,63 +289,41 @@ for (const row of SAMPLE_LOCALES.slice(0, 3)) {
   });
 }
 
-// Without this, the open picker panel could sink behind the hero photo again
-// (the z-10 on the desktop header's utility wrapper, see Header.astro) and
-// nothing else would notice. At 1280x800 the panel reaches the photo, so hit
-// tests at the panel's centre and inside the overlap (its centre and lower
-// corners, inset from the panel's rounded corners) must all land inside the
-// panel, in both directions.
+// Without this, the open picker panel could sink behind page content again:
+// its z-index only orders it against the page when no ancestor forms a
+// stacking context, and the desktop wrapper once did (a translate used for
+// vertical centring), which let the hero photo cover the open menu. So no
+// ancestor between the panel and <body> may form one, in either direction.
 for (const row of SAMPLE_LOCALES.slice(0, 3)) {
-  test(`open language panel paints above the hero photo at 1280: ${row.code}`, async ({ page }) => {
-    const width = page.viewportSize()?.width ?? 0;
-    test.skip(width <= 500, "runs once, in the desktop project");
-    await page.setViewportSize({ width: 1280, height: 800 });
+  test(`the language panel's z-index is not trapped by an ancestor: ${row.code}`, async ({
+    page,
+  }) => {
     await page.goto(`${localeBase(row)}/`, { waitUntil: "load" });
-    await page.evaluate(() => document.fonts.ready);
-    // The LCP photo is the one image the hero marks high priority.
-    const photo = page.locator('main img[fetchpriority="high"]');
-    await expect(photo, "hero photo").toHaveCount(1);
-    await expect(photo).toBeVisible();
-
     await page.locator("details[data-language-picker]:visible summary").first().click();
     const panel = page.locator("details[data-language-picker][open]:visible > div");
     await expect(panel).toHaveCount(1);
-    const photoBox = await photo.boundingBox();
-    expect(photoBox, "hero photo box").not.toBeNull();
-    if (!photoBox) return;
-    const found = await panel.evaluate((el, photoBox) => {
-      const box = el.getBoundingClientRect();
-      const overlap = {
-        left: Math.max(box.left, photoBox.x),
-        right: Math.min(box.right, photoBox.x + photoBox.width),
-        top: Math.max(box.top, photoBox.y),
-        bottom: Math.min(box.bottom, photoBox.y + photoBox.height),
-      };
-      const inset = 12;
-      const points = {
-        panelCentre: [box.left + box.width / 2, box.top + box.height / 2],
-        overlapCentre: [(overlap.left + overlap.right) / 2, (overlap.top + overlap.bottom) / 2],
-        overlapBottomLeft: [overlap.left + inset, overlap.bottom - inset],
-        overlapBottomRight: [overlap.right - inset, overlap.bottom - inset],
-      };
-      const misses = Object.entries(points)
-        .map(([name, [x, y]]) => {
-          const hit = document.elementFromPoint(x, y);
-          if (hit && el.contains(hit)) return null;
-          return `${name} at (${Math.round(x)},${Math.round(y)}) hit ${hit?.tagName.toLowerCase() ?? "nothing"}`;
-        })
-        .filter((miss) => miss !== null);
-      return {
-        overlapWidth: overlap.right - overlap.left,
-        overlapHeight: overlap.bottom - overlap.top,
-        misses,
-      };
-    }, photoBox);
-    // A panel that never reaches the photo cannot show the regression; the
-    // overlap must be wide enough to hold the inset probes.
-    expect(found.overlapWidth, "panel and photo overlap width").toBeGreaterThan(40);
-    expect(found.overlapHeight, "panel and photo overlap height").toBeGreaterThan(40);
-    expect(found.misses, "hit tests landing outside the open language panel").toEqual([]);
+    const contexts = await panel.evaluate((el) => {
+      const found: string[] = [];
+      for (let node = el.parentElement; node && node !== document.body; node = node.parentElement) {
+        const cs = getComputedStyle(node);
+        // Tailwind's translate, rotate, and scale utilities set the individual
+        // transform properties, which form a stacking context like `transform`.
+        const reasons = [
+          cs.transform !== "none" && `transform ${cs.transform}`,
+          cs.translate !== "none" && `translate ${cs.translate}`,
+          cs.rotate !== "none" && `rotate ${cs.rotate}`,
+          cs.scale !== "none" && `scale ${cs.scale}`,
+          cs.position !== "static" && cs.zIndex !== "auto" && `z-index ${cs.zIndex}`,
+          cs.opacity !== "1" && `opacity ${cs.opacity}`,
+          cs.filter !== "none" && `filter ${cs.filter}`,
+          cs.isolation !== "auto" && `isolation ${cs.isolation}`,
+        ].filter((reason) => reason !== false);
+        if (reasons.length > 0)
+          found.push(`${node.tagName.toLowerCase()}.${node.className}: ${reasons.join(", ")}`);
+      }
+      return found;
+    });
+    expect(contexts, "ancestors forming a stacking context above the language panel").toEqual([]);
   });
 }
 
