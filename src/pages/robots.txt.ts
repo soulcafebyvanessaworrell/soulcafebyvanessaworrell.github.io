@@ -7,7 +7,7 @@ import { SITE_BASE, SITE_ORIGIN } from "../lib/constants";
 // root deploy it is authoritative.
 const noindexTier = !!process.env.ASTRO_STAGING;
 
-// Paths of the other published tiers (latest/, stable/, vX.Y.Z/), from the
+// Paths of the other published tiers (latest/, vX.Y.Z/), from the
 // tier list the deploy script passes. The root tier disallows each of them so
 // only one copy of the site is crawled. Unset in a local build.
 const raw = process.env.SITE_VERSIONS;

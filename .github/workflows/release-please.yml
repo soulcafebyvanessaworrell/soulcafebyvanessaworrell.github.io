@@ -5,7 +5,7 @@ name: release-please
 # ONE rolling release PR that bumps the version and regenerates CHANGELOG.md;
 # merging it tags vX.Y.Z (as a draft release, published by the job below).
 # Every run ends by calling deploy.yml, so each push to main refreshes latest/
-# and a release commit's own run publishes the new tag at the root, stable/,
+# and a release commit's own run publishes the new tag at the root
 # and vX.Y.Z/. Manifest mode (.release-please-manifest.json) records the LAST
 # RELEASED version; the first release starts from 0.0.0.
 #

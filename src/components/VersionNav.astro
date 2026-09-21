@@ -1,7 +1,7 @@
 ---
-// Version switcher for the non-root tiers of a deploy (latest/, stable/,
-// vX.Y.Z/). Which tier this build is, whether the switcher shows, and how a
-// tier is worded live in src/lib/versionNav.ts, where they are unit-tested.
+// Version switcher for the non-root tiers of a deploy (latest/, vX.Y.Z/).
+// Which tier this build is, whether the switcher shows, and how a tier is
+// worded live in src/lib/versionNav.ts, where they are unit-tested.
 import type { SiteLocale } from "../i18n/locales";
 import { t } from "../i18n/ui";
 import { SITE_BASE, SITE_ORIGIN } from "../lib/constants";
@@ -15,7 +15,7 @@ const { locale } = Astro.props;
 
 const versions = parseVersions(process.env.SITE_VERSIONS);
 const current = currentVersion(versions, SITE_BASE);
-const words = { production: t(locale, "version_production"), stable: t(locale, "version_stable") };
+const words = { production: t(locale, "version_production") };
 const currentText = showsVersionNav(current) ? versionText(current, words) : undefined;
 
 // Tags ("v0.1.0", "latest") are Latin runs; without dir="ltr" a right-to-left

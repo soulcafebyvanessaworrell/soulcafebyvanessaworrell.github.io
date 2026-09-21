@@ -13,9 +13,8 @@ import {
 } from "./pages-site.mts";
 
 describe("planTiers", () => {
-  test("a repository with no tag serves HEAD at the root and publishes no stable/", () => {
-    // Drift: a stable/ tier naming HEAD would advertise unreleased work as stable,
-    // and an empty root would 404 until the first release.
+  test("a repository with no tag serves HEAD at the root", () => {
+    // Drift: an empty root would 404 until the first release.
     const tiers = planTiers([]);
     expect(tiers.map((tier) => [tier.kind, tier.ref, tier.rel])).toEqual([
       ["root", "HEAD", ""],
@@ -27,7 +26,7 @@ describe("planTiers", () => {
   test("prerelease and non-semver tags never become tiers", () => {
     // Drift: a v1.0.0-rc.1 or a stray `v2` tag would win the root over the real release.
     const tiers = planTiers(["v1.0.0-rc.1", "v2", "release-1", "1.0.0", "v0.1.0", "v0.1.0+build"]);
-    expect(tiers.map((tier) => tier.ref)).toEqual(["v0.1.0", "HEAD", "v0.1.0", "v0.1.0"]);
+    expect(tiers.map((tier) => tier.ref)).toEqual(["v0.1.0", "HEAD", "v0.1.0"]);
   });
 
   test("the cap keeps the five newest by semver, not by string order", () => {
@@ -44,13 +43,12 @@ describe("planTiers", () => {
     ]);
   });
 
-  test("the root and stable/ both serve the newest tag once one exists", () => {
+  test("the root serves the newest tag once one exists", () => {
     // Drift: a root left on HEAD after the first release would publish main as production.
     const tiers = planTiers(["v0.1.0", "v0.2.0"]);
     const byKind = Object.fromEntries(tiers.map((tier) => [tier.kind, tier]));
     expect(byKind.root?.ref).toBe("v0.2.0");
     expect(byKind.root?.label).toBe("v0.2.0");
-    expect(byKind.stable?.ref).toBe("v0.2.0");
     expect(byKind.latest?.ref).toBe("HEAD");
   });
 });
@@ -62,15 +60,9 @@ describe("versionsIndex", () => {
     expect(index.versions.map((entry) => [entry.label, entry.path])).toEqual([
       ["v0.2.0", "/example-site/"],
       ["latest", "/example-site/latest/"],
-      ["v0.2.0", "/example-site/stable/"],
       ["v0.2.0", "/example-site/v0.2.0/"],
     ]);
-    expect(index.versions.map((entry) => entry.kind)).toEqual([
-      "root",
-      "latest",
-      "stable",
-      "version",
-    ]);
+    expect(index.versions.map((entry) => entry.kind)).toEqual(["root", "latest", "version"]);
   });
 });
 
@@ -82,7 +74,6 @@ describe("reservedNames", () => {
       "versions.json",
       "CNAME",
       "latest",
-      "stable",
       "v0.1.0",
     ]);
   });

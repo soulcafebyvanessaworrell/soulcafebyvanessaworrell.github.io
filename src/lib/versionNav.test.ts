@@ -5,7 +5,6 @@ import { currentVersion, parseVersions, showsVersionNav, versionText } from "./v
 const versions: VersionEntry[] = [
   { kind: "root", label: "v0.2.0", path: "/site/" },
   { kind: "latest", label: "latest", path: "/site/latest/" },
-  { kind: "stable", label: "v0.2.0", path: "/site/stable/" },
   { kind: "version", label: "v0.2.0", path: "/site/v0.2.0/" },
   { kind: "version", label: "v0.1.0", path: "/site/v0.1.0/" },
 ];
@@ -32,8 +31,8 @@ describe("the switcher renders only on a non-root tier of a deploy", () => {
 
   // The template marks the current tier with aria-current by identity, so the
   // helper has to hand back the list's own entry, not a copy.
-  test("latest, stable, and tagged tiers show, as the list's own entry", () => {
-    for (const path of ["/site/latest/", "/site/stable/", "/site/v0.1.0/"]) {
+  test("latest and tagged tiers show, as the list's own entry", () => {
+    for (const path of ["/site/latest/", "/site/v0.1.0/"]) {
       const current = currentVersion(parsed, path);
       expect(parsed.includes(current!)).toBe(true);
       expect(showsVersionNav(current)).toBe(true);
@@ -44,7 +43,7 @@ describe("the switcher renders only on a non-root tier of a deploy", () => {
 // The tag always sits in `label`, alone, so the template can wrap exactly it in
 // dir="ltr"; a translated word never lands inside that span.
 describe("a tier's wording keeps the tag separate from the translated words", () => {
-  const words = { production: "produzione", stable: "stabile" };
+  const words = { production: "produzione" };
 
   test("root: tag then the production word in parentheses", () => {
     expect(versionText(versions[0]!, words)).toEqual({
@@ -54,16 +53,8 @@ describe("a tier's wording keeps the tag separate from the translated words", ()
     });
   });
 
-  test("stable: the stable word then the tag in parentheses", () => {
-    expect(versionText(versions[2]!, words)).toEqual({
-      before: "stabile (",
-      label: "v0.2.0",
-      after: ")",
-    });
-  });
-
   test("latest and tagged tiers: the bare label", () => {
     expect(versionText(versions[1]!, words)).toEqual({ before: "", label: "latest", after: "" });
-    expect(versionText(versions[4]!, words)).toEqual({ before: "", label: "v0.1.0", after: "" });
+    expect(versionText(versions[3]!, words)).toEqual({ before: "", label: "v0.1.0", after: "" });
   });
 });

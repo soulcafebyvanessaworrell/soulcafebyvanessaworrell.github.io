@@ -24,7 +24,6 @@ export function showsVersionNav(current: VersionEntry | undefined): current is V
 
 export interface VersionWords {
   production: string;
-  stable: string;
 }
 
 /** A tier's wording in three parts, so the template can isolate the tag with
@@ -38,7 +37,5 @@ export interface VersionText {
 export function versionText(entry: VersionEntry, words: VersionWords): VersionText {
   if (entry.kind === "root")
     return { before: "", label: entry.label, after: ` (${words.production})` };
-  if (entry.kind === "stable")
-    return { before: `${words.stable} (`, label: entry.label, after: ")" };
   return { before: "", label: entry.label, after: "" };
 }

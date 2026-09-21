@@ -1,4 +1,4 @@
-// Builds every published tier (root, latest/, stable/, vX.Y.Z/) into one GitHub Pages artifact
+// Builds every published tier (root, latest/, vX.Y.Z/) into one GitHub Pages artifact
 // directory, each from `git archive` of its ref, plus versions.json; planTiers decides the tiers.
 import {
   cpSync,
@@ -13,7 +13,7 @@ import os from "node:os";
 import path from "node:path";
 import { parseArgs } from "node:util";
 
-export type TierKind = "root" | "latest" | "stable" | "version";
+export type TierKind = "root" | "latest" | "version";
 
 export interface Tier {
   kind: TierKind;
@@ -74,7 +74,6 @@ export function planTiers(tags: string[]): Tier[] {
       : { kind: "root", label: "latest", ref: "HEAD", rel: "" },
     { kind: "latest", label: "latest", ref: "HEAD", rel: "latest/" },
   ];
-  if (newest) tiers.push({ kind: "stable", label: newest, ref: newest, rel: "stable/" });
   for (const tag of kept) tiers.push({ kind: "version", label: tag, ref: tag, rel: `${tag}/` });
   return tiers;
 }

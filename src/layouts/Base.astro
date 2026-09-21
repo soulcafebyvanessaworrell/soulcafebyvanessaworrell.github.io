@@ -54,7 +54,7 @@ const locale = localeFromUrl(Astro.url);
 const pagePath = pagePathFromUrl(Astro.url);
 const meta = localeMeta(locale);
 
-// Non-root tiers (latest/, stable/, vX.Y.Z/) are noindex site-wide (read at
+// Non-root tiers (latest/, vX.Y.Z/) are noindex site-wide (read at
 // build time from the env the deploy sets). Any page can also opt in via the `noindex` prop.
 const staging = Boolean(process.env.ASTRO_STAGING);
 const robotsNoindex = noindex || staging;

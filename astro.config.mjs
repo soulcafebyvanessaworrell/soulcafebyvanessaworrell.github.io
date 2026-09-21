@@ -6,7 +6,7 @@ import { DEFAULT_LOCALE, LOCALE_TABLE, LOCALES } from "./src/i18n/locales.ts";
 import { DEV_PORT, PREVIEW_PORT, SITE_BASE, SITE_ORIGIN } from "./src/lib/constants.ts";
 
 // The deploy passes ASTRO_SITE and ASTRO_BASE to every build, and the non-root tiers (latest/,
-// stable/, vX.Y.Z/) add ASTRO_STAGING=1 (noindex + no sitemap). Local dev, tests, and Lighthouse
+// vX.Y.Z/) add ASTRO_STAGING=1 (noindex + no sitemap). Local dev, tests, and Lighthouse
 // use the defaults in constants.ts. SITE_BASE has already normalized ASTRO_BASE (leading/trailing
 // slash), so consume it directly rather than re-reading the raw env.
 const staging = Boolean(process.env.ASTRO_STAGING);
