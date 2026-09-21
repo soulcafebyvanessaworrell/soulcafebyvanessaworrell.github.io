@@ -13,4 +13,4 @@ bunx lint-staged
 # The full gates CI also runs; catch failures before they leave the machine
 bun run lint
 bun run typecheck
-bun run test
+I18N_REQUIRE_TRANSLATED=1 bun run test

@@ -14,6 +14,8 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
+  // A test that passes only on its retry is flaky, and in CI that is a failure, not a pass.
+  failOnFlakyTests: !!process.env.CI,
   reporter: process.env.CI ? [["list"], ["html", { open: "never" }]] : "list",
   // Routes in the spec carry the full base path (e.g. <base>/about/), so the
   // baseURL is just the origin. Keeping the base out of baseURL avoids the
