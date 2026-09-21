@@ -1,0 +1,31 @@
+---
+// Learning: not built yet. Page title, a teaser about workshops/trainings/
+// psychoeducation, and an invitation to collaborate (linking to Contact), then
+// the shared "Coming soon" band.
+import ComingSoon from "../../components/ComingSoon.astro";
+import ScriptHeading from "../../components/ScriptHeading.astro";
+import { localizePath } from "../../i18n/locales";
+import { localeStaticPaths } from "../../i18n/routes";
+import { pages, t } from "../../i18n/ui";
+import Base from "../../layouts/Base.astro";
+
+export const getStaticPaths = localeStaticPaths;
+
+const { locale } = Astro.props;
+const copy = pages(locale).learning;
+const linkClass =
+  "font-semibold text-ink underline decoration-2 underline-offset-2 transition-colors hover:text-coral-bright";
+---
+
+<Base title={copy.meta.title} description={copy.meta.description} active="learning">
+  <section class="mx-auto max-w-2xl px-5 py-16 text-center sm:py-20">
+    <ScriptHeading level={1}>{copy.title}</ScriptHeading>
+    <p class="mt-6 text-lg leading-relaxed text-ink/90">{copy.intro}</p>
+    <p class="mt-4 text-lg leading-relaxed text-ink/90">
+      {copy.collabQuestion}{" "}
+      <a href={localizePath("contact/", locale)} class={linkClass}>{t(locale, "contact_us")}</a>{copy.collabEnd}
+    </p>
+  </section>
+
+  <ComingSoon color="periwinkle" locale={locale} />
+</Base>

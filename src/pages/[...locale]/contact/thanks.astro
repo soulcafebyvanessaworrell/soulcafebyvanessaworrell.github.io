@@ -1,0 +1,31 @@
+---
+// Contact thank-you page. FormSubmit redirects here on a successful send (see
+// the _next field in ContactForm). noindex: it's a post-action confirmation,
+// not a page to surface in search.
+import { Icon } from "astro-icon/components";
+import PillButton from "../../../components/PillButton.astro";
+import ScriptHeading from "../../../components/ScriptHeading.astro";
+import { localizePath } from "../../../i18n/locales";
+import { localeStaticPaths } from "../../../i18n/routes";
+import { pages, t } from "../../../i18n/ui";
+import Base from "../../../layouts/Base.astro";
+
+export const getStaticPaths = localeStaticPaths;
+
+const { locale } = Astro.props;
+const copy = pages(locale).thanks;
+---
+
+<Base title={copy.meta.title} description={copy.meta.description} noindex>
+  <section class="mx-auto flex max-w-2xl flex-col items-center gap-6 px-5 py-24 text-center sm:py-32">
+    <Icon name="lucide:heart-handshake" class="h-14 w-14 text-coral" aria-hidden="true" />
+    <ScriptHeading level={1}>{copy.title}</ScriptHeading>
+    <p class="max-w-lg text-lg leading-relaxed text-soft">{copy.body}</p>
+    <div class="mt-2 flex flex-wrap items-center justify-center gap-3">
+      <PillButton href={localizePath("", locale)} variant="cream">{t(locale, "back_home")}</PillButton>
+      <PillButton href={localizePath("book/", locale)} variant="indigo">
+        {t(locale, "book_session")}
+      </PillButton>
+    </div>
+  </section>
+</Base>

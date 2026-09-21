@@ -1,0 +1,52 @@
+---
+// The six cream nav pills in the script face, one visual family. Rendered as a
+// wrapping row in the desktop action bar (compact) and inside the mobile menu
+// panel (default size). The active section reads as "selected" through a deeper
+// cream fill and aria-current, not a colored ring, so it never competes with
+// the CTAs.
+import type { SiteLocale } from "../i18n/locales";
+import { localizePath } from "../i18n/locales";
+import { t } from "../i18n/ui";
+import { NAV_ITEMS } from "../lib/nav";
+
+interface Props {
+  active?: string;
+  locale: SiteLocale;
+  size?: "default" | "compact";
+  class?: string;
+}
+
+const { active = "", locale, size = "default", class: klass = "" } = Astro.props;
+
+// Both sizes stay at text-lg (18px): Dancing Script turns illegible below that.
+// Compact only trims horizontal padding so the desktop bar fits; if it must,
+// the row wraps rather than shrinking the type.
+const sizeClass = size === "compact" ? "px-3.5 py-2 text-lg" : "px-5 py-2 text-lg";
+---
+
+<nav aria-label={t(locale, "primary_navigation")} class:list={[klass]}>
+  <ul class="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5">
+    {
+      NAV_ITEMS.map((item) => {
+        const current = item.id === active;
+        return (
+          <li>
+            <a
+              href={localizePath(item.path, locale)}
+              aria-current={current ? "page" : undefined}
+              class:list={[
+                "nav-pill tap inline-flex min-h-[2.75rem] items-center whitespace-nowrap rounded-full border font-script font-bold text-ink shadow-[var(--shadow-card)] transition-[transform,background-color,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-lift)]",
+                sizeClass,
+                current
+                  ? "border-ink/15 bg-cream-deep"
+                  : "border-ink/10 bg-cream/70 hover:bg-cream",
+              ]}
+            >
+              {t(locale, item.key)}
+            </a>
+          </li>
+        );
+      })
+    }
+  </ul>
+</nav>

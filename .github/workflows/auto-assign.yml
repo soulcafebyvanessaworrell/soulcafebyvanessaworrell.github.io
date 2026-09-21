@@ -1,0 +1,29 @@
+name: Auto Assign
+
+# Requests the code-owner team's review on every newly opened PR, through
+# assign-pr.yml (which also serves the release flow). Under the organization the
+# code owner is a team, and that removed three assignments the personal-repo
+# version made:
+# - PR assignee: GitHub assigns users only; the org login and the team get a 422.
+# - Issue assignee: the same rule, and no team can be an issue assignee.
+# - Code-scanning alert assignee: alert assignees are users only; there is no
+#   team API, so the CodeQL and weekly triggers that fed it are gone too.
+on:
+  pull_request:
+    types: [opened]
+
+jobs:
+  request-review:
+    # Dependabot and fork PR runs get a read-only GITHUB_TOKEN; the review request
+    # would fail, so skip them.
+    if: >-
+      github.actor != 'dependabot[bot]' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: ./.github/workflows/assign-pr.yml
+    with:
+      # The input is a string, matching release-please's output; the event field
+      # is a number.
+      pr_number: ${{ format('{0}', github.event.pull_request.number) }}

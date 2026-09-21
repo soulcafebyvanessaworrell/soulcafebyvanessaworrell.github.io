@@ -1,0 +1,164 @@
+---
+// Packages: session prices in INR, USD, and GBP on one white band, then the
+// unchanged discount band. The currency switch is three radios revealed by CSS
+// :has() (styles.css, "Currency switch"), so it works with JavaScript off.
+// Numbers come from src/lib/pricing.ts; every word comes from the dictionary.
+import FeatureGrid from "../../components/FeatureGrid.astro";
+import FeatureItem from "../../components/FeatureItem.astro";
+import PillButton from "../../components/PillButton.astro";
+import ScriptHeading from "../../components/ScriptHeading.astro";
+import SectionBand from "../../components/SectionBand.astro";
+import { localeMeta, localizePath } from "../../i18n/locales";
+import { localeStaticPaths } from "../../i18n/routes";
+import { pages, t } from "../../i18n/ui";
+import Base from "../../layouts/Base.astro";
+import {
+  BOOKING_LINK,
+  CURRENCIES,
+  DEFAULT_CURRENCY,
+  formatNumber,
+  formatPrice,
+  hoursAndMinutes,
+  PRICING,
+  SESSION_TYPES,
+} from "../../lib/pricing";
+import { zipLabels } from "../../lib/zipLabels";
+
+export const getStaticPaths = localeStaticPaths;
+
+const { locale } = Astro.props;
+const copy = pages(locale).packages;
+const { dateLocale } = localeMeta(locale);
+
+const description = copy.meta.description.replace(
+  "{price}",
+  formatPrice(PRICING.individual.single[DEFAULT_CURRENCY], DEFAULT_CURRENCY, dateLocale),
+);
+
+function duration(minutes: number): string {
+  const split = hoursAndMinutes(minutes);
+  const n = (value: number) => formatNumber(value, dateLocale);
+  return split.hours === 0
+    ? copy.duration.minutes.replace("{n}", n(split.minutes))
+    : copy.duration.hours.replace("{h}", n(split.hours)).replace("{m}", n(split.minutes));
+}
+
+const clusters = SESSION_TYPES.map((type) => {
+  const { minutes, single, package: pack } = PRICING[type];
+  return {
+    type,
+    label: copy.types[type],
+    duration: duration(minutes),
+    rows: [
+      { label: copy.single, price: single, pill: undefined },
+      { label: copy.package, price: pack, pill: copy.packagePill },
+    ],
+    href: BOOKING_LINK[type],
+  };
+});
+
+const discounts = zipLabels(copy.discounts, [
+  "lucide:backpack",
+  "lucide:graduation-cap",
+  "lucide:shield",
+  "lucide:medal",
+  "lucide:person-standing",
+]);
+---
+
+<Base title={copy.meta.title} description={description} active="packages">
+  <SectionBand color="white">
+    <div class="currency-switch mx-auto max-w-2xl">
+      <ScriptHeading level={1} class="text-center">{copy.heading}</ScriptHeading>
+      <p class="mt-6 text-center text-lg leading-relaxed text-ink/90">{copy.intro}</p>
+
+      {/* pr-16 below sm, here and on each price row, is physical on purpose: the
+          WhatsApp float is pinned bottom-right in every language, and the pills
+          and rows would otherwise pass under it on a phone. */}
+      <fieldset class="mt-8 pr-16 text-center sm:pr-0">
+        <legend class="mx-auto mb-3 text-sm text-soft">{copy.currencyLabel}</legend>
+        <div class="flex flex-wrap items-center justify-center gap-3">
+          {
+            CURRENCIES.map((currency) => (
+              <div>
+                <input
+                  type="radio"
+                  name="currency"
+                  id={`currency-${currency.toLowerCase()}`}
+                  value={currency}
+                  checked={currency === DEFAULT_CURRENCY}
+                  class="peer sr-only"
+                />
+                <label
+                  for={`currency-${currency.toLowerCase()}`}
+                  class="pill tap cursor-pointer border border-ink/12 bg-paper text-ink peer-checked:border-cream-deep peer-checked:bg-cream-deep peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-ink"
+                >
+                  <span class="font-sans text-base font-bold">{currency}</span>
+                  <span class="sr-only">{copy.currencyNames[currency]}</span>
+                </label>
+              </div>
+            ))
+          }
+        </div>
+      </fieldset>
+
+      <div class="mt-12 divide-y divide-ink/10">
+        {
+          clusters.map((cluster) => (
+            <section class="py-10 first:pt-0 last:pb-0" id={cluster.type}>
+              <div class="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+                <ScriptHeading level={2}>{cluster.label}</ScriptHeading>
+                <p class="text-soft">{cluster.duration}</p>
+              </div>
+
+              <ul class="mt-6 flex flex-col gap-4">
+                {cluster.rows.map((row) => (
+                  <li class="grid grid-cols-[1fr_auto] items-center gap-x-4 pr-16 sm:pr-0">
+                    <div class="flex flex-col items-start gap-y-1 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-3">
+                      <span class="text-lg font-bold">{row.label}</span>
+                      {row.pill && <span class="pill-coral rounded-full px-3 py-1 text-sm font-bold">{row.pill}</span>}
+                    </div>
+                    <span class="text-end text-3xl font-bold text-ink tabular-nums">
+                      {CURRENCIES.map((currency) => (
+                        <span
+                          data-currency={currency}
+                          class:list={[currency !== DEFAULT_CURRENCY && "hidden"]}
+                        >
+                          {formatPrice(row.price[currency], currency, dateLocale)}
+                        </span>
+                      ))}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+
+              <div class="mt-6">
+                <PillButton href={cluster.href} variant="indigo" external>
+                  {t(locale, "book_session")}
+                </PillButton>
+              </div>
+            </section>
+          ))
+        }
+      </div>
+
+      <div class="mt-14 text-center">
+        <p class="text-soft">{copy.packagesNote}</p>
+        <div class="mt-4 flex flex-wrap items-center justify-center gap-3">
+          <PillButton href={localizePath("contact/", locale)} variant="coral">
+            {copy.askPackage}
+          </PillButton>
+          <PillButton href={`${localizePath("book/", locale)}#consultation`} variant="cream">
+            {t(locale, "free_consultation")}
+          </PillButton>
+        </div>
+      </div>
+    </div>
+  </SectionBand>
+
+  <SectionBand color="coral" heading={copy.discountHeading}>
+    <FeatureGrid>
+      {discounts.map((item) => <FeatureItem label={item.label} icon={item.icon} />)}
+    </FeatureGrid>
+  </SectionBand>
+</Base>

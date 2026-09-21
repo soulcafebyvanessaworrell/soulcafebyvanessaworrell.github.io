@@ -1,0 +1,19 @@
+---
+// A single feature: an astro-icon glyph over a short label. `icon` is a full
+// astro-icon name, e.g. "lucide:heart-handshake". Lives inside a FeatureGrid.
+import { Icon } from "astro-icon/components";
+
+interface Props {
+  label: string;
+  icon: string;
+  /** Icon tint; defaults to coral to match the mockup's warm glyphs. */
+  iconClass?: string;
+}
+
+const { label, icon, iconClass = "text-coral" } = Astro.props;
+---
+
+<li class="flex max-w-[12rem] flex-col items-center gap-3 text-center" data-reveal>
+  <Icon name={icon} class:list={["feature-icon h-11 w-11", iconClass]} aria-hidden="true" />
+  <span class="feature-label text-base font-bold leading-snug text-ink">{label}</span>
+</li>

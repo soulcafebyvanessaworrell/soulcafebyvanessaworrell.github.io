@@ -1,0 +1,106 @@
+---
+// Book a Session. The one-on-one booking card leads full width on a white band,
+// couples and family follow as a pair, then a reassuring free-consultation card
+// on coral for anyone not ready to commit, closing with a trust line pointing to
+// Contact for booking trouble. Each card links out to Google Calendar via
+// BookingCard's external button; the "from" line quotes the single-session INR
+// price from src/lib/pricing.ts.
+import { Icon } from "astro-icon/components";
+import BookingCard from "../../components/BookingCard.astro";
+import ScriptHeading from "../../components/ScriptHeading.astro";
+import SectionBand from "../../components/SectionBand.astro";
+import { localeMeta, localizePath } from "../../i18n/locales";
+import { localeStaticPaths } from "../../i18n/routes";
+import { pages, t } from "../../i18n/ui";
+import Base from "../../layouts/Base.astro";
+import { BOOKING } from "../../lib/constants";
+import {
+  BOOKING_LINK,
+  DEFAULT_CURRENCY,
+  formatNumber,
+  formatPrice,
+  PRICING,
+  SESSION_TYPES,
+  type SessionType,
+} from "../../lib/pricing";
+
+export const getStaticPaths = localeStaticPaths;
+
+const { locale } = Astro.props;
+const copy = pages(locale).book;
+const { dateLocale } = localeMeta(locale);
+
+/** The card copy with its numbers filled from PRICING. */
+function card(type: SessionType): { title: string; description: string; note: string } {
+  const { minutes, single } = PRICING[type];
+  return {
+    title: copy.cards[type].title,
+    description: copy.cards[type].description.replace(
+      "{minutes}",
+      formatNumber(minutes, dateLocale),
+    ),
+    note: copy.from.replace(
+      "{price}",
+      formatPrice(single[DEFAULT_CURRENCY], DEFAULT_CURRENCY, dateLocale),
+    ),
+  };
+}
+
+const featured: SessionType = "individual";
+const rest = SESSION_TYPES.filter((type) => type !== featured);
+---
+
+<Base title={copy.meta.title} description={copy.meta.description}>
+  <SectionBand color="white">
+    <ScriptHeading level={1} class="mb-4 text-center">{copy.title}</ScriptHeading>
+    <p class="mx-auto mb-10 max-w-2xl text-center text-lg leading-relaxed text-soft">
+      {copy.description}
+    </p>
+    <BookingCard
+      {...card(featured)}
+      url={BOOKING_LINK[featured]}
+      ctaLabel={t(locale, "book_session")}
+      embedTitle={copy.sessionEmbed}
+      locale={locale}
+    />
+    <div class="mx-auto mt-6 grid max-w-2xl gap-6 md:grid-cols-2 lg:max-w-4xl">
+      {
+        rest.map((type) => (
+          <BookingCard
+            {...card(type)}
+            url={BOOKING_LINK[type]}
+            ctaLabel={t(locale, "book_session")}
+            locale={locale}
+          />
+        ))
+      }
+    </div>
+  </SectionBand>
+
+  <SectionBand color="coral" heading={copy.consultBand} id="consultation" class="scroll-mt-24">
+    <p class="mx-auto mb-10 max-w-2xl text-center text-lg leading-relaxed text-ink">
+      {copy.consultLead}
+    </p>
+    <BookingCard
+      title={copy.consultTitle}
+      description={copy.consultDesc}
+      url={BOOKING.consultation}
+      ctaLabel={t(locale, "free_consultation")}
+      embedTitle={copy.consultEmbed}
+      titleLevel={3}
+      locale={locale}
+    />
+  </SectionBand>
+
+  <SectionBand color="white">
+    <p class="flex flex-col items-center justify-center gap-2 text-center text-soft sm:flex-row">
+      <span>
+        <Icon name="lucide:video" class="me-2 inline-block h-5 w-5 align-middle text-periwinkle-deep" aria-hidden="true" />
+        {copy.trouble}
+      </span>
+      <a class="tap font-bold text-periwinkle-deep hover:underline" href={localizePath("contact/", locale)}>
+        {t(locale, "contact_us")}
+      </a>
+    </p>
+  </SectionBand>
+</Base>

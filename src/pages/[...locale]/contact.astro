@@ -1,0 +1,40 @@
+---
+// Contact Us. The contact form on a white band, then a periwinkle "Reach out
+// for" band that sets expectations for what people write in about: booking
+// trouble, jobs/internships/volunteering, and collaboration on workshops and
+// trainings.
+import ContactForm from "../../components/ContactForm.astro";
+import FeatureGrid from "../../components/FeatureGrid.astro";
+import FeatureItem from "../../components/FeatureItem.astro";
+import ScriptHeading from "../../components/ScriptHeading.astro";
+import SectionBand from "../../components/SectionBand.astro";
+import { localeStaticPaths } from "../../i18n/routes";
+import { pages } from "../../i18n/ui";
+import Base from "../../layouts/Base.astro";
+
+export const getStaticPaths = localeStaticPaths;
+
+const { locale } = Astro.props;
+const copy = pages(locale).contact;
+---
+
+<Base title={copy.meta.title} description={copy.meta.description}>
+  <SectionBand color="white">
+    <ScriptHeading level={1} class="mb-4 text-center">{copy.title}</ScriptHeading>
+    <p class="mx-auto mb-10 max-w-2xl text-center text-lg leading-relaxed text-soft">{copy.intro}</p>
+    <ContactForm locale={locale} />
+  </SectionBand>
+
+  <SectionBand color="periwinkle" heading={copy.reachBand}>
+    <FeatureGrid class="mx-auto max-w-md">
+      <FeatureItem label={copy.bookings} icon="lucide:calendar-clock" />
+      <FeatureItem label={copy.jobs} icon="lucide:briefcase" />
+    </FeatureGrid>
+
+    <p class="mt-12 mb-6 text-center font-script text-2xl font-bold text-ink">{copy.collabKicker}</p>
+    <FeatureGrid class="mx-auto max-w-md">
+      <FeatureItem label={copy.workshops} icon="lucide:presentation" />
+      <FeatureItem label={copy.trainings} icon="lucide:users" />
+    </FeatureGrid>
+  </SectionBand>
+</Base>

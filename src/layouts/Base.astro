@@ -1,0 +1,181 @@
+---
+import "../styles/fonts.css";
+import "../styles.css";
+import { ClientRouter } from "astro:transitions";
+import Footer from "../components/Footer.astro";
+import Header from "../components/Header.astro";
+import WhatsAppFloat from "../components/WhatsAppFloat.astro";
+import {
+  alternateUrls,
+  DEFAULT_LOCALE,
+  htmlLang,
+  LOCALES,
+  localeFromUrl,
+  localeMeta,
+  pagePathFromUrl,
+  type SiteLocale,
+} from "../i18n/locales";
+import { pages, t } from "../i18n/ui";
+import { CONTACT, PUBLISHED_SOCIALS, SITE_BASE, SITE_TITLE } from "../lib/constants";
+import { formatPrice, OFFERS } from "../lib/pricing";
+
+interface Props {
+  title: string;
+  description: string;
+  active?: string;
+  /** Force a noindex robots tag on this page (e.g. the contact thank-you). */
+  noindex?: boolean;
+  /** Locales in which this page exists. Defaults to all of them; a page with
+   *  translations missing (a blog post) narrows it, so hreflang alternates and
+   *  the language picker never point at a URL that 404s. */
+  available?: readonly SiteLocale[];
+  /** Where the language picker sends a locale not in `available` (e.g. "blog/"
+   *  for an untranslated post). Locale-relative; defaults to the home page. */
+  fallbackPath?: string;
+  /** Suppress the floating WhatsApp button. Auto-on for the contact and book
+   *  pages (they carry their own contact CTAs and the float overlaps the form /
+   *  booking card); any page can also force it off. */
+  hideWhatsApp?: boolean;
+}
+
+const {
+  title,
+  description,
+  active = "",
+  noindex = false,
+  available = LOCALES,
+  fallbackPath = "",
+  hideWhatsApp,
+} = Astro.props;
+
+const base = import.meta.env.BASE_URL;
+const locale = localeFromUrl(Astro.url);
+const pagePath = pagePathFromUrl(Astro.url);
+const meta = localeMeta(locale);
+
+// Non-root tiers (latest/, stable/, vX.Y.Z/) are noindex site-wide (read at
+// build time from the env the deploy sets). Any page can also opt in via the `noindex` prop.
+const staging = Boolean(process.env.ASTRO_STAGING);
+const robotsNoindex = noindex || staging;
+
+const fullTitle = `${title} · The Soul Cafe`;
+const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site) : undefined;
+// Social preview + JSON-LD logo: the 512px icon in public/, absolute.
+const ogImage = Astro.site ? new URL(`${base}icon-512.png`, Astro.site).href : undefined;
+
+// hreflang alternates. Non-root tiers are noindex, so alternates there would be
+// misleading; skip them.
+const alternates = robotsNoindex ? [] : alternateUrls(pagePath, Astro.site, available);
+
+// The contact and book pages carry their own prominent contact CTAs, and the
+// float overlaps their form / booking card, so hide it there by default.
+const showWhatsApp = !hideWhatsApp && !["contact/", "book/"].includes(pagePath);
+
+// Structured data as a @graph: one stable business entity (same @id and home
+// URL on every page, so crawlers see a single ProfessionalService) plus a
+// per-page WebPage that references it. sameAs lists only published socials, so
+// placeholder profiles never enter the identity claim. availableLanguage is
+// derived from LOCALES so a new locale extends it automatically.
+const homeUrl = Astro.site ? new URL(SITE_BASE, Astro.site).href : undefined;
+const businessId = homeUrl ? `${homeUrl}#business` : undefined;
+const sameAs = PUBLISHED_SOCIALS.map((s) => s.url);
+// Offers are structured data in INR only, named in the default locale whatever
+// the page language: search engines key offers on the business, not the page.
+const inrPrices = OFFERS.map((offer) => offer.price.INR);
+const inr = (amount: number) => formatPrice(amount, "INR", localeMeta(DEFAULT_LOCALE).dateLocale);
+const priceRange = `${inr(Math.min(...inrPrices))} - ${inr(Math.max(...inrPrices))}`;
+const { types, single, package: sixSessions } = pages(DEFAULT_LOCALE).packages;
+const makesOffer = OFFERS.map((offer) => ({
+  "@type": "Offer",
+  name: `${types[offer.type]}, ${(offer.sessions === 1 ? single : sixSessions).toLowerCase()}`,
+  price: String(offer.price.INR),
+  priceCurrency: "INR",
+}));
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "ProfessionalService",
+      ...(businessId ? { "@id": businessId } : {}),
+      name: SITE_TITLE,
+      ...(homeUrl ? { url: homeUrl } : {}),
+      ...(ogImage ? { image: ogImage, logo: ogImage } : {}),
+      telephone: CONTACT.phone,
+      email: CONTACT.email,
+      availableLanguage: LOCALES.map((l) => htmlLang(l)),
+      founder: {
+        "@type": "Person",
+        name: "Vanessa Worrell",
+        honorificSuffix: "M.A.",
+        jobTitle: "Psychotherapist",
+      },
+      priceRange,
+      makesOffer,
+      ...(sameAs.length > 0 ? { sameAs } : {}),
+    },
+    {
+      "@type": "WebPage",
+      ...(canonical ? { "@id": canonical.href, url: canonical.href } : {}),
+      name: fullTitle,
+      description,
+      inLanguage: htmlLang(locale),
+      ...(businessId ? { isPartOf: { "@id": businessId }, about: { "@id": businessId } } : {}),
+    },
+  ],
+};
+---
+
+<!doctype html>
+<html lang={meta.htmlLang} dir={meta.dir} data-script={meta.script}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#a9efe3" />
+    {robotsNoindex && <meta name="robots" content="noindex" />}
+
+    <title>{fullTitle}</title>
+    {canonical && <link rel="canonical" href={canonical.href} />}
+    {alternates.map((alt) => <link rel="alternate" hreflang={alt.hreflang} href={alt.href} />)}
+
+    {/* Open Graph / Twitter */}
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE_TITLE} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    {canonical && <meta property="og:url" content={canonical.href} />}
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    {ogImage && <meta name="twitter:image" content={ogImage} />}
+
+    {/* Icons + manifest */}
+    <link rel="icon" type="image/png" sizes="32x32" href={`${base}favicon-32.png`} />
+    <link rel="icon" type="image/png" sizes="16x16" href={`${base}favicon-16.png`} />
+    <link rel="apple-touch-icon" sizes="180x180" href={`${base}apple-touch-icon.png`} />
+    <link rel="manifest" href={`${base}site.webmanifest`} />
+
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />
+
+    {/* Per-page head extras (LCP preloads, page-specific meta). */}
+    <slot name="head" />
+
+    <ClientRouter />
+  </head>
+  <body>
+    <a
+      href="#main"
+      class="sr-only rounded-lg bg-periwinkle-deep font-bold text-paper focus:not-sr-only focus:absolute focus:start-3 focus:top-3 focus:z-50 focus:px-4 focus:py-2"
+    >
+      {t(locale, "skip_to_content")}
+    </a>
+    <Header active={active} locale={locale} available={available} fallbackPath={fallbackPath} />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer locale={locale} />
+    {showWhatsApp && <WhatsAppFloat locale={locale} />}
+    <script src="../scripts/site.ts"></script>
+  </body>
+</html>

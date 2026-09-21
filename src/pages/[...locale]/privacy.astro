@@ -1,0 +1,63 @@
+---
+// Privacy: an honest, minimal policy for a static site. No account system, no
+// cookies, no analytics. The only data flows are the contact form (FormSubmit)
+// and off-site bookings (Google Calendar). Plain-language sections; the two
+// paragraphs that carry an inline link are split around it in the dictionary.
+import ScriptHeading from "../../components/ScriptHeading.astro";
+import { localeStaticPaths } from "../../i18n/routes";
+import { pages } from "../../i18n/ui";
+import Base from "../../layouts/Base.astro";
+import { CONTACT } from "../../lib/constants";
+
+export const getStaticPaths = localeStaticPaths;
+
+const { locale } = Astro.props;
+const copy = pages(locale).privacy;
+
+const linkClass =
+  "font-semibold text-ink underline decoration-2 underline-offset-2 transition-colors hover:text-coral-bright";
+---
+
+<Base title={copy.meta.title} description={copy.meta.description}>
+  <section class="mx-auto max-w-xl px-5 py-16 sm:py-20">
+    <ScriptHeading level={1} class="text-center">{copy.title}</ScriptHeading>
+    <p class="mt-3 text-center text-sm text-ink/60">{copy.updated}</p>
+
+    <div class="mt-12 flex flex-col gap-8 text-lg leading-relaxed text-ink/90">
+      <div>
+        <h2 class="text-xl font-bold text-ink">{copy.cookies.heading}</h2>
+        <p class="mt-2">{copy.cookies.body}</p>
+      </div>
+
+      <div>
+        <h2 class="text-xl font-bold text-ink">{copy.form.heading}</h2>
+        <p class="mt-2">
+          {copy.form.bodyBefore}<a
+            href="https://formsubmit.co/privacy"
+            class={linkClass}
+            target="_blank"
+            rel="noopener noreferrer">{copy.form.linkLabel}</a
+          >{copy.form.bodyAfter}
+        </p>
+      </div>
+
+      <div>
+        <h2 class="text-xl font-bold text-ink">{copy.bookings.heading}</h2>
+        <p class="mt-2">{copy.bookings.body}</p>
+      </div>
+
+      <div>
+        <h2 class="text-xl font-bold text-ink">{copy.links.heading}</h2>
+        <p class="mt-2">{copy.links.body}</p>
+      </div>
+
+      <div>
+        <h2 class="text-xl font-bold text-ink">{copy.questions.heading}</h2>
+        <p class="mt-2">
+          {copy.questions.bodyBefore}<a href={`mailto:${CONTACT.email}`} class={linkClass} dir="ltr">{CONTACT.email}</a
+          >{copy.questions.bodyAfter}
+        </p>
+      </div>
+    </div>
+  </section>
+</Base>

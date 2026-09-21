@@ -1,0 +1,633 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+@plugin "@tailwindcss/forms";
+
+/* ---------------------------------------------------------------------------
+   Design tokens: The Soul Cafe, a warm, pastel psychotherapy practice.
+   Soft mint / periwinkle / coral bands, cream nav pills, a script display
+   face (Dancing Script) over a humanist body face (PT Sans). No dark mode:
+   the brand is a single bright, airy palette.
+
+   CONTRAST RULE: on the periwinkle and coral bands, body text is INK (dark),
+   never white. White script headings are only acceptable at large display
+   sizes. Every band pairs its background with an ink-based text token that
+   clears ~4.5:1 for body copy.
+   --------------------------------------------------------------------------- */
+@theme {
+  /* Brand pastels */
+  --color-mint: #a9efe3;
+  --color-mint-deep: #8fe6d6; /* slightly deeper mint for large bands */
+  --color-periwinkle: #98a4e8;
+  --color-periwinkle-deep: #4f59b5; /* indigo primary + tagline; AA on white (6.1) and mint (4.7) */
+  --color-coral: #f0906e;
+  --color-coral-bright: #f4906a;
+  --color-cream: #fbe7c6;
+  --color-cream-deep: #f4d6a2; /* selected nav pill */
+
+  /* Section-band surfaces: gentle pastel tints, kept separate from the
+     saturated pills above so buttons stay bold while bands stay soft. Each
+     band pairs its surface with one deep same-hue tone (on-*) used for
+     headings, feature labels, and icons, so a band reads as one hue family
+     plus neutral body text. All pairings measure WCAG AA (see the band block
+     below). Mint is already light, so it reuses --color-mint as its surface. */
+  --color-periwinkle-band: #e6e8fb;
+  --color-coral-band: #fbe1d4;
+  --color-on-periwinkle: #363c6b; /* deep indigo */
+  --color-on-coral: #7c3b26; /* deep rust */
+  --color-on-mint: #17554b; /* deep teal */
+
+  /* Ink ramp */
+  --color-ink: #262220;
+  --color-soft: #57534e;
+  --color-paper: #ffffff;
+
+  /* Type. Every body stack leads with Rupee Sign, then PT Sans and the page's
+     own script face (the Arabic scripts swap those two, see their rules), then
+     the shared Noto list. Each @font-face carries a unicode-range
+     (src/styles/fonts.css), so a browser pulls only the faces a page's text
+     needs. Latin runs render in PT Sans on every locale (inside dir="ltr" on
+     the Arabic-script pages); a script's text falls through to its own face
+     glyph by glyph. Kalam is a Devanagari + Latin
+     handwriting face: it carries the script personality into Hindi headings,
+     where Dancing Script (Latin only) would fall back to a plain sans. */
+  --font-noto:
+    "Noto Sans Devanagari", "Noto Sans Bengali", "Noto Sans Tamil", "Noto Sans Telugu",
+    "Noto Sans Kannada", "Noto Sans Malayalam", "Noto Sans Oriya", "Noto Sans Gujarati",
+    "Noto Sans Gurmukhi", "Noto Sans Ol Chiki", "Noto Nastaliq Urdu", "Noto Naskh Arabic";
+  --font-script: "Dancing Script Variable", "Kalam", var(--font-noto), cursive;
+  --font-sans: "Rupee Sign", "PT Sans", var(--font-noto), ui-sans-serif, system-ui, sans-serif;
+
+  /* Strong custom curve; built-in easings are too weak */
+  --ease-snap: cubic-bezier(0.23, 1, 0.32, 1);
+
+  /* Layered soft shadows: 1px ring + two depths, tuned warm */
+  --shadow-card:
+    0 0 0 1px rgb(38 34 32 / 0.04), 0 1px 2px -1px rgb(38 34 32 / 0.06),
+    0 2px 8px rgb(38 34 32 / 0.05);
+  --shadow-lift:
+    0 0 0 1px rgb(38 34 32 / 0.05), 0 2px 4px -2px rgb(38 34 32 / 0.08),
+    0 14px 28px -10px rgb(38 34 32 / 0.16);
+
+  /* Fluid script display sizes (clamp: min, preferred vw, max) */
+  --text-script-1: clamp(2.25rem, 1.4rem + 4vw, 3.75rem);
+  --text-script-2: clamp(1.75rem, 1.2rem + 2.6vw, 2.75rem);
+  --text-script-3: clamp(1.375rem, 1.05rem + 1.5vw, 2rem);
+}
+
+/* ---------------------------------------------------------------------------
+   Base
+   --------------------------------------------------------------------------- */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* PT Sans predates the rupee sign's Unicode slot and draws a ruble-like glyph
+   at U+20B9, so "₹1,500" on a Latin-script page came out as "₽1,500". This
+   one-character face borrows Noto Sans Devanagari's ₹ and leads every
+   --font-sans stack, the per-script overrides included, so the font-sans
+   utility and body text agree on it. unicode-range keeps it from downloading
+   on pages without a ₹, and the files are the ones fonts.css already serves
+   for Hindi, so a reader who has seen a Hindi page pays nothing extra. */
+@font-face {
+  font-family: "Rupee Sign";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../node_modules/@fontsource/noto-sans-devanagari/files/noto-sans-devanagari-devanagari-400-normal.woff2")
+    format("woff2");
+  unicode-range: U+20B9;
+}
+
+@font-face {
+  font-family: "Rupee Sign";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../node_modules/@fontsource/noto-sans-devanagari/files/noto-sans-devanagari-devanagari-700-normal.woff2")
+    format("woff2");
+  unicode-range: U+20B9;
+}
+
+/* Kalam's handwritten digits read as letters at pill size ("15" looked like
+   "IS"), so the Devanagari display stack leads with this ten-glyph face and
+   digits inside script-face pills and headings come from PT Sans. The files
+   are the PT Sans ones fonts.css already serves for body text. */
+@font-face {
+  font-family: "Latin Digits";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../node_modules/@fontsource/pt-sans/files/pt-sans-latin-400-normal.woff2") format("woff2");
+  unicode-range: U+0030-0039;
+}
+
+@font-face {
+  font-family: "Latin Digits";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../node_modules/@fontsource/pt-sans/files/pt-sans-latin-700-normal.woff2") format("woff2");
+  unicode-range: U+0030-0039;
+}
+
+::selection {
+  background-color: color-mix(in srgb, var(--color-mint) 70%, transparent);
+  color: var(--color-ink);
+}
+
+/* Focus ring: visible on every band. The dark ink ring reads on the pastels;
+   on the dark coral/periwinkle-deep pills we swap to a paper ring below. */
+:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Controls sitting on a dark fill (coral / periwinkle-deep pills, WhatsApp
+   float) need a light ring to stay visible. */
+.on-dark :focus-visible,
+.on-dark:focus-visible {
+  outline-color: var(--color-paper);
+}
+
+/* Touch targets: expand small controls' hit area to >=44px on touch devices
+   without changing the visual layout (the pseudo-element catches the tap).
+   Must stay in the components layer: position utilities (fixed, absolute)
+   override it there. */
+@layer components {
+  @media (pointer: coarse) {
+    .tap {
+      position: relative;
+    }
+
+    .tap::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: max(100%, 44px);
+      height: max(100%, 44px);
+      transform: translate(-50%, -50%);
+    }
+  }
+}
+
+h1,
+h2,
+h3,
+h4 {
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+/* ---------------------------------------------------------------------------
+   Script display headings, the brand's signature voice.
+   --------------------------------------------------------------------------- */
+.script {
+  font-family: var(--font-script);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+}
+
+/* ---------------------------------------------------------------------------
+   Per-script type. Base.astro sets data-script on <html> from the locale table
+   (the 404 page sets it on its section once the client picks a language).
+   Latin keeps Dancing Script for display. Every other script wraps to more
+   lines and its faces sit heavier, so the display sizes step down a notch for
+   optical parity and .script gets a roomier line-height (Latin's 1.1 lets
+   three-liners collide). Devanagari has a handwriting face (Kalam); the rest
+   use their body face at 700 for headings, since no script face exists for
+   them. Each rule puts the script's own face first in --font-script (after
+   the Latin Digits face on Devanagari, and after PT Sans on Kannada, see
+   those two rules), and in --font-sans ahead of the shared Noto list, so a
+   glyph two Noto faces share takes the page's own face.
+   --------------------------------------------------------------------------- */
+[data-script]:not([data-script="latin"]) {
+  --text-script-1: clamp(2rem, 1.3rem + 3.4vw, 3.3rem);
+  --text-script-2: clamp(1.55rem, 1.1rem + 2.2vw, 2.4rem);
+  --text-script-3: clamp(1.25rem, 1rem + 1.2vw, 1.75rem);
+  font-family: var(--font-sans);
+}
+
+/* :where() keeps this at .script's own specificity, so the Nastaliq heading
+   rule below can raise it without an html prefix. */
+:where([data-script]:not([data-script="latin"])) .script {
+  line-height: 1.25;
+}
+
+[data-script="devanagari"] {
+  --font-sans: "Rupee Sign", "PT Sans", "Noto Sans Devanagari", var(--font-noto), ui-sans-serif, system-ui, sans-serif;
+  --font-script: "Latin Digits", "Kalam", "Noto Sans Devanagari", "Dancing Script Variable", cursive;
+}
+
+[data-script="bengali"] {
+  --font-sans: "Rupee Sign", "PT Sans", "Noto Sans Bengali", var(--font-noto), ui-sans-serif, system-ui, sans-serif;
+  --font-script: "Noto Sans Bengali", "PT Sans", sans-serif;
+}
+
+[data-script="tamil"] {
+  --font-sans: "Rupee Sign", "PT Sans", "Noto Sans Tamil", var(--font-noto), ui-sans-serif, system-ui, sans-serif;
+  --font-script: "Noto Sans Tamil", "PT Sans", sans-serif;
+}
+
+[data-script="telugu"] {
+  --font-sans: "Rupee Sign", "PT Sans", "Noto Sans Telugu", var(--font-noto), ui-sans-serif, system-ui, sans-serif;
+  --font-script: "Noto Sans Telugu", "PT Sans", sans-serif;
+}
+
+/* Kannada alone leads its display stack with PT Sans: Noto Sans Kannada's own
+   Latin subset paints "The Soul Cafe" hairline-thin at 700 beside the bold
+   Kannada letters, while the other Noto faces' Latin glyphs match their
+   weight. PT Sans has no Kannada glyphs, so the script still falls through to
+   its own face glyph by glyph. */
+[data-script="kannada"] {
+  --font-sans: "Rupee Sign", "PT Sans", "Noto Sans Kannada", var(--font-noto), ui-sans-serif, system-ui, sans-serif;
+  --font-script: "PT Sans", "Noto Sans Kannada", sans-serif;
+}
+
+[data-script="malayalam"] {
+  --font-sans: "Rupee Sign", "PT Sans", "Noto Sans Malayalam", var(--font-noto), ui-sans-serif, system-ui, sans-serif;
+  --font-script: "Noto Sans Malayalam", "PT Sans", sans-serif;
+}
+
+[data-script="oriya"] {
+  --font-sans: "Rupee Sign", "PT Sans", "Noto Sans Oriya", var(--font-noto), ui-sans-serif, system-ui, sans-serif;
+  --font-script: "Noto Sans Oriya", "PT Sans", sans-serif;
+}
+
+[data-script="gujarati"] {
+  --font-sans: "Rupee Sign", "PT Sans", "Noto Sans Gujarati", var(--font-noto), ui-sans-serif, system-ui, sans-serif;
+  --font-script: "Noto Sans Gujarati", "PT Sans", sans-serif;
+}
+
+[data-script="gurmukhi"] {
+  --font-sans: "Rupee Sign", "PT Sans", "Noto Sans Gurmukhi", var(--font-noto), ui-sans-serif, system-ui, sans-serif;
+  --font-script: "Noto Sans Gurmukhi", "PT Sans", sans-serif;
+}
+
+[data-script="olchiki"] {
+  --font-sans: "Rupee Sign", "PT Sans", "Noto Sans Ol Chiki", var(--font-noto), ui-sans-serif, system-ui, sans-serif;
+  --font-script: "Noto Sans Ol Chiki", "PT Sans", sans-serif;
+}
+
+[data-script="cyrillic"] {
+  --font-script: "PT Sans", sans-serif;
+}
+
+/* Nastaliq hangs deep below the baseline and stacks its ligatures, so body text
+   needs far more leading than any other script or lines overlap. Tailwind's
+   text-* utilities set line-height from the --text-<size>--line-height
+   variables and leading-* from --leading-*, so both families are raised here;
+   the bare line-height covers unclassed text. */
+[data-script="nastaliq"] {
+  --font-sans: "Rupee Sign", "Noto Nastaliq Urdu", "PT Sans", var(--font-noto), ui-sans-serif, system-ui, sans-serif;
+  --font-script: "Noto Nastaliq Urdu", "Noto Naskh Arabic", "PT Sans", sans-serif;
+  --leading-relaxed: 1.9;
+  --leading-snug: 1.75;
+  --text-xs--line-height: 1.9;
+  --text-sm--line-height: 1.9;
+  --text-base--line-height: 1.9;
+  --text-lg--line-height: 1.9;
+  --text-xl--line-height: 1.9;
+  --text-2xl--line-height: 1.9;
+  line-height: 1.9;
+}
+
+[data-script="nastaliq"] .script {
+  line-height: 1.7;
+}
+
+[data-script="naskh"] {
+  --font-sans: "Rupee Sign", "Noto Naskh Arabic", "PT Sans", var(--font-noto), ui-sans-serif, system-ui, sans-serif;
+  --font-script: "Noto Naskh Arabic", "PT Sans", sans-serif;
+}
+
+/* The two Arabic-script stacks above keep their own face ahead of PT Sans: the
+   spaces and ASCII punctuation between Urdu words would otherwise take PT Sans
+   metrics and widen Nastaliq word spacing by about a fifth. So on those pages
+   only ISOLATED Latin runs, the ones inside dir="ltr" per the RTL rule in
+   AGENTS.md (phone numbers, emails, URLs, handles, the copyright line, the
+   founder's "M.A." in the signature), get the Latin face through this rule.
+   The residue renders in the script face: the verbatim brand words ("The Soul
+   Cafe", "WhatsApp"), "M.A." where it sits inside translated prose, and any
+   untranslated stub text. */
+[data-script="nastaliq"] [dir="ltr"],
+[data-script="naskh"] [dir="ltr"] {
+  font-family: "Rupee Sign", "PT Sans", var(--font-noto), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ---------------------------------------------------------------------------
+   Pill buttons: rounded cream / indigo / coral chips in the script face.
+   --------------------------------------------------------------------------- */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.75rem; /* 44px touch target */
+  border-radius: 9999px;
+  padding: 0.5rem 1.5rem;
+  font-family: var(--font-script);
+  font-weight: 700;
+  font-size: 1.25rem; /* Dancing Script needs ~20px to stay legible */
+  line-height: 1.2;
+  text-align: center;
+  box-shadow: var(--shadow-card);
+  transition:
+    transform 180ms var(--ease-snap),
+    box-shadow 180ms ease,
+    background-color 180ms ease;
+}
+
+/* From `sm` up a label stays on one line and the row wraps around the pill.
+   Below that, a long translated label wraps inside the pill instead of pushing
+   the page wider than the viewport. */
+@media (min-width: 640px) {
+  .pill {
+    white-space: nowrap;
+  }
+}
+
+.pill-indigo {
+  background: var(--color-periwinkle-deep);
+  color: var(--color-paper);
+}
+
+.pill-coral {
+  background: var(--color-coral);
+  color: var(--color-ink);
+}
+
+.pill-cream {
+  background: var(--color-cream);
+  color: var(--color-ink);
+  /* Cream on a white or light band has no tonal edge; a hairline gives it a
+     defined shape without darkening the fill. */
+  border: 1px solid color-mix(in srgb, var(--color-ink) 12%, transparent);
+}
+
+/* Quieter secondary: outlined, no fill, so it steps below a solid CTA. Text is
+   the deep rust band tone, which reads on the mint header and on white. */
+.pill-coral-outline {
+  background: transparent;
+  color: var(--color-on-coral);
+  border: 1.5px solid color-mix(in srgb, var(--color-coral) 70%, var(--color-ink) 8%);
+  box-shadow: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .pill-coral-outline:hover {
+    background: color-mix(in srgb, var(--color-coral) 16%, transparent);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .pill:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lift);
+  }
+}
+
+.pill:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* ---------------------------------------------------------------------------
+   Currency switch (packages page), no JavaScript. Every price is rendered
+   once per currency as sibling spans tagged data-currency; the non-default
+   ones start `hidden`. The checked radio (id currency-<code>) inside the
+   .currency-switch wrapper reveals its own column and hides the rest. A
+   browser without :has() keeps showing the default column.
+   --------------------------------------------------------------------------- */
+.currency-switch:has(#currency-inr:checked) [data-currency]:not([data-currency="INR"]),
+.currency-switch:has(#currency-usd:checked) [data-currency]:not([data-currency="USD"]),
+.currency-switch:has(#currency-gbp:checked) [data-currency]:not([data-currency="GBP"]) {
+  display: none;
+}
+
+.currency-switch:has(#currency-inr:checked) [data-currency="INR"],
+.currency-switch:has(#currency-usd:checked) [data-currency="USD"],
+.currency-switch:has(#currency-gbp:checked) [data-currency="GBP"] {
+  display: inline;
+}
+
+/* ---------------------------------------------------------------------------
+   Cards
+   --------------------------------------------------------------------------- */
+.card {
+  background: var(--color-paper);
+  border-radius: 20px;
+  box-shadow: var(--shadow-card);
+}
+
+.card-hover {
+  transition:
+    transform 220ms var(--ease-snap),
+    box-shadow 220ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .card-hover:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lift);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Forms, harmonized with the pastel palette (on top of @tailwindcss/forms).
+   --------------------------------------------------------------------------- */
+.field {
+  width: 100%;
+  min-height: 2.75rem; /* 44px touch target */
+  border-radius: 14px;
+  border: 1.5px solid color-mix(in srgb, var(--color-ink) 20%, transparent);
+  background: var(--color-paper);
+  padding: 0.7rem 1rem;
+  font-size: 1rem;
+  color: var(--color-ink);
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.field::placeholder {
+  color: color-mix(in srgb, var(--color-ink) 45%, transparent);
+}
+
+.field:focus {
+  outline: none;
+  border-color: var(--color-periwinkle-deep);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-periwinkle) 40%, transparent);
+}
+
+/* ---------------------------------------------------------------------------
+   Section bands: soft pastel surfaces, each with one deep same-hue tone for
+   headings, feature labels, and icons. Body text stays neutral ink and reads
+   gently on the pale tint. Measured contrast (foreground on surface):
+     periwinkle  ink 13.0:1 · soft 6.3:1 · on-periwinkle 8.6:1
+     coral       ink 12.6:1 · soft 6.1:1 · on-coral 6.7:1
+     mint        ink 12.1:1 · on-mint 6.6:1
+   --------------------------------------------------------------------------- */
+.band-white {
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+.band-mint {
+  background: var(--color-mint);
+  color: var(--color-on-mint);
+}
+.band-periwinkle {
+  background: var(--color-periwinkle-band);
+  color: var(--color-on-periwinkle);
+}
+.band-coral {
+  background: var(--color-coral-band);
+  color: var(--color-on-coral);
+}
+
+/* Feature icons and labels adopt the band's deep tone, overriding any utility
+   color set at the call site, so each band resolves to one accent hue rather
+   than the harsher near-black + saturated surface + peach-icon trio. */
+.band-mint .feature-icon,
+.band-mint .feature-label {
+  color: var(--color-on-mint);
+}
+.band-periwinkle .feature-icon,
+.band-periwinkle .feature-label {
+  color: var(--color-on-periwinkle);
+}
+.band-coral .feature-icon,
+.band-coral .feature-label {
+  color: var(--color-on-coral);
+}
+
+/* ---------------------------------------------------------------------------
+   Gentle life: slow, calm motion. Nothing loops fast, nothing is busy.
+   CloudChip's float lives in that component; these are the rest.
+   --------------------------------------------------------------------------- */
+
+/* Header teacup: a slow sway, like steam curling off a warm cup. */
+.teacup-bob {
+  transform-origin: bottom center;
+  animation: teacup-bob 5s ease-in-out infinite;
+}
+
+@keyframes teacup-bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-2px) rotate(3deg);
+  }
+}
+
+/* WhatsApp float: a single soft scale-in the first time it appears (site.ts
+   adds the class once per session, then removes it on animationend so the
+   hover scale keeps working). No looping pulse. */
+.whatsapp-float.animate-in {
+  animation: whatsapp-in 420ms var(--ease-snap) both;
+}
+
+@keyframes whatsapp-in {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* On phones, site.ts hides the float while a form input is focused so it never
+   covers the field being filled. Transition opacity as well as transform. */
+.whatsapp-float {
+  transition-property: transform, opacity;
+}
+
+.whatsapp-float--hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Scroll reveal: site.ts adds `reveal-pending` (only when motion is allowed and
+   IntersectionObserver exists), then `revealed` as each element enters view.
+   With JS off, nothing is hidden, so content is always visible. */
+.reveal-pending {
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    opacity 500ms var(--ease-snap),
+    transform 500ms var(--ease-snap);
+}
+
+.reveal-pending.revealed {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---------------------------------------------------------------------------
+   Reduced motion: keep color, drop movement.
+   --------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .pill,
+  .card-hover,
+  .nav-pill {
+    transition-property: box-shadow, background-color;
+  }
+
+  .pill:hover,
+  .pill:active,
+  .card-hover:hover,
+  .nav-pill:hover {
+    transform: none;
+  }
+
+  /* The WhatsApp float lifts/scales on hover and press; hold it still. */
+  .whatsapp-float {
+    transition-property: box-shadow;
+  }
+
+  .whatsapp-float:hover,
+  .whatsapp-float:active {
+    transform: none;
+  }
+
+  /* Cancel the ambient loops outright and clear any resting offset, so nothing
+     sits mid-animation. (site.ts also skips the reveal and WhatsApp scale-in
+     under this preference.) */
+  .teacup-bob {
+    animation: none;
+    transform: none;
+  }
+
+  .reveal-pending {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

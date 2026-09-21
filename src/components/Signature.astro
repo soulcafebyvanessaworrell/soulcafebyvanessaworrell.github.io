@@ -1,0 +1,35 @@
+---
+// The founder's signature block: the outlined signature SVG over her
+// qualification and role. `align` controls the horizontal alignment of the
+// stack: "start" (the default, as in the About/home intro) follows the writing
+// direction, so it sits on the right in a right-to-left language. The
+// qualification is a Latin run ("M.A."), isolated per the RTL rule in AGENTS.md
+// so its full stops keep their order on a right-to-left page.
+import type { SiteLocale } from "../i18n/locales";
+import { t } from "../i18n/ui";
+import { signature } from "../lib/assets";
+
+interface Props {
+  locale: SiteLocale;
+  align?: "start" | "center";
+  class?: string;
+}
+
+const { locale, align = "start", class: klass = "" } = Astro.props;
+
+const alignClass = align === "center" ? "items-center text-center" : "items-start text-start";
+---
+
+<div class:list={["flex flex-col gap-1", alignClass, klass]}>
+  <img
+    src={signature}
+    alt="Vanessa Worrell"
+    width="340"
+    height="92"
+    class="h-auto w-[280px] max-w-full sm:w-[340px]"
+    loading="lazy"
+    decoding="async"
+  />
+  <p class="text-sm font-bold text-ink"><span dir="ltr">{t(locale, "founder_qualification")}</span></p>
+  <p class="text-sm text-soft">{t(locale, "founder_role")}</p>
+</div>

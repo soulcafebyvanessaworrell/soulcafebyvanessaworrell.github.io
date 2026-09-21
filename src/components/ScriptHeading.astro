@@ -1,0 +1,24 @@
+---
+// A script-face display heading with fluid clamp sizing. `level` picks the
+// semantic tag (h1/h2/h3) and the matching type scale; balanced wrapping is
+// inherited from the base h1 to h4 rule. wrap-anywhere lets a single word
+// longer than the viewport (a Malayalam compound at 390px) break instead of
+// scrolling the page sideways.
+interface Props {
+  level?: 1 | 2 | 3;
+  class?: string;
+}
+
+const { level = 2, class: klass = "" } = Astro.props;
+
+const Tag = `h${level}` as const;
+const sizeClass = {
+  1: "text-[length:var(--text-script-1)]",
+  2: "text-[length:var(--text-script-2)]",
+  3: "text-[length:var(--text-script-3)]",
+}[level];
+---
+
+<Tag class:list={["script wrap-anywhere", sizeClass, klass]} data-reveal>
+  <slot />
+</Tag>

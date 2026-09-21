@@ -1,0 +1,99 @@
+name: Deploy website
+
+# Publishes every tier of the site in ONE GitHub Pages deployment, rebuilt from
+# git on every run (no state carried between deploys, no gh-pages branch):
+#   /               the newest vX.Y.Z tag, or main HEAD until the first tag exists
+#   /latest/        main HEAD, always
+#   /stable/        the newest tag; absent until one exists, never HEAD
+#   /vX.Y.Z/        one directory per kept tag: the KEPT_VERSIONS newest plain-semver
+#                   tags (scripts/pages-site.mts)
+#   /versions.json  the tier list, for readers outside the site (the builds get it as SITE_VERSIONS)
+# Only the root is indexable: every other tier builds with ASTRO_STAGING=1
+# (site-wide noindex, no sitemap). scripts/pages-site.mts plans and builds the
+# tiers; this workflow resolves where the site lives and ships the result. It is
+# called by release-please.yml after every push to main (a release commit's own
+# run sees its new tag) and can be dispatched by hand for a redeploy.
+#
+# SITE ORIGIN AND BASE PATH are derived at deploy time, never hardcoded here:
+#   - CUSTOM_DOMAIN unset -> GitHub Pages: origin https://<owner>.github.io,
+#               base /<repo>/, or / for an <owner>.github.io user site (all
+#               from GITHUB_REPOSITORY, so a rename or move needs no edit).
+#   - CUSTOM_DOMAIN set (repo variable, e.g. thesoulcafe.com) -> origin
+#               https://<domain>, base /. The script records it in a CNAME
+#               file; the domain itself is attached under Settings > Pages
+#               (see README).
+# ASTRO_SITE/ASTRO_BASE carry the result into every tier build; constants.ts
+# reads them, so robots.txt and site.webmanifest flip with the domain too.
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      # Full history: the script archives tags and refuses a shallow clone. On
+      # the push-driven call chain github.sha is the main commit that triggered
+      # the run; a manual dispatch pins the default branch so dispatching from a
+      # tag or branch cannot publish that ref as latest/.
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.repository.default_branch || github.sha }}
+          fetch-depth: 0
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+
+      # Where the site lives (see the header comment). Pages hosts are
+      # lowercase, so the owner is lowercased before it becomes the origin.
+      - name: Resolve site origin and base path
+        id: pages
+        env:
+          CUSTOM_DOMAIN: ${{ vars.CUSTOM_DOMAIN }}
+        run: |
+          if [ -n "$CUSTOM_DOMAIN" ]; then
+            site="https://$CUSTOM_DOMAIN"
+            base="/"
+          else
+            owner="$(printf '%s' "$GITHUB_REPOSITORY_OWNER" | tr '[:upper:]' '[:lower:]')"
+            repo="${GITHUB_REPOSITORY#*/}"
+            site="https://$owner.github.io"
+            if [ "$(printf '%s' "$repo" | tr '[:upper:]' '[:lower:]')" = "$owner.github.io" ]; then
+              base="/"
+            else
+              base="/$repo/"
+            fi
+          fi
+          echo "Site origin: $site, base path: $base"
+          echo "site=$site" >> "$GITHUB_OUTPUT"
+          echo "base=$base" >> "$GITHUB_OUTPUT"
+
+      # The script needs no node_modules here.
+      - name: Build every tier
+        env:
+          CUSTOM_DOMAIN: ${{ vars.CUSTOM_DOMAIN }}
+          SITE_ORIGIN: ${{ steps.pages.outputs.site }}
+          SITE_BASE: ${{ steps.pages.outputs.base }}
+        run: bun scripts/pages-site.mts --site "$RUNNER_TEMP/site" --origin "$SITE_ORIGIN" --base "$SITE_BASE"
+
+      - uses: actions/configure-pages@v6
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: ${{ runner.temp }}/site
+
+      - id: deployment
+        uses: actions/deploy-pages@v5

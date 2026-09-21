@@ -1,0 +1,129 @@
+---
+// Single 404 for the whole site (Astro serves one). GitHub Pages returns it for
+// unmatched paths in every locale tree and there is no locale at build time, so
+// the page ships English plus a pill for every language's home, and a small
+// inline script re-labels it: from the path's locale prefix when there is one,
+// otherwise from the browser's languages. With JS off, English and the list
+// remain. noindex so crawlers don't list it.
+import PillButton from "../components/PillButton.astro";
+import ScriptHeading from "../components/ScriptHeading.astro";
+import { DEFAULT_LOCALE, LOCALE_TABLE, localizePath } from "../i18n/locales";
+import { dictionaries, t } from "../i18n/ui";
+import Base from "../layouts/Base.astro";
+
+const en = DEFAULT_LOCALE;
+
+// Everything the client script needs to re-label the page in another locale.
+const payload = {
+  base: import.meta.env.BASE_URL,
+  locales: Object.fromEntries(
+    LOCALE_TABLE.map((row) => {
+      const { ui } = dictionaries[row.code];
+      return [
+        row.code,
+        {
+          lang: row.htmlLang,
+          dir: row.dir,
+          script: row.script,
+          home: localizePath("", row.code),
+          contact: localizePath("contact/", row.code),
+          title: ui.not_found_title,
+          body: ui.not_found_body,
+          backHome: ui.back_home,
+          contactUs: ui.contact_us,
+        },
+      ];
+    }),
+  ),
+};
+---
+
+<Base title="404" description="Page not found." noindex available={[]}>
+  <section
+    class="mx-auto flex max-w-2xl flex-col items-center gap-6 px-5 py-24 text-center sm:py-32"
+    data-not-found
+  >
+    <p class="font-script text-6xl font-bold text-ink">404</p>
+    <ScriptHeading level={1}><span data-nf="title">{t(en, "not_found_title")}</span></ScriptHeading>
+    <p class="max-w-lg text-lg leading-relaxed text-soft" data-nf="body">{t(en, "not_found_body")}</p>
+    <div class="mt-2 flex flex-wrap items-center justify-center gap-3">
+      <PillButton href={localizePath("", en)} variant="indigo" data-nf="home">
+        {t(en, "back_home")}
+      </PillButton>
+      <PillButton href={localizePath("contact/", en)} variant="cream" data-nf="contact">
+        {t(en, "contact_us")}
+      </PillButton>
+    </div>
+
+    <ul class="mt-6 flex w-full max-w-xl list-none flex-wrap items-center justify-center gap-2 border-t border-ink/10 pt-6">
+      {
+        LOCALE_TABLE.map((row) => (
+          <li>
+            <a
+              href={localizePath("", row.code)}
+              hreflang={row.htmlLang}
+              lang={row.htmlLang}
+              dir={row.dir}
+              class="tap inline-flex min-h-[2.25rem] items-center rounded-full border border-ink/10 bg-cream/70 px-3.5 py-1 text-sm font-bold text-ink transition-colors hover:bg-cream"
+            >
+              {row.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <script
+    type="application/json"
+    id="not-found-locales"
+    set:html={JSON.stringify(payload).replace(/</g, "\\u003c")}
+    is:inline
+  />
+  <script is:inline>
+    (() => {
+      const section = document.querySelector("[data-not-found]");
+      const raw = document.getElementById("not-found-locales");
+      if (!section || !raw) return;
+      const { base, locales } = JSON.parse(raw.textContent || "{}");
+      if (!locales) return;
+
+      // 1. The locale prefix in the failed URL, if any.
+      const path = location.pathname.startsWith(base) ? location.pathname.slice(base.length) : location.pathname;
+      const first = path.replace(/^\//, "").split("/")[0];
+      let code = Object.hasOwn(locales, first) ? first : "";
+
+      // 2. Otherwise the browser's preferred languages, most preferred first.
+      if (!code) {
+        for (const tag of navigator.languages || []) {
+          const lower = tag.toLowerCase();
+          const match = Object.keys(locales).find(
+            (c) => lower === locales[c].lang.toLowerCase() || lower.split("-")[0] === c,
+          );
+          if (match) {
+            code = match;
+            break;
+          }
+        }
+      }
+      if (!code || !locales[code]) return;
+
+      const l = locales[code];
+      const set = (name, text) => {
+        const el = section.querySelector(`[data-nf="${name}"]`);
+        if (el) el.textContent = text;
+      };
+      set("title", l.title);
+      set("body", l.body);
+      set("home", l.backHome);
+      set("contact", l.contactUs);
+      const home = section.querySelector('[data-nf="home"]');
+      const contact = section.querySelector('[data-nf="contact"]');
+      if (home) home.setAttribute("href", l.home);
+      if (contact) contact.setAttribute("href", l.contact);
+      section.setAttribute("lang", l.lang);
+      section.setAttribute("dir", l.dir);
+      section.setAttribute("data-script", l.script);
+    })();
+  </script>
+</Base>

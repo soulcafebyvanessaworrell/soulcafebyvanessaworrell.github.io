@@ -1,0 +1,23 @@
+---
+// Merch: not built yet. Page title plus a warm teaser line, then the shared
+// "Coming soon" band (Instagram + Contact, never a dead end).
+import ComingSoon from "../../components/ComingSoon.astro";
+import ScriptHeading from "../../components/ScriptHeading.astro";
+import { localeStaticPaths } from "../../i18n/routes";
+import { pages } from "../../i18n/ui";
+import Base from "../../layouts/Base.astro";
+
+export const getStaticPaths = localeStaticPaths;
+
+const { locale } = Astro.props;
+const copy = pages(locale).merch;
+---
+
+<Base title={copy.meta.title} description={copy.meta.description} active="merch">
+  <section class="mx-auto max-w-2xl px-5 py-16 text-center sm:py-20">
+    <ScriptHeading level={1}>{copy.title}</ScriptHeading>
+    <p class="mt-6 text-lg leading-relaxed text-ink/90">{copy.intro}</p>
+  </section>
+
+  <ComingSoon color="coral" locale={locale} />
+</Base>

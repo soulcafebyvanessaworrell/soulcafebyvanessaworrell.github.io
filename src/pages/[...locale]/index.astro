@@ -1,0 +1,160 @@
+---
+// Home. Prose comes from pages(locale).home; the icons, cloud offsets, and
+// layout live here. One file serves every locale (see src/i18n/routes.ts).
+import { Image } from "astro:assets";
+import { Icon } from "astro-icon/components";
+import CloudChip from "../../components/CloudChip.astro";
+import FeatureGrid from "../../components/FeatureGrid.astro";
+import FeatureItem from "../../components/FeatureItem.astro";
+import PillButton from "../../components/PillButton.astro";
+import ScriptHeading from "../../components/ScriptHeading.astro";
+import SectionBand from "../../components/SectionBand.astro";
+import Signature from "../../components/Signature.astro";
+import { localizePath } from "../../i18n/locales";
+import { localeStaticPaths } from "../../i18n/routes";
+import { pages, t } from "../../i18n/ui";
+import Base from "../../layouts/Base.astro";
+import { founder } from "../../lib/assets";
+import { getHeroPreload, HERO_FORMAT, HERO_SIZES, HERO_WIDTHS } from "../../lib/heroImage";
+import { zipLabels } from "../../lib/zipLabels";
+
+export const getStaticPaths = localeStaticPaths;
+
+const { locale } = Astro.props;
+const copy = pages(locale).home;
+
+// Preload the LCP founder photo; HERO_* values come from lib/heroImage, which
+// the hero <Image> below also uses, so the preload and render URLs stay identical.
+const heroPreload = await getHeroPreload();
+
+const expertise = zipLabels(copy.expertise.items, [
+  "lucide:heart-handshake",
+  "lucide:message-circle-heart",
+  "lucide:bandage",
+  "lucide:sprout",
+  "lucide:pill",
+]);
+
+const support = zipLabels(copy.support.items, [
+  "lucide:backpack",
+  "lucide:user-round",
+  "lucide:users-round",
+  "lucide:fingerprint",
+  "lucide:hand-heart",
+]);
+
+// Pronounced, uneven vertical offsets so the chips read as clouds scattered
+// across a sky, not a wrapped row of buttons. Margin (not transform) because
+// CloudChip's float animation owns `transform`. Offsets are gentle on mobile
+// and open up from `sm` where there's room to breathe.
+const cloudOffsets = [
+  "sm:mt-0",
+  "mt-2 sm:mt-12",
+  "sm:mt-5",
+  "mt-3 sm:mt-16",
+  "sm:mt-2",
+  "mt-2 sm:mt-10",
+  "sm:mt-6",
+];
+---
+
+<Base title={copy.meta.title} description={copy.meta.description}>
+  {/* Preload the LCP founder photo via Base's head slot (values from lib/heroImage). */}
+  <link
+    slot="head"
+    rel="preload"
+    as="image"
+    imagesrcset={heroPreload.srcSet.attribute}
+    imagesizes={HERO_SIZES}
+    fetchpriority="high"
+  />
+  {/* ---------------------------------------------------------------- HERO */}
+  <section class="mx-auto w-full max-w-6xl px-5 py-12 sm:px-8 sm:py-16 lg:py-20">
+    <div class="grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-14">
+      <div class="order-2 lg:order-1">
+        <ScriptHeading level={1} class="text-start">
+          {copy.hero.heading}
+        </ScriptHeading>
+
+        <p class="mt-6 text-lg font-bold leading-relaxed text-ink sm:text-xl">
+          {copy.hero.lead}
+        </p>
+        <p class="mt-5 text-base leading-relaxed text-soft sm:text-lg">
+          {copy.hero.body}
+        </p>
+
+        <Signature locale={locale} class="mt-8" />
+
+        <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+          <PillButton href={localizePath("book/", locale)} variant="indigo">
+            {t(locale, "book_session")}
+          </PillButton>
+          <PillButton href={`${localizePath("book/", locale)}#consultation`} variant="cream">
+            {t(locale, "free_consultation")}
+          </PillButton>
+        </div>
+      </div>
+
+      <div class="order-1 lg:order-2">
+        <div class="relative mx-auto w-full max-w-md lg:max-w-none">
+          <div
+            aria-hidden="true"
+            class="absolute inset-0 -z-10 translate-x-3 translate-y-3 rounded-[2rem] bg-mint sm:translate-x-4 sm:translate-y-4 rtl:-translate-x-3 sm:rtl:-translate-x-4"
+          >
+          </div>
+          <Image
+            src={founder}
+            alt={copy.hero.photoAlt}
+            widths={HERO_WIDTHS}
+            sizes={HERO_SIZES}
+            format={HERO_FORMAT}
+            priority
+            class="w-full rounded-[2rem] object-cover shadow-[var(--shadow-lift)] ring-1 ring-ink/10"
+          />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* ----------------------------------------------------------- EXPERTISE */}
+  <SectionBand color="periwinkle" heading={copy.expertise.heading}>
+    <FeatureGrid>
+      {expertise.map((item) => <FeatureItem label={item.label} icon={item.icon} />)}
+    </FeatureGrid>
+  </SectionBand>
+
+  {/* ---------------------------------------------------------- APPROACHES */}
+  <SectionBand color="mint" heading={copy.approaches.heading}>
+    <ul class="mx-auto flex max-w-3xl list-none flex-wrap items-start justify-center gap-x-10 gap-y-2 py-4 sm:gap-x-12 sm:py-8">
+      {copy.approaches.chips.map((chip, i) => <CloudChip class={cloudOffsets[i]}>{chip}</CloudChip>)}
+    </ul>
+  </SectionBand>
+
+  {/* ------------------------------------------------------------- SUPPORT */}
+  <SectionBand color="coral" heading={copy.support.heading}>
+    <ul class="mx-auto grid max-w-2xl list-none gap-x-10 gap-y-4 sm:grid-cols-2">
+      {
+        support.map((item) => (
+          <li class="flex items-center gap-4 text-lg font-bold text-ink" data-reveal>
+            <Icon name={item.icon} class="feature-icon h-8 w-8 shrink-0" aria-hidden="true" />
+            <span class="feature-label leading-snug">{item.label}</span>
+          </li>
+        ))
+      }
+    </ul>
+  </SectionBand>
+
+  {/* ------------------------------------------------------- CLOSING STRIP */}
+  <section class="mx-auto w-full max-w-3xl px-5 py-16 text-center sm:py-20">
+    <Icon name="lucide:coffee" class="mx-auto mb-5 h-9 w-9 text-coral" aria-hidden="true" />
+    <p class="text-lg leading-relaxed text-ink sm:text-xl">{copy.closing.line}</p>
+    <div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+      <PillButton href={localizePath("book/", locale)} variant="indigo">
+        {t(locale, "book_session")}
+      </PillButton>
+      <PillButton href={localizePath("contact/", locale)} variant="cream">
+        {t(locale, "contact_us")}
+      </PillButton>
+    </div>
+  </section>
+</Base>

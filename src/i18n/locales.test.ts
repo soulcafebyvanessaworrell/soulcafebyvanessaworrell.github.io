@@ -1,0 +1,33 @@
+// Invariants of the locale table that nothing else would catch: the table is
+// `as const`, so a typo in a code or a duplicated row type-checks fine and only
+// shows up as a wrong URL or a missing page at build time.
+
+import { describe, expect, test } from "bun:test";
+import { DEFAULT_LOCALE, LOCALE_TABLE, LOCALES, localePrefix } from "./locales";
+
+// Without this, two rows sharing a code would build the same URL twice and the
+// later row would silently win in localeMeta().
+test("locale codes are unique", () => {
+  const codes = LOCALE_TABLE.map((row) => row.code);
+  expect(new Set(codes).size).toBe(codes.length);
+});
+
+// Without this, nothing pins the convention that a locale code is a bare
+// lowercase URL segment: "sd-Arab" or "Hi" would type-check and build a URL
+// the docs and the 404 script's case-sensitive prefix match do not expect.
+test("every non-default prefix is lowercase letters plus a trailing slash", () => {
+  const bad = LOCALES.filter(
+    (code) => code !== DEFAULT_LOCALE && !/^[a-z]+\/$/.test(localePrefix(code)),
+  );
+  expect(bad).toEqual([]);
+});
+
+// Without this, an unsupported dateLocale would make Intl fall back to the
+// runtime default and every blog date in that language would print in English.
+describe("Intl resolves every dateLocale", () => {
+  for (const row of LOCALE_TABLE) {
+    test(`${row.code} uses ${row.dateLocale}`, () => {
+      expect(Intl.DateTimeFormat.supportedLocalesOf(row.dateLocale)).toEqual([row.dateLocale]);
+    });
+  }
+});

@@ -1,0 +1,97 @@
+---
+// Language picker: a no-JS <details> disclosure. The summary is a pill showing
+// a globe and the current language's endonym; below `sm` it collapses to the
+// bare uppercase code in a 44px round control, the same footprint as the
+// other brand-row controls, so the centered logo still clears at 320px. The
+// visible label plus a hidden "Change language" form the accessible name. The panel lists
+// every locale as a link to the same page in that language, grouped by region
+// from the locale table, each written in its own script; no flags, since a flag
+// names a country, not a language. site.ts adds Escape and outside-click close.
+import { Icon } from "astro-icon/components";
+import {
+  LOCALE_TABLE,
+  LOCALES,
+  localeMeta,
+  localizePath,
+  pagePathFromUrl,
+  type Region,
+  type SiteLocale,
+} from "../i18n/locales";
+import { t } from "../i18n/ui";
+
+interface Props {
+  locale: SiteLocale;
+  /** Locales this page exists in; the rest link to `fallbackPath`. */
+  available?: readonly SiteLocale[];
+  /** Locale-relative path for locales the page is missing in ("" = home). */
+  fallbackPath?: string;
+  class?: string;
+}
+
+const { locale, available = LOCALES, fallbackPath = "", class: klass = "" } = Astro.props;
+
+const pagePath = pagePathFromUrl(Astro.url);
+const current = localeMeta(locale);
+
+const groups: { region: Region; heading: string }[] = [
+  { region: "india", heading: t(locale, "languages_india") },
+  { region: "europe", heading: t(locale, "languages_europe") },
+];
+
+function targetFor(code: SiteLocale): string {
+  return localizePath(available.includes(code) ? pagePath : fallbackPath, code);
+}
+---
+
+<details class:list={["language-picker relative", klass]} data-language-picker>
+  <summary
+    class="tap inline-flex h-11 w-11 cursor-pointer list-none items-center justify-center gap-1.5 rounded-full border border-ink/10 bg-paper/45 text-xs font-bold text-ink/75 transition-colors hover:bg-paper/80 hover:text-ink sm:h-auto sm:min-h-[2.75rem] sm:w-auto sm:px-3 sm:py-1.5 sm:text-sm lg:min-h-0 [&::-webkit-details-marker]:hidden"
+  >
+    <Icon name="lucide:globe" class="hidden h-4 w-4 shrink-0 sm:block" aria-hidden="true" />
+    <span class="hidden sm:inline" lang={current.htmlLang}>{current.label}</span>
+    {/* Not aria-hidden: WCAG 2.5.3 wants the visible "EN" inside the accessible name. */}
+    <span class="uppercase sm:hidden" dir="ltr">{current.code}</span>
+    <span class="sr-only">{t(locale, "switch_language")}</span>
+  </summary>
+
+  {/* The scroller is masked, not the card, so the card keeps its shadow. The
+      fade equals the bottom padding: at the end of the list it covers only
+      padding, and above that it marks the cut row as scrollable. */}
+  <div class="card absolute end-0 top-full z-50 mt-2 w-64 max-w-[calc(100vw-1.5rem)] overflow-hidden text-start">
+    <div
+      class="max-h-[70vh] scroll-pb-12 overflow-y-auto p-4 pb-12 [mask-image:linear-gradient(to_bottom,#000_calc(100%-3rem),transparent)]"
+    >
+      {
+        groups.map((group) => (
+          <div class="not-first:mt-4">
+            <p class="mb-1.5 px-2 text-sm font-bold text-soft">{group.heading}</p>
+            <ul class="flex flex-col">
+              {LOCALE_TABLE.filter((row) => row.region === group.region).map((row) => {
+                const isCurrent = row.code === locale;
+                return (
+                  <li>
+                    <a
+                      href={targetFor(row.code)}
+                      hreflang={row.htmlLang}
+                      lang={row.htmlLang}
+                      aria-current={isCurrent ? "page" : undefined}
+                      class:list={[
+                        "tap block rounded-full px-3 py-1.5 text-base text-ink transition-colors hover:bg-cream",
+                        isCurrent ? "bg-cream-deep font-bold" : "",
+                      ]}
+                    >
+                      {/* Isolated in its own direction: a Latin endonym in an RTL
+                          panel keeps its reading order and, on the Arabic-script
+                          pages, the Latin body face. */}
+                      <span dir={row.dir}>{row.label}</span>
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</details>

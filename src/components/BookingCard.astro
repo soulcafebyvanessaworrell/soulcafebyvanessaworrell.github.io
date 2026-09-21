@@ -1,0 +1,99 @@
+---
+// A booking card: title + short description + a primary PillButton that opens
+// the Google Calendar appointment page in a new tab, with a muted note that the
+// link opens in Google Calendar.
+//
+// No inline embed by default. calendar.app.google short links send
+// X-Frame-Options: SAMEORIGIN and can never render in a frame, so embedding one
+// only ships a blank box. The `embedUrl` prop is a deliberate escape hatch: pass
+// a genuinely embeddable URL (Google's official appointment-schedule embed,
+// calendar.google.com/calendar/appointments/schedules/...?gv=true) and the card
+// renders that in a lazy iframe under an "or book right here" disclosure. Leave
+// it unset and the card is button-only.
+import { Icon } from "astro-icon/components";
+import type { SiteLocale } from "../i18n/locales";
+import { pages } from "../i18n/ui";
+import PillButton from "./PillButton.astro";
+
+interface Props {
+  title: string;
+  description: string;
+  /** One short line under the description, such as a starting price. */
+  note?: string;
+  /** Google Calendar appointment URL (external, opened via the button). */
+  url: string;
+  ctaLabel: string;
+  /** An embeddable calendar URL. When set, the card also renders an iframe.
+   *  Do NOT pass a calendar.app.google short link here: it will not frame. */
+  embedUrl?: string;
+  /** Accessible title for the embedded booking iframe (used only with embedUrl). */
+  embedTitle?: string;
+  /** Heading level for the card title, so the page outline never skips a level.
+   *  Use 2 when the card sits directly under the page h1; 3 when it sits under a
+   *  SectionBand heading (which is an h2). */
+  titleLevel?: 2 | 3;
+  locale: SiteLocale;
+  class?: string;
+}
+
+const {
+  title,
+  description,
+  note,
+  url,
+  ctaLabel,
+  embedUrl,
+  embedTitle,
+  titleLevel = 2,
+  locale,
+  class: klass = "",
+} = Astro.props;
+
+const TitleTag = `h${titleLevel}` as const;
+
+const { opensIn, orBookHere } = pages(locale).book;
+---
+
+<article class:list={["card @container mx-auto flex w-full max-w-2xl flex-col gap-6 p-6 text-start sm:p-8 lg:max-w-4xl", klass]}>
+  <div class="flex flex-col gap-6 @3xl:grid @3xl:grid-cols-[1.3fr_1fr] @3xl:items-center @3xl:gap-10">
+    <div class="flex flex-col gap-2.5">
+      <TitleTag class="script text-[length:var(--text-script-3)] text-ink">{title}</TitleTag>
+      <p class="leading-relaxed text-soft">{description}</p>
+      {note && <p class="text-sm font-bold text-ink">{note}</p>}
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <PillButton href={url} variant="indigo" external class="w-full sm:w-fit @3xl:w-full">
+        <Icon name="lucide:calendar-heart" class="h-5 w-5 shrink-0" aria-hidden="true" />
+        <span class="text-center">{ctaLabel}</span>
+      </PillButton>
+      <p class="flex items-center gap-1.5 text-sm text-soft">
+        <Icon name="lucide:external-link" class="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+        {opensIn}
+      </p>
+    </div>
+  </div>
+
+  {
+    embedUrl && (
+      <details class="group border-t border-ink/10 pt-4">
+        <summary class="tap flex list-none items-center gap-2 font-bold text-periwinkle-deep [&::-webkit-details-marker]:hidden">
+          <Icon
+            name="lucide:chevron-down"
+            class="h-4 w-4 shrink-0 transition-transform duration-200 group-open:rotate-180"
+            aria-hidden="true"
+          />
+          {orBookHere}
+        </summary>
+        <div class="mt-4">
+          <iframe
+            src={embedUrl}
+            title={embedTitle}
+            loading="lazy"
+            class="min-h-[600px] w-full rounded-xl border border-ink/10 bg-white"
+          />
+        </div>
+      </details>
+    )
+  }
+</article>

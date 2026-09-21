@@ -1,0 +1,24 @@
+# Bun configuration file
+# https://bun.sh/docs/runtime/bunfig
+
+[install]
+# Use the lockfile for reproducible installs. CI passes --frozen-lockfile
+# explicitly; false lets local `bun install` update the lockfile during dev.
+frozen = false
+registry = "https://registry.npmjs.org"
+# Auto-install peer dependencies.
+auto = true
+
+[install.cache]
+enabled = true
+
+[run]
+# Use the system shell for package.json scripts (only 'bun' and 'system' work).
+shell = "system"
+
+[test]
+# `bun test` (the `test` script) is the UNIT runner; skip the tests/ tree so
+# it never picks up tests/smoke.spec.ts, which is a Playwright e2e spec run
+# separately via `test:e2e`. Bun's runner and Playwright's are incompatible.
+pathIgnorePatterns = ["tests/**"]
+

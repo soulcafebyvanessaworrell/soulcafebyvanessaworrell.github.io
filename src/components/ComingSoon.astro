@@ -1,0 +1,47 @@
+---
+// A friendly "coming soon" band for sections that aren't built yet (Merch,
+// Learning, Supper Club). Not a dead end: it offers the Instagram follow and a
+// Contact pill so the visitor always has somewhere to go.
+import type { SiteLocale } from "../i18n/locales";
+import { localizePath } from "../i18n/locales";
+import { t } from "../i18n/ui";
+import { SOCIALS } from "../lib/constants";
+import PillButton from "./PillButton.astro";
+import ScriptHeading from "./ScriptHeading.astro";
+
+interface Props {
+  color: "periwinkle" | "coral";
+  locale: SiteLocale;
+}
+
+const { color, locale } = Astro.props;
+
+const bandClass = color === "periwinkle" ? "band-periwinkle" : "band-coral";
+const instagram = SOCIALS.find((s) => s.name === "Instagram");
+
+// The handle renders in the body face, since underscores in the script face
+// read as dashes, and a size step down so bold sans matches the script pill
+// beside it. Its line-height is fixed because the Nastaliq page raises
+// text-base's to 1.9, which would grow the pill past its 44px.
+---
+
+<section class={bandClass}>
+  <div class="mx-auto flex max-w-3xl flex-col items-center gap-6 px-5 py-24 text-center sm:py-32">
+    <ScriptHeading level={2}>{t(locale, "coming_soon")}</ScriptHeading>
+    <p class="max-w-xl text-lg leading-relaxed text-ink">{t(locale, "coming_soon_body")}</p>
+    <div class="mt-2 flex flex-wrap items-center justify-center gap-3">
+      {
+        instagram && (
+          <PillButton href={instagram.url} variant="cream" external>
+            <span dir="ltr" class="font-sans text-base/6">
+              {instagram.handle}
+            </span>
+          </PillButton>
+        )
+      }
+      <PillButton href={localizePath("contact/", locale)} variant="indigo">
+        {t(locale, "contact_us")}
+      </PillButton>
+    </div>
+  </div>
+</section>

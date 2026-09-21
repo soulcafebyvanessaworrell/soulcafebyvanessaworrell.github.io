@@ -1,0 +1,20 @@
+---
+// Centered feature cluster for the icon/label groups (Expertise, Who We
+// Support). Flex-wrap with a fixed item basis and justify-center, so a partial
+// last row (a 5th item after two rows of two, or after a row of four) centers
+// instead of stranding to the left. Reads balanced at 2, 3, 4, and 5 columns.
+interface Props {
+  class?: string;
+}
+
+const { class: klass = "" } = Astro.props;
+---
+
+<ul
+  class:list={[
+    "flex list-none flex-wrap justify-center gap-x-6 gap-y-10 [&>li]:shrink-0 [&>li]:grow-0 [&>li]:basis-40",
+    klass,
+  ]}
+>
+  <slot />
+</ul>

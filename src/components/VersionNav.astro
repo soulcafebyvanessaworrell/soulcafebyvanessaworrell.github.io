@@ -1,0 +1,47 @@
+---
+// Version switcher for the non-root tiers of a deploy (latest/, stable/,
+// vX.Y.Z/). Which tier this build is, whether the switcher shows, and how a
+// tier is worded live in src/lib/versionNav.ts, where they are unit-tested.
+import type { SiteLocale } from "../i18n/locales";
+import { t } from "../i18n/ui";
+import { SITE_BASE, SITE_ORIGIN } from "../lib/constants";
+import { currentVersion, parseVersions, showsVersionNav, versionText } from "../lib/versionNav";
+
+interface Props {
+  locale: SiteLocale;
+}
+
+const { locale } = Astro.props;
+
+const versions = parseVersions(process.env.SITE_VERSIONS);
+const current = currentVersion(versions, SITE_BASE);
+const words = { production: t(locale, "version_production"), stable: t(locale, "version_stable") };
+const currentText = showsVersionNav(current) ? versionText(current, words) : undefined;
+
+// Tags ("v0.1.0", "latest") are Latin runs; without dir="ltr" a right-to-left
+// page would reorder them around the dot and the digits.
+const texts = versions.map((entry) => ({ entry, text: versionText(entry, words) }));
+---
+
+{
+  currentText && (
+    <details class="text-sm">
+      <summary class="tap inline-block cursor-pointer rounded-full transition-colors hover:text-white">
+        {t(locale, "version")}: {currentText.before}<span dir="ltr">{currentText.label}</span>{currentText.after}
+      </summary>
+      <ul class="mt-2 space-y-1">
+        {texts.map(({ entry, text }) => (
+          <li>
+            <a
+              class="tap inline-block rounded-full transition-colors hover:text-white"
+              href={`${SITE_ORIGIN}${entry.path}`}
+              aria-current={entry === current ? "page" : undefined}
+            >
+              {text.before}<span dir="ltr">{text.label}</span>{text.after}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </details>
+  )
+}

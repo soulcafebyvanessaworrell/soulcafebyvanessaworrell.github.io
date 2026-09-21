@@ -1,0 +1,87 @@
+name: release-please
+
+# Versioned GitHub releases from Conventional Commits, then a site deploy. CI
+# calls this workflow after `all-green` succeeds on main. release-please keeps
+# ONE rolling release PR that bumps the version and regenerates CHANGELOG.md;
+# merging it tags vX.Y.Z (as a draft release, published by the job below).
+# Every run ends by calling deploy.yml, so each push to main refreshes latest/
+# and a release commit's own run publishes the new tag at the root, stable/,
+# and vX.Y.Z/. Manifest mode (.release-please-manifest.json) records the LAST
+# RELEASED version; the first release starts from 0.0.0.
+#
+# The built-in GITHUB_TOKEN is the only credential (the repository holds no
+# secrets). PRs it opens never trigger workflows, so the release PR carries no
+# all-green check: merge it through the ruleset's admin bypass, or push an empty
+# commit to its branch to start CI (see README).
+on:
+  workflow_call:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: release-please
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+      # The open rolling release PR's number, or '' when there is none. `pr` is
+      # a JSON object only when a release PR exists; `&&` short-circuits so
+      # fromJSON never runs on an empty string.
+      pr_number: ${{ steps.release.outputs.pr && fromJSON(steps.release.outputs.pr).number }}
+    steps:
+      - id: release
+        uses: googleapis/release-please-action@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  # Request the maintainers team on the rolling release PR. That PR is opened
+  # by a token whose PRs never fire auto-assign's `on: pull_request` trigger,
+  # so drive it explicitly by number. Idempotent; skipped when no release PR is
+  # open.
+  assign-release-pr:
+    needs: release
+    if: ${{ needs.release.outputs.pr_number != '' }}
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: ./.github/workflows/assign-pr.yml
+    with:
+      pr_number: ${{ needs.release.outputs.pr_number }}
+
+  # release-please creates the release as a draft (with its tag already pushed,
+  # see force-tag-creation in release-please-config.json); publish it once the
+  # tag exists so the release page and the tag never disagree.
+  publish-release:
+    needs: release
+    if: ${{ needs.release.outputs.release_created == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Publish the draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.release.outputs.tag_name }}
+        run: gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --draft=false
+
+  # Deploy on EVERY run, not only when a release was created: latest/ tracks
+  # main HEAD. The tag itself is pushed by the release job; `!cancelled()` keeps
+  # the deploy running when publish-release is skipped (no release this run)
+  # and otherwise waits for publish-release to finish.
+  site:
+    needs: [release, publish-release]
+    if: ${{ !cancelled() }}
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/deploy.yml

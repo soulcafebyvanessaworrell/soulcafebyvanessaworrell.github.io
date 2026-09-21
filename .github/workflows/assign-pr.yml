@@ -1,0 +1,79 @@
+name: Assign PR
+
+# Reusable: request the code-owner team's review on a specific PR by number.
+# Bot-opened PRs (e.g. the release-please release PR, opened by GITHUB_TOKEN)
+# never fire auto-assign's `on: pull_request` trigger (a recursion guard), so
+# they must be driven explicitly here. Calling a reusable workflow runs in the
+# SAME run, so that guard does not block these API calls. auto-assign.yml calls
+# this file too, so the CODEOWNERS parse lives in one place.
+#
+# The repository belongs to an organization, so the code owner is a team, and
+# GitHub's assignee APIs take users only: the org login (github.repository_owner)
+# and the team both get a 422. PRs therefore carry no individual assignee; the
+# team review request is the whole job.
+on:
+  workflow_call:
+    inputs:
+      pr_number:
+        description: PR number to request the code-owner team's review on.
+        required: true
+        type: string
+
+jobs:
+  # Idempotent -- safe to re-run on every caller invocation (e.g. each push that
+  # updates a rolling release PR): it won't re-request a team that is already
+  # requested or that has already given a verdict.
+  request-review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Request review from the code-owner team
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const prNumber = Number('${{ inputs.pr_number }}');
+
+            // CODEOWNERS on the default branch is the copy GitHub itself applies.
+            const { data: file } = await github.rest.repos.getContent({
+              owner, repo, path: '.github/CODEOWNERS',
+            });
+            const rules = Buffer.from(file.content, 'base64')
+              .toString('utf8')
+              .split('\n')
+              .filter((line) => !line.trim().startsWith('#'))
+              .join('\n');
+            const match = rules.match(/@([\w.-]+)\/([\w.-]+)/);
+            if (!match) {
+              core.setFailed('.github/CODEOWNERS names no @org/team owner; a review request needs a team, because an org login cannot be requested');
+              return;
+            }
+            const [, org, team] = match;
+            if (org.toLowerCase() !== owner.toLowerCase()) {
+              core.setFailed(`.github/CODEOWNERS names ${org}/${team}, but only a team of ${owner} (this repository's org) can be requested`);
+              return;
+            }
+
+            const { data: pr } = await github.rest.pulls.get({
+              owner, repo, pull_number: prNumber,
+            });
+            if ((pr.requested_teams || []).some((t) => t.slug === team)) {
+              core.info(`team ${team} is already requested on PR #${prNumber}`);
+              return;
+            }
+            // Only a verdict (approve or request changes) counts as the team's
+            // answer; a COMMENTED review, from anyone, does not.
+            const reviews = await github.paginate(github.rest.pulls.listReviews, {
+              owner, repo, pull_number: prNumber, per_page: 100,
+            });
+            if (reviews.some((r) => r.state === 'APPROVED' || r.state === 'CHANGES_REQUESTED')) {
+              core.info(`PR #${prNumber} already has a review verdict; not re-requesting ${team}`);
+              return;
+            }
+            await github.rest.pulls.requestReviewers({
+              owner, repo, pull_number: prNumber, team_reviewers: [team],
+            });
+            core.info(`requested review from team ${team} on PR #${prNumber}`);

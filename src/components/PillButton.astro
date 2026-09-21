@@ -1,0 +1,31 @@
+---
+// A rounded-full pill link in the script face. Variants set the hierarchy:
+// `indigo` is the single loud primary, `coral` a solid secondary CTA,
+// `coral-outline` a quieter secondary, `cream` the soft nav family. The dark
+// fills use the `on-dark` focus-ring swap.
+interface Props {
+  href: string;
+  variant?: "indigo" | "coral" | "coral-outline" | "cream";
+  /** Opens in a new tab + rel noopener when true (external booking links). */
+  external?: boolean;
+  class?: string;
+  /** Any extra attributes (id, data-*, aria-*) are forwarded to the anchor. */
+  [key: string]: unknown;
+}
+
+const { href, variant = "cream", external = false, class: klass = "", ...rest } = Astro.props;
+
+const variantClass = {
+  indigo: "pill-indigo on-dark",
+  coral: "pill-coral",
+  "coral-outline": "pill-coral-outline",
+  cream: "pill-cream",
+}[variant];
+
+const rel = external ? "noopener noreferrer" : undefined;
+const target = external ? "_blank" : undefined;
+---
+
+<a href={href} class:list={["pill tap", variantClass, klass]} rel={rel} target={target} {...rest}>
+  <slot />
+</a>

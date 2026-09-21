@@ -1,0 +1,138 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  check:
+    name: check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      # yamllint is a Python tool, not a JS dep; CI installs it to lint the
+      # workflow + data YAML. Local dev needs no system install.
+      - name: Install yamllint
+        run: pipx install yamllint
+
+      - name: Typecheck (astro check + tsc)
+        run: bun run typecheck
+
+      - name: Lint + format (biome)
+        run: bun run lint
+
+      # Unit tests (e.g. src/i18n/i18n.test.ts locale key-parity check). The
+      # env var enables its "no stub dictionary remains" assertion, so an
+      # untranslated locale fails CI instead of shipping English under its URL.
+      - name: Test (bun)
+        run: bun run test
+        env:
+          I18N_REQUIRE_TRANSLATED: "1"
+
+      - name: yamllint
+        run: yamllint -s .
+
+      - name: Build site
+        run: bun run build
+
+  smoke:
+    name: smoke (playwright)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Install Playwright Chromium
+        run: bunx playwright install chromium --with-deps
+
+      # The Playwright webServer runs `astro preview`, which only serves ./dist;
+      # build first so the preview has something to serve.
+      - name: Build site
+        run: bun run build
+
+      - name: Run smoke tests
+        run: bun run test:e2e
+
+  lighthouse:
+    name: lighthouse
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      # lhci starts its own `astro preview` server (see lighthouserc.json and
+      # scripts/lighthouse.mts), which serves ./dist, so build first.
+      - name: Build site
+        run: bun run build
+
+      # a11y assertions are error-level (fail the job); performance / best
+      # practices / seo are warn-only, so score jitter never blocks a merge.
+      - name: Run Lighthouse CI
+        run: bun run lighthouse
+
+  actionlint:
+    name: actionlint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: raven-actions/actionlint@v2
+
+  # Single aggregate gate: the ONLY CI context branch protection requires, so
+  # adding/renaming jobs never desyncs the required checks.
+  all-green:
+    name: all-green
+    if: always()
+    needs: [check, smoke, lighthouse, actionlint]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require all CI jobs to have succeeded
+        run: |
+          results="${{ join(needs.*.result, ',') }}"
+          echo "needs results: $results"
+          case ",$results," in
+            *,failure,* | *,cancelled,* | *,skipped,*)
+              echo "::error::a required CI job did not succeed ($results)"; exit 1 ;;
+          esac
+          echo "all required CI jobs succeeded"
+
+  release-please:
+    name: release-please
+    needs: all-green
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    uses: ./.github/workflows/release-please.yml
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      # Reusable workflows cannot ELEVATE caller permissions; the nested Pages
+      # deployment (release-please -> deploy) needs these granted here.
+      pages: write
+      id-token: write

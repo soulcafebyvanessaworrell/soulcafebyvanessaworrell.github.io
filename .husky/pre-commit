@@ -1,0 +1,16 @@
+#!/bin/sh
+set -e
+
+# Refuse to mutate the repo during commits. Dependencies should already exist.
+if [ ! -d node_modules ]; then
+	echo "Dependencies are missing. Run 'bun install' before committing."
+	exit 1
+fi
+
+# Format + lint the staged files (biome, auto-fix, restaged by lint-staged)
+bunx lint-staged
+
+# The full gates CI also runs; catch failures before they leave the machine
+bun run lint
+bun run typecheck
+bun run test

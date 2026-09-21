@@ -1,0 +1,30 @@
+# yamllint configuration. CI installs yamllint and runs `yamllint -s .` (also
+# invoked from the `check` job); local dev needs no yamllint install.
+extends: "default"
+
+ignore: |
+  node_modules/
+  .astro/
+  dist/
+  _site/
+  coverage/
+  playwright-report/
+  test-results/
+  .claude/
+  ignore/
+
+rules:
+  document-start: "disable"
+  line-length: "disable"
+  truthy:
+    # Workflow files use `on:` as a key.
+    check-keys: false
+  quoted-strings:
+    quote-type: "double"
+    required: true
+    # The always-quote rule targets data-like YAML (e.g. locale files).
+    # Workflows/repo config keep their conventional style, and this file
+    # would otherwise have to quote its own rule values recursively.
+    ignore: |
+      .github/
+      .yamllint

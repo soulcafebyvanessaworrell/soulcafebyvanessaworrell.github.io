@@ -1,0 +1,79 @@
+---
+// About: the founder's bio (verbatim from the client's copy), the list of
+// what we can work on together, and a closing invitation to book. The bio runs
+// as one consistent-measure column beside a sticky photo; two short subheads
+// break it into natural sections. Prose comes from pages(locale).about.
+import { Image } from "astro:assets";
+import PillButton from "../../components/PillButton.astro";
+import ScriptHeading from "../../components/ScriptHeading.astro";
+import SectionBand from "../../components/SectionBand.astro";
+import Signature from "../../components/Signature.astro";
+import { localizePath } from "../../i18n/locales";
+import { localeStaticPaths } from "../../i18n/routes";
+import { pages, t } from "../../i18n/ui";
+import Base from "../../layouts/Base.astro";
+import { founder } from "../../lib/assets";
+
+export const getStaticPaths = localeStaticPaths;
+
+const { locale } = Astro.props;
+const copy = pages(locale).about;
+---
+
+<Base title={copy.meta.title} description={copy.meta.description} active="about">
+  <section class="mx-auto w-full max-w-5xl px-5 py-14 sm:px-8 sm:py-20">
+    <ScriptHeading level={1} class="text-center sm:text-start">
+      {copy.heading}
+    </ScriptHeading>
+
+    <div class="mt-10 flex flex-col gap-10 md:grid md:grid-cols-[17rem_minmax(0,38rem)] md:items-start md:gap-12">
+      <Image
+        src={founder}
+        alt={copy.photoAlt}
+        widths={[288, 480, 640]}
+        sizes="(min-width: 768px) 17rem, (min-width: 640px) 24rem, 100vw"
+        class="card mx-auto w-full max-w-sm rounded-3xl object-cover md:mx-0 md:max-w-none md:sticky md:top-8 md:self-start"
+      />
+
+      <div class="flex flex-col gap-6 text-lg leading-relaxed text-ink">
+        {copy.bioOpening.map((para) => <p>{para}</p>)}
+
+        <h2 class="script mt-3 text-2xl text-ink">{copy.subheadApproach}</h2>
+        {copy.bioApproach.map((para) => <p>{para}</p>)}
+
+        <h2 class="script mt-3 text-2xl text-ink">{copy.subheadValues}</h2>
+        {copy.bioValues.map((para) => <p>{para}</p>)}
+
+        <Signature locale={locale} align="start" class="mt-8" />
+      </div>
+    </div>
+  </section>
+
+  <SectionBand color="periwinkle" heading={copy.workHeading}>
+    <ul class="mx-auto max-w-3xl columns-1 gap-x-12 sm:columns-2">
+      {
+        copy.workOnTogether.map((item) => (
+          <li class="mb-3 flex break-inside-avoid items-start gap-3 text-lg text-ink">
+            <span class="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-ink" aria-hidden="true" />
+            <span>{item}</span>
+          </li>
+        ))
+      }
+    </ul>
+  </SectionBand>
+
+  <SectionBand color="white">
+    <div class="flex flex-col items-center gap-6 text-center">
+      <p class="max-w-2xl text-xl leading-relaxed text-ink">{copy.closingLine}</p>
+      <PillButton href={localizePath("book/", locale)} variant="indigo">
+        {t(locale, "book_session")}
+      </PillButton>
+      <a
+        href={localizePath("contact/", locale)}
+        class="tap inline-block py-2.5 text-soft underline decoration-periwinkle-deep/40 underline-offset-4 transition-colors hover:text-ink"
+      >
+        {copy.questionLink}
+      </a>
+    </div>
+  </SectionBand>
+</Base>

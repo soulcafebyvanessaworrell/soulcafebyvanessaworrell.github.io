@@ -1,0 +1,129 @@
+---
+// Site footer: a contact column (phone, WhatsApp, email, website) and a
+// socials column (icon + handle links), collapsing 2-col → 1-col, then a
+// bottom row with the copyright line, the privacy link, and the crisis note.
+// Dark ink fill; a light focus ring is provided by the `on-dark` wrapper.
+import { Icon } from "astro-icon/components";
+import type { SiteLocale } from "../i18n/locales";
+import { localizePath } from "../i18n/locales";
+import { pages, t } from "../i18n/ui";
+import { CONTACT, CRISIS, PUBLISHED_SOCIALS, SITE_TITLE } from "../lib/constants";
+import VersionNav from "./VersionNav.astro";
+
+interface Props {
+  locale: SiteLocale;
+}
+
+const { locale } = Astro.props;
+const year = new Date().getFullYear();
+
+// Phone numbers, addresses, handles, and the copyright line are Latin/digit
+// runs. Inside a right-to-left page the bidi algorithm would reorder "+91
+// 7009..." around its weak characters and push the leading © to the far end,
+// so each is isolated with dir="ltr".
+const ltr = { dir: "ltr" } as const;
+
+// The {short}/{full} placeholders in crisis_note mark where the tap-to-call tel:
+// links go; styled as plain text so they aren't mistaken for a Soul Cafe line.
+const crisisNote = t(locale, "crisis_note");
+
+// The email and website are the longest Latin runs in the footer. When a
+// narrow viewport or a fallback face makes them wrap, these <wbr> points put
+// the break before the "@" and before the top-level domain; wrap-anywhere on
+// the spans is the last resort for anything still too long.
+const [emailUser, emailHost] = CONTACT.email.split("@");
+const websiteTld = CONTACT.website.lastIndexOf(".");
+const websiteName = CONTACT.website.slice(0, websiteTld);
+const websiteSuffix = CONTACT.website.slice(websiteTld);
+const [crisisBefore, crisisAfterShort = ""] = crisisNote.split("{short}");
+const [crisisBetween, crisisAfterFull = ""] = crisisAfterShort.split("{full}");
+---
+
+<footer class="on-dark bg-ink text-stone-300">
+  <div class="mx-auto grid max-w-5xl gap-10 px-5 py-14 sm:grid-cols-2 sm:px-8">
+    <section aria-labelledby="footer-contact">
+      <h2 id="footer-contact" class="mb-4 font-script text-2xl font-bold text-white">
+        {t(locale, "footer_contact")}
+      </h2>
+      <ul class="space-y-2.5 text-sm">
+        <li>
+          <a class="tap inline-flex items-center gap-2.5 transition-colors hover:text-white" href={CONTACT.phoneHref}>
+            <Icon name="lucide:phone" class="h-4 w-4 shrink-0 text-mint" aria-hidden="true" />
+            <span {...ltr}>{CONTACT.phone}</span>
+          </a>
+        </li>
+        <li>
+          <a
+            class="tap inline-flex items-center gap-2.5 transition-colors hover:text-white"
+            href={CONTACT.whatsappHref}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Icon name="simple-icons:whatsapp" class="h-4 w-4 shrink-0 text-mint" aria-hidden="true" />
+            WhatsApp
+          </a>
+        </li>
+        <li>
+          <a class="tap inline-flex items-center gap-2.5 transition-colors hover:text-white" href={`mailto:${CONTACT.email}`}>
+            <Icon name="lucide:mail" class="h-4 w-4 shrink-0 text-mint" aria-hidden="true" />
+            <span {...ltr} class="wrap-anywhere">{emailUser}<wbr />@{emailHost}</span>
+          </a>
+        </li>
+        <li class="inline-flex items-center gap-2.5 text-stone-300">
+          <Icon name="lucide:globe" class="h-4 w-4 shrink-0 text-mint" aria-hidden="true" />
+          <span {...ltr} class="wrap-anywhere">{websiteName}<wbr />{websiteSuffix}</span>
+        </li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="footer-follow" class="sm:text-end">
+      <h2 id="footer-follow" class="mb-4 font-script text-2xl font-bold text-white">
+        {t(locale, "footer_follow")}
+      </h2>
+      <ul class="space-y-2.5 text-sm sm:flex sm:flex-col sm:items-end">
+        {
+          PUBLISHED_SOCIALS.map((social) => (
+            <li>
+              <a
+                class="tap inline-flex items-center gap-2.5 transition-colors hover:text-white"
+                href={social.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`${social.name}: ${social.handle}`}
+              >
+                <Icon name={social.icon} class="h-4 w-4 shrink-0 text-mint" aria-hidden="true" />
+                <span {...ltr}>{social.handle}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <VersionNav locale={locale} />
+  </div>
+
+  <div class="mx-auto max-w-5xl border-t border-white/10 px-5 py-6 sm:px-8">
+    <div
+      class="flex flex-col gap-3 text-sm text-stone-300 sm:flex-row sm:items-start sm:justify-between sm:gap-10"
+    >
+      <div class="flex flex-wrap items-center gap-x-5 gap-y-1">
+        <p><span {...ltr}>© {year} {SITE_TITLE}</span></p>
+        <a class="tap inline-flex items-center transition-colors hover:text-white" href={localizePath("privacy/", locale)}>
+          {pages(locale).privacy.meta.title}
+        </a>
+      </div>
+      <p class="max-w-2xl text-balance sm:text-end">
+        {crisisBefore}<a
+          href={CRISIS.numberHref}
+          {...ltr}
+          class="whitespace-nowrap text-inherit no-underline">{CRISIS.number}</a
+        >{crisisBetween}<a
+          href={CRISIS.fullNumberHref}
+          {...ltr}
+          class="whitespace-nowrap text-inherit no-underline">{CRISIS.fullNumber}</a
+        >{crisisAfterFull}
+      </p>
+    </div>
+  </div>
+</footer>

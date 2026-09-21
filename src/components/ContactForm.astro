@@ -1,0 +1,241 @@
+---
+// The contact form. Posts to FormSubmit (formsubmit.co) as multipart/form-data
+// so the optional file attachment rides along. Every visible field has a real
+// <label>; a hidden honeypot (_honey) traps bots; _next sends a successful
+// submission to the localized thank-you page.
+//
+// OWNER ACTION REQUIRED: FormSubmit needs a one-time activation. The FIRST real
+// submission to this endpoint triggers a confirmation email to CONTACT.email
+// (src/lib/constants.ts). Click the link in it once and every later submission
+// delivers silently. Until then, mail is held. See README.
+import { Icon } from "astro-icon/components";
+import { localizePath, type SiteLocale } from "../i18n/locales";
+import { form } from "../i18n/ui";
+import { CONTACT, FORMSUBMIT_ENDPOINT, SITE_ORIGIN } from "../lib/constants";
+
+interface Props {
+  locale: SiteLocale;
+  class?: string;
+}
+
+const { locale, class: klass = "" } = Astro.props;
+
+// Absolute URL of the localized thank-you page. FormSubmit redirects here on
+// success, so it must be the deployed origin + base, not a relative path.
+const nextUrl = `${SITE_ORIGIN}${localizePath("contact/thanks/", locale)}`;
+
+const s = form(locale);
+
+const fileAccept = ".pdf,.doc,.docx,.txt,.rtf,.odt,image/png,image/jpeg,image/webp,image/gif";
+---
+
+<div class:list={["mx-auto w-full max-w-2xl", klass]}>
+  <form
+    action={FORMSUBMIT_ENDPOINT}
+    method="post"
+    enctype="multipart/form-data"
+    data-contact-form
+    data-reply-hint={s.replyHint}
+    class="flex flex-col gap-5"
+  >
+    {/* FormSubmit control fields (not shown to the visitor). */}
+    <input type="hidden" name="_subject" value="New message from thesoulcafe website" />
+    <input type="hidden" name="_template" value="table" />
+    <input type="hidden" name="_captcha" value="false" />
+    <input type="hidden" name="_next" value={nextUrl} />
+
+    {/* Honeypot: a real field bots tend to fill and humans never see. Hidden
+        from layout, the a11y tree, and tab order. A submission with this set
+        is silently dropped by FormSubmit. */}
+    <div class="sr-only" aria-hidden="true">
+      <label for="cf-honey">{s.honeypot}</label>
+      <input id="cf-honey" type="text" name="_honey" tabindex="-1" autocomplete="off" />
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label for="cf-name" class="flex items-center gap-2 font-bold text-ink">
+        <Icon name="lucide:user" class="h-4.5 w-4.5 text-periwinkle-deep" aria-hidden="true" />
+        {s.name}
+        <span class="text-on-coral" aria-hidden="true">*</span>
+        <span class="sr-only">{s.required}</span>
+      </label>
+      <input id="cf-name" class="field" type="text" name="name" required autocomplete="name" />
+    </div>
+
+    <fieldset class="flex flex-col gap-2 border-0 p-0">
+      <legend class="mb-2 flex items-center gap-2 font-bold text-ink">
+        <Icon name="lucide:phone" class="h-4.5 w-4.5 text-periwinkle-deep" aria-hidden="true" />
+        {s.phone}
+      </legend>
+      <div class="flex gap-3">
+        <div class="flex w-28 shrink-0 flex-col gap-1.5">
+          <label for="cf-cc" class="text-sm text-soft">{s.countryCode}</label>
+          <input
+            id="cf-cc"
+            class="field"
+            type="text"
+            name="phone country code"
+            value="+91"
+            dir="ltr"
+            inputmode="tel"
+            autocomplete="tel-country-code"
+          />
+        </div>
+        <div class="flex flex-1 flex-col gap-1.5">
+          <label for="cf-num" class="text-sm text-soft">{s.number}</label>
+          <input
+            id="cf-num"
+            class="field"
+            type="tel"
+            name="phone number"
+            dir="ltr"
+            autocomplete="tel-national"
+            inputmode="tel"
+            pattern="[0-9\s()+-]*"
+            minlength="7"
+            title={s.phoneFormat}
+            aria-describedby="cf-reply-hint"
+          />
+        </div>
+      </div>
+    </fieldset>
+
+    <div class="flex flex-col gap-2">
+      <label for="cf-email" class="flex items-center gap-2 font-bold text-ink">
+        <Icon name="lucide:mail" class="h-4.5 w-4.5 text-periwinkle-deep" aria-hidden="true" />
+        {s.email}
+      </label>
+      {/* `required` here is the no-JS fallback so FormSubmit always has a reply
+          channel. With JS, the script below relaxes it to "email OR phone". */}
+      <input
+        id="cf-email"
+        class="field"
+        type="email"
+        name="email"
+        required
+        autocomplete="email"
+        aria-describedby="cf-reply-hint"
+      />
+      <p id="cf-reply-hint" class="text-sm text-soft">{s.replyHint}</p>
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label for="cf-subject" class="flex items-center gap-2 font-bold text-ink">
+        <Icon name="lucide:megaphone" class="h-4.5 w-4.5 text-periwinkle-deep" aria-hidden="true" />
+        {s.subject}
+        <span class="font-normal text-soft">{s.optional}</span>
+      </label>
+      <input id="cf-subject" class="field" type="text" name="subject" />
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label for="cf-file" class="flex items-center gap-2 font-bold text-ink">
+        <Icon name="lucide:paperclip" class="h-4.5 w-4.5 text-periwinkle-deep" aria-hidden="true" />
+        {s.attachment}
+      </label>
+      <input
+        id="cf-file"
+        class="field cursor-pointer file:me-3 file:rounded-full file:border-0 file:bg-cream file:px-4 file:py-1.5 file:font-bold file:text-ink hover:file:brightness-95"
+        type="file"
+        name="attachment"
+        accept={fileAccept}
+      />
+      <p class="text-sm text-soft">{s.attachmentHelp}</p>
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label for="cf-message" class="flex items-center gap-2 font-bold text-ink">
+        <Icon name="lucide:message-circle" class="h-4.5 w-4.5 text-periwinkle-deep" aria-hidden="true" />
+        {s.message}
+        <span class="text-on-coral" aria-hidden="true">*</span>
+        <span class="sr-only">{s.required}</span>
+      </label>
+      <textarea
+        id="cf-message"
+        class="field resize-y"
+        name="message"
+        rows="6"
+        required
+        placeholder={s.messagePlaceholder}></textarea>
+    </div>
+
+    <button type="submit" class="pill pill-coral tap mt-1 w-full sm:w-fit">
+      <Icon name="lucide:send" class="h-5 w-5" aria-hidden="true" />
+      {s.send}
+    </button>
+  </form>
+
+  <div class="mt-8 border-t border-ink/10 pt-6">
+    <p class="mb-3 text-sm font-bold text-ink">{s.alt}</p>
+    <ul class="flex flex-wrap gap-x-6 gap-y-3 text-sm">
+      <li>
+        <a class="tap inline-flex items-center gap-2 text-periwinkle-deep hover:underline" href={CONTACT.phoneHref}>
+          <Icon name="lucide:phone" class="h-4 w-4" aria-hidden="true" />
+          {s.call} · <span dir="ltr">{CONTACT.phone}</span>
+        </a>
+      </li>
+      <li>
+        <a
+          class="tap inline-flex items-center gap-2 text-periwinkle-deep hover:underline"
+          href={CONTACT.whatsappHref}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Icon name="simple-icons:whatsapp" class="h-4 w-4" aria-hidden="true" />
+          {s.whatsapp}
+        </a>
+      </li>
+      <li>
+        <a class="tap inline-flex items-center gap-2 text-periwinkle-deep hover:underline" href={`mailto:${CONTACT.email}`}>
+          <Icon name="lucide:mail" class="h-4 w-4" aria-hidden="true" />
+          {s.email_us}
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+{/* Progressive enhancement: require AT LEAST ONE of email or phone. Native HTML
+    can't express an or-requirement, so the `required` attribute on email is the
+    no-JS fallback (safest: FormSubmit always gets a reply channel). With JS we
+    relax it to "email OR phone" via setCustomValidity, clearing as soon as
+    either field is filled. Rebinds on every astro:page-load to survive view
+    transitions, matching src/scripts/site.ts. */}
+<script>
+  function initContactReplyRule() {
+    const form = document.querySelector("form[data-contact-form]");
+    if (!(form instanceof HTMLFormElement)) return;
+    const email = form.querySelector("#cf-email");
+    const phone = form.querySelector("#cf-num");
+    if (!(email instanceof HTMLInputElement) || !(phone instanceof HTMLInputElement)) return;
+
+    const hint = form.dataset.replyHint ?? "";
+    // Remove the no-JS fallbacks (email `required`, phone pattern/minlength);
+    // sync() below enforces the "email OR phone" rule instead.
+    email.removeAttribute("required");
+    phone.removeAttribute("pattern");
+    phone.removeAttribute("minlength");
+
+    // A phone counts as a real reply channel only when it looks like a number
+    // (7+ characters of digits, spaces, and common phone punctuation), so one
+    // stray character can't satisfy the "email or phone" rule.
+    const phoneLike = /^[\d\s()+-]{7,}$/;
+    const hasEmail = () => email.value.trim().length > 0;
+    const hasPhone = () => phoneLike.test(phone.value.trim());
+    const sync = () => {
+      const needsOne = !hasEmail() && !hasPhone();
+      for (const el of [email, phone]) {
+        el.setAttribute("aria-required", needsOne ? "true" : "false");
+        // A non-empty message makes the field invalid; the browser shows it on
+        // submit and clears the block the moment either field gets a value.
+        el.setCustomValidity(needsOne ? hint : "");
+      }
+    };
+
+    email.addEventListener("input", sync);
+    phone.addEventListener("input", sync);
+    sync();
+  }
+
+  document.addEventListener("astro:page-load", initContactReplyRule);
+</script>

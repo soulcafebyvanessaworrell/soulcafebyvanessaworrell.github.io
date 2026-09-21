@@ -1,0 +1,123 @@
+# Repository settings managed by the Probot "Settings" GitHub App
+# (https://github.com/apps/settings). This file is inert unless that app is
+# installed on the repo. The `rulesets` block below is an experimental upstream
+# feature (repository-settings/app) -- its schema may still change.
+
+repository:
+  description: "Website for The Soul Cafe by Vanessa Worrell: psychotherapy for adolescents, adults, and families. Healing brewed daily."
+  topics: astro, tailwindcss, typescript, bun, website, psychotherapy, mental-health
+  private: false
+  has_issues: true
+  has_wiki: false
+  has_projects: false
+  has_discussions: false
+  default_branch: main
+  allow_squash_merge: true
+  allow_merge_commit: false
+  allow_rebase_merge: false
+  delete_branch_on_merge: true
+  allow_auto_merge: true
+  # Offer the "update branch" button on PRs when the base branch has moved.
+  allow_update_branch: true
+  enable_vulnerability_alerts: true
+  enable_automated_security_fixes: true
+
+labels:
+  - name: dependencies
+    color: "0366d6"
+    description: Dependency updates
+  - name: bug
+    color: "d73a4a"
+    description: Something isn't working
+  - name: enhancement
+    color: "a2eeef"
+    description: New feature or request
+  - name: fix-lint
+    color: "fbca04"
+    description: Lint / formatting fixes
+  # release-please manages these two; listing them here keeps the settings
+  # sync from deleting them (it removes any label not declared in this file).
+  - name: "autorelease: pending"
+    color: "ededed"
+    description: release-please release PR awaiting merge/tag
+  - name: "autorelease: tagged"
+    color: "ededed"
+    description: release-please release PR has been tagged
+
+# Branch ruleset for the default branch. Admins (RepositoryRole id 5) are in the
+# bypass list, so direct pushes to main still work.
+rulesets:
+  - name: main
+    target: branch
+    enforcement: active
+    conditions:
+      ref_name:
+        include:
+          - "~DEFAULT_BRANCH"
+        exclude: []
+    rules:
+      - type: deletion
+      - type: non_fast_forward
+      - type: required_linear_history
+      - type: required_status_checks
+        parameters:
+          strict_required_status_checks_policy: false
+          do_not_enforce_on_create: true
+          required_status_checks:
+            # Single aggregate gate (ci.yml `all-green`, which `needs:` every CI
+            # job). Keeps this list stable when jobs are added or renamed.
+            - context: all-green
+            # PR titles become squash-commit subjects, which drive
+            # release-please versioning; enforce Conventional Commits.
+            - context: conventional-title
+      - type: pull_request
+        parameters:
+          required_approving_review_count: 0
+          dismiss_stale_reviews_on_push: false
+          # The sole code owner is the org team named in .github/CODEOWNERS
+          # (`maintainers`). GitHub honours it only while the team is Visible
+          # and has Write on this repo (README, "Repository setup"). Any team
+          # member other than the PR author satisfies this rule; a PR nobody
+          # else can review (a solo maintainer's own PR, or the release PR
+          # when the author is the only member) is merged via the admin
+          # bypass below.
+          require_code_owner_review: true
+          require_last_push_approval: false
+          required_review_thread_resolution: false
+          allowed_merge_methods:
+            - squash
+      # Automatically request Copilot code review on PRs to main, including on
+      # each new push and on draft PRs.
+      - type: copilot_code_review
+        parameters:
+          review_on_push: true
+          review_draft_pull_requests: true
+      - type: code_quality
+        parameters:
+          severity: warning
+    bypass_actors:
+      - actor_id: 5
+        actor_type: RepositoryRole
+        bypass_mode: always
+
+  # Tag ruleset for release tags. The deploy rebuilds the production root and
+  # the vX.Y.Z/ directories from these tags on every run, so a moved or deleted
+  # tag would silently republish a different site. Creating a tag stays open
+  # (release-please pushes them with the built-in token); deleting or moving one
+  # needs the admin bypass.
+  - name: release-tags
+    target: tag
+    enforcement: active
+    conditions:
+      ref_name:
+        include:
+          - "refs/tags/v*"
+        exclude: []
+    rules:
+      - type: deletion
+      - type: non_fast_forward
+      - type: update
+    bypass_actors:
+      - actor_id: 5
+        actor_type: RepositoryRole
+        bypass_mode: always

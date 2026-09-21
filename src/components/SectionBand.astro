@@ -1,0 +1,32 @@
+---
+// A full-bleed color band with a centered max-width container and responsive
+// vertical rhythm. Optional heading renders a centered ScriptHeading (h2).
+//
+// Color comes from the band-* classes in styles.css: each is a soft pastel
+// surface paired with one deep same-hue tone for headings, feature labels, and
+// icons. Body text stays neutral ink. All pairings measure WCAG AA.
+import ScriptHeading from "./ScriptHeading.astro";
+
+interface Props {
+  color: "white" | "periwinkle" | "mint" | "coral";
+  heading?: string;
+  id?: string;
+  class?: string;
+}
+
+const { color, heading, id, class: klass = "" } = Astro.props;
+
+const bandClass = {
+  white: "band-white",
+  periwinkle: "band-periwinkle",
+  mint: "band-mint",
+  coral: "band-coral",
+}[color];
+---
+
+<section id={id} class:list={[bandClass, klass]}>
+  <div class="mx-auto w-full max-w-5xl px-5 py-14 sm:px-8 sm:py-20">
+    {heading && <ScriptHeading level={2} class="mb-7 text-center sm:mb-9">{heading}</ScriptHeading>}
+    <slot />
+  </div>
+</section>

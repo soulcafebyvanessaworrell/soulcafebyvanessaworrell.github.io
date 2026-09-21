@@ -1,0 +1,60 @@
+---
+// Fixed WhatsApp chat button, bottom-right. Green brand fill, safe-area aware,
+// nudged up a little so it never sits on top of the crisis strip / footer, and
+// hidden when printing. Smaller and tucked tighter into the corner below md so
+// it clears page content on phones; matching footer padding reserves room at
+// the page end.
+import { Icon } from "astro-icon/components";
+import type { SiteLocale } from "../i18n/locales";
+import { t } from "../i18n/ui";
+import { CONTACT } from "../lib/constants";
+
+interface Props {
+  locale: SiteLocale;
+}
+
+const { locale } = Astro.props;
+const label = t(locale, "whatsapp_label");
+---
+
+<div role="complementary" aria-label={label} class="print:hidden">
+  <a
+    href={CONTACT.whatsappHref}
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label={label}
+    title={label}
+    class="whatsapp-float on-dark tap fixed right-3 bottom-3 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[var(--shadow-lift)] transition-transform duration-200 hover:scale-105 active:scale-95 md:right-4 md:bottom-5 md:h-14 md:w-14"
+  >
+    <Icon name="simple-icons:whatsapp" class="h-6 w-6 md:h-7 md:w-7" aria-hidden="true" />
+  </a>
+</div>
+
+<style is:global>
+  /* Safe-area refinement as a progressive enhancement. The base right-3 and
+     bottom-3 utilities use plain lengths every browser applies; engines that
+     understand env() nudge the button clear of notches and home indicators.
+     Keeping env() out of the base declarations matters: a parser that chokes
+     on env() drops the whole declaration, which leaves right and bottom at
+     auto and strands the button at its in-flow position (bottom left). */
+  @supports (bottom: calc(env(safe-area-inset-bottom, 0px) + 1px)) {
+    .whatsapp-float {
+      right: calc(0.75rem + env(safe-area-inset-right, 0px));
+      bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+    }
+    @media (min-width: 768px) {
+      .whatsapp-float {
+        right: calc(1rem + env(safe-area-inset-right, 0px));
+        bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+      }
+    }
+  }
+
+  /* Pad the footer on phones so page-end content scrolls clear of the fixed
+     button (footer, not body, so the dark fill extends beneath it). */
+  @media (max-width: 767px) {
+    body > footer {
+      padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+    }
+  }
+</style>

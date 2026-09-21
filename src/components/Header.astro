@@ -1,0 +1,162 @@
+---
+// Site header on a mint band, two grouped rows on every screen.
+//
+// Desktop (lg+): a brand row with the centered logo and "Healing brewed
+// daily..." tagline, plus quiet ghost utilities (language, cart) at the inline end;
+// then, below a hairline and a slightly deeper mint tint, an action bar. The
+// action bar order is a fixed user requirement: home icon, then the Book a
+// Session primary, then the six cream nav pills (centred), then the Contact Us
+// outline secondary at the inline end.
+//
+// Mobile (< lg): no hamburger. The same pieces stay permanently visible in a
+// compact stack: a brand row (home icon, logo + tagline, language + cart), then
+// Book a Session, the nav pills as a centred wrap, and Contact Us.
+//
+// Hierarchy throughout: Book a Session is the one loud indigo primary, Contact
+// Us a quieter outline, the nav the soft cream family, the utilities whisper.
+import { Image } from "astro:assets";
+import { Icon } from "astro-icon/components";
+import { LOCALES, localizePath, type SiteLocale } from "../i18n/locales";
+import { t } from "../i18n/ui";
+import { logo, teacupDoodle } from "../lib/assets";
+import LanguagePicker from "./LanguagePicker.astro";
+import NavPills from "./NavPills.astro";
+import PillButton from "./PillButton.astro";
+
+interface Props {
+  active?: string;
+  locale: SiteLocale;
+  /** Forwarded to the language picker: the locales this page exists in, and
+   *  where to send the others (see Base.astro). */
+  available?: readonly SiteLocale[];
+  fallbackPath?: string;
+}
+
+const { active = "", locale, available = LOCALES, fallbackPath = "" } = Astro.props;
+
+const homeHref = localizePath("", locale);
+const contactHref = localizePath("contact/", locale);
+const bookHref = localizePath("book/", locale);
+const merchHref = localizePath("merch/", locale);
+
+const ghostControl =
+  "tap inline-flex h-11 w-11 items-center justify-center rounded-full border border-ink/10 bg-paper/45 text-ink/70 transition-colors hover:bg-paper/80 hover:text-ink lg:h-9 lg:w-9";
+---
+
+<header class="bg-mint text-ink">
+  {/* ---- Desktop (lg+): brand row, hairline, action bar ------------------ */}
+  <div class="hidden lg:block">
+    <div class="relative mx-auto flex max-w-7xl justify-center px-6 pt-4 pb-3">
+      <a href={homeHref} class="flex flex-col items-center gap-1 text-center">
+        <span class="sr-only">{t(locale, "home")}</span>
+        <Image
+          src={logo}
+          alt=""
+          width={160}
+          height={160}
+          class="h-40 w-40 rounded-full"
+          densities={[1, 2]}
+          loading="eager"
+        />
+        <span class="flex items-center gap-1.5 font-script text-xl font-bold text-periwinkle-deep">
+          {t(locale, "tagline")}
+          <img
+            src={teacupDoodle}
+            alt=""
+            aria-hidden="true"
+            width="24"
+            height="24"
+            class="teacup-bob h-6 w-6"
+          />
+        </span>
+      </a>
+
+      <div class="absolute top-1/2 end-6 flex -translate-y-1/2 items-center gap-2">
+        <LanguagePicker locale={locale} available={available} fallbackPath={fallbackPath} />
+        <a href={merchHref} class={ghostControl} aria-label={t(locale, "cart")}>
+          <Icon name="lucide:shopping-cart" class="h-[1.15rem] w-[1.15rem]" aria-hidden="true" />
+        </a>
+      </div>
+    </div>
+
+    <div class="border-t border-ink/10 bg-mint-deep/25">
+      <div class="mx-auto grid max-w-7xl grid-cols-[1fr_auto_1fr] items-center gap-4 px-6 py-2.5">
+        {/* USER REQUIREMENT (do not change): home icon first, Book a Session
+            second, at the START of the bar. Contact stays at the inline end as the quieter
+            secondary. */}
+        <div class="flex items-center gap-2.5 justify-self-start">
+          <a href={homeHref} class={ghostControl} aria-label={t(locale, "home")}>
+            <Icon name="lucide:house" class="h-[1.15rem] w-[1.15rem]" aria-hidden="true" />
+          </a>
+          <PillButton href={bookHref} variant="indigo">{t(locale, "book_session")}</PillButton>
+        </div>
+        <div class="min-w-0">
+          <NavPills active={active} locale={locale} size="compact" />
+        </div>
+        <div class="flex items-center gap-2.5 justify-self-end">
+          <PillButton href={contactHref} variant="coral-outline">
+            {t(locale, "contact_us")}
+          </PillButton>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {/* ---- Mobile (< lg): no hamburger, menu always visible ---------------- */}
+  <div class="lg:hidden">
+    {/* The brand block centers on the page itself; the side controls are
+        pinned to the edges so their unequal widths cannot push the logo
+        off-center. Controls align with the logo row, above the tagline. The
+        cart hides on the narrowest phones, where the enlarged logo would
+        otherwise meet the fixed 44px language trigger; merch stays one nav
+        pill away. */}
+    <div class="relative px-4 pt-2.5 pb-2">
+      <a href={homeHref} class="flex flex-col items-center gap-0.5 text-center">
+        <span class="sr-only">{t(locale, "home")}</span>
+        <Image
+          src={logo}
+          alt=""
+          width={104}
+          height={104}
+          class="h-26 w-26 rounded-full"
+          densities={[1, 2]}
+          loading="eager"
+        />
+        <span class="flex items-center gap-1 font-script text-sm font-bold text-periwinkle-deep">
+          {t(locale, "tagline")}
+          <img
+            src={teacupDoodle}
+            alt=""
+            aria-hidden="true"
+            width="16"
+            height="16"
+            class="teacup-bob h-4 w-4"
+          />
+        </span>
+      </a>
+      <a
+        href={homeHref}
+        class:list={[ghostControl, "absolute top-3.5 start-3"]}
+        aria-label={t(locale, "home")}
+      >
+        <Icon name="lucide:house" class="h-[1.15rem] w-[1.15rem]" aria-hidden="true" />
+      </a>
+      <div class="absolute top-3.5 end-3 flex items-center gap-1.5">
+        <LanguagePicker locale={locale} available={available} fallbackPath={fallbackPath} />
+        <a
+          href={merchHref}
+          class:list={[ghostControl, "max-[360px]:hidden"]}
+          aria-label={t(locale, "cart")}
+        >
+          <Icon name="lucide:shopping-cart" class="h-[1.15rem] w-[1.15rem]" aria-hidden="true" />
+        </a>
+      </div>
+    </div>
+
+    <div class="flex flex-col items-center gap-3 border-t border-ink/10 bg-mint-deep/25 px-4 pt-3 pb-4">
+      <PillButton href={bookHref} variant="indigo">{t(locale, "book_session")}</PillButton>
+      <NavPills active={active} locale={locale} />
+      <PillButton href={contactHref} variant="coral-outline">{t(locale, "contact_us")}</PillButton>
+    </div>
+  </div>
+</header>
