@@ -1,5 +1,6 @@
 // Builds every published tier (root, latest/, vX.Y.Z/) into one GitHub Pages artifact
-// directory, each from `git archive` of its ref, plus versions.json; planTiers decides the tiers.
+// directory, each from `git archive` of its ref, plus versions.json; planTiers decides the tiers
+// and resolveSite decides where the site lives, both from the environment GitHub Actions sets.
 import {
   cpSync,
   existsSync,
@@ -98,9 +99,11 @@ export function reservedNames(tiers: Tier[]): string[] {
 }
 
 /**
- * Where the site lives, mirroring the deploy workflow's resolution: a custom
- * domain sits at its root; otherwise the GitHub Pages host for the owner, with
- * a root base for an `<owner>.github.io` repository and `/<repo>/` for any other.
+ * Where the site lives, from the environment the deploy runs in: a custom domain
+ * (the CUSTOM_DOMAIN repository variable) sits at its root; otherwise the GitHub
+ * Pages host for the owner, with a root base for an `<owner>.github.io` repository
+ * and `/<repo>/` for any other. The base always carries one leading and one
+ * trailing slash, so tier paths join onto it directly.
  */
 export function resolveSite(repository: string, customDomain?: string): SiteLocation {
   if (customDomain) return { origin: `https://${customDomain}`, base: "/" };
@@ -108,12 +111,6 @@ export function resolveSite(repository: string, customDomain?: string): SiteLoca
   if (!owner || !repo) throw new Error(`GITHUB_REPOSITORY is not owner/repo: "${repository}"`);
   const host = `${owner.toLowerCase()}.github.io`;
   return { origin: `https://${host}`, base: repo.toLowerCase() === host ? "/" : `/${repo}/` };
-}
-
-/** A base path with exactly one leading and one trailing slash ("/" for the root). */
-export function normalizeBase(base: string): string {
-  const core = base.replace(/^\/+|\/+$/g, "");
-  return core ? `/${core}/` : "/";
 }
 
 /** Runs git against the repository at `cwd`. A git hook exports GIT_DIR and its siblings,
@@ -191,17 +188,14 @@ function main(argv: string[]): void {
     args: argv,
     options: {
       site: { type: "string", default: "_site" },
-      origin: { type: "string" },
-      base: { type: "string" },
     },
   });
-  const location =
-    values.origin && values.base
-      ? { origin: values.origin, base: values.base }
-      : resolveSite(process.env.GITHUB_REPOSITORY ?? "", process.env.CUSTOM_DOMAIN);
-  const origin = (values.origin ?? location.origin).replace(/\/+$/, "");
-  const base = normalizeBase(values.base ?? location.base);
+  const { origin, base } = resolveSite(
+    process.env.GITHUB_REPOSITORY ?? "",
+    process.env.CUSTOM_DOMAIN,
+  );
   const site = path.resolve(values.site);
+  console.log(`Site origin: ${origin}, base path: ${base}`);
 
   if (git(["rev-parse", "--is-shallow-repository"]) !== "false") {
     throw new Error(

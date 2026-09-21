@@ -8,7 +8,6 @@ import os from "node:os";
 import path from "node:path";
 import {
   keptTags,
-  normalizeBase,
   planTiers,
   reachableReleaseTags,
   reservedNames,
@@ -111,16 +110,6 @@ describe("resolveSite", () => {
   test("a repository coordinate without an owner is rejected", () => {
     // Drift: an unset GITHUB_REPOSITORY would silently publish to https://.github.io.
     expect(() => resolveSite("")).toThrow(/GITHUB_REPOSITORY/);
-  });
-});
-
-describe("normalizeBase", () => {
-  test("bases join with tier paths on exactly one slash", () => {
-    // Drift: "/repo" + "latest/" would produce "/repolatest/".
-    expect(normalizeBase("/repo")).toBe("/repo/");
-    expect(normalizeBase("repo//")).toBe("/repo/");
-    expect(normalizeBase("")).toBe("/");
-    expect(normalizeBase("/")).toBe("/");
   });
 });
 

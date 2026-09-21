@@ -2,19 +2,19 @@ name: Deploy website
 
 # Publishes every tier of the site in ONE GitHub Pages deployment, rebuilt from
 # git on every run (no state carried between deploys, no gh-pages branch):
-#   /               the newest vX.Y.Z tag, or main HEAD until the first tag exists
+#   /               the newest vX.Y.Z tag reachable from main, or main HEAD until one exists
 #   /latest/        main HEAD, always
-#   /stable/        the newest tag; absent until one exists, never HEAD
 #   /vX.Y.Z/        one directory per kept tag: the KEPT_VERSIONS newest plain-semver
 #                   tags (scripts/pages-site.mts)
 #   /versions.json  the tier list, for readers outside the site (the builds get it as SITE_VERSIONS)
 # Only the root is indexable: every other tier builds with ASTRO_STAGING=1
 # (site-wide noindex, no sitemap). scripts/pages-site.mts plans and builds the
-# tiers; this workflow resolves where the site lives and ships the result. It is
-# called by release-please.yml after every push to main (a release commit's own
-# run sees its new tag) and can be dispatched by hand for a redeploy.
+# tiers and ships nothing; this workflow uploads the result. It is called by
+# release-please.yml after every push to main (a release commit's own run sees
+# its new tag) and can be dispatched by hand for a redeploy.
 #
-# SITE ORIGIN AND BASE PATH are derived at deploy time, never hardcoded here:
+# SITE ORIGIN AND BASE PATH are resolved by the script from its environment
+# (resolveSite in scripts/pages-site.mts, unit-tested), never hardcoded here:
 #   - CUSTOM_DOMAIN unset -> GitHub Pages: origin https://<owner>.github.io,
 #               base /<repo>/, or / for an <owner>.github.io user site (all
 #               from GITHUB_REPOSITORY, so a rename or move needs no edit).
@@ -56,37 +56,13 @@ jobs:
         with:
           bun-version-file: package.json
 
-      # Where the site lives (see the header comment). Pages hosts are
-      # lowercase, so the owner is lowercased before it becomes the origin.
-      - name: Resolve site origin and base path
-        id: pages
-        env:
-          CUSTOM_DOMAIN: ${{ vars.CUSTOM_DOMAIN }}
-        run: |
-          if [ -n "$CUSTOM_DOMAIN" ]; then
-            site="https://$CUSTOM_DOMAIN"
-            base="/"
-          else
-            owner="$(printf '%s' "$GITHUB_REPOSITORY_OWNER" | tr '[:upper:]' '[:lower:]')"
-            repo="${GITHUB_REPOSITORY#*/}"
-            site="https://$owner.github.io"
-            if [ "$(printf '%s' "$repo" | tr '[:upper:]' '[:lower:]')" = "$owner.github.io" ]; then
-              base="/"
-            else
-              base="/$repo/"
-            fi
-          fi
-          echo "Site origin: $site, base path: $base"
-          echo "site=$site" >> "$GITHUB_OUTPUT"
-          echo "base=$base" >> "$GITHUB_OUTPUT"
-
-      # The script needs no node_modules here.
+      # The script needs no node_modules here. It reads GITHUB_REPOSITORY (set by
+      # Actions) and CUSTOM_DOMAIN, prints the origin and base path it resolved,
+      # then builds every tier.
       - name: Build every tier
         env:
           CUSTOM_DOMAIN: ${{ vars.CUSTOM_DOMAIN }}
-          SITE_ORIGIN: ${{ steps.pages.outputs.site }}
-          SITE_BASE: ${{ steps.pages.outputs.base }}
-        run: bun scripts/pages-site.mts --site "$RUNNER_TEMP/site" --origin "$SITE_ORIGIN" --base "$SITE_BASE"
+        run: bun scripts/pages-site.mts --site "$RUNNER_TEMP/site"
 
       - uses: actions/configure-pages@v6
 
