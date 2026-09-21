@@ -71,7 +71,9 @@ const ghostControl =
         </span>
       </a>
 
-      <div class="absolute top-1/2 end-6 flex -translate-y-1/2 items-center gap-2">
+      {/* z-10: the translate makes this wrapper a stacking context, so without a
+          z-index the hero wrapper, painted later, covers the open language menu. */}
+      <div class="absolute top-1/2 end-6 z-10 flex -translate-y-1/2 items-center gap-2">
         <LanguagePicker locale={locale} available={available} fallbackPath={fallbackPath} />
         <a href={merchHref} class={ghostControl} aria-label={t(locale, "cart")}>
           <Icon name="lucide:shopping-cart" class="h-[1.15rem] w-[1.15rem]" aria-hidden="true" />
