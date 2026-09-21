@@ -27,6 +27,6 @@ On every default-locale page load, `Base.astro` redirects to the language the pi
 A translation replaces exactly one file, `src/i18n/<code>.ts`, and optionally adds `src/content/blog/welcome-<code>.md`. It touches nothing else.
 
 - Keep the object shape: key for key, array length for array length.
-- Keep verbatim: `{short}`, `{full}`, `The Soul Cafe`, `WhatsApp`, `M.A.` (followed by U+200E mid-sentence in a right-to-left dictionary). Tele-MANAS may be transliterated; its numbers come from `src/lib/constants.ts`, not the dictionary.
+- Keep verbatim: `{short}`, `{full}`, `{date}`, `The Soul Cafe`, `WhatsApp`, `M.A.` (followed by U+200E mid-sentence in a right-to-left dictionary). Tele-MANAS may be transliterated; its numbers come from `src/lib/constants.ts`, not the dictionary.
 - Set `translation.source` to `"ai"` or `"human"` and `translation.reviewed` accordingly.
 - No em or en dashes. Then `bun run typecheck && bun test` must pass.

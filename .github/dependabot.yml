@@ -1,5 +1,5 @@
-# Basic `dependabot.yml` file with
-# minimum configuration for three package managers
+# Dependabot for the two package managers this repository uses: bun for the
+# site's dependencies and GitHub Actions for the workflows.
 
 version: 2
 updates:
@@ -9,6 +9,27 @@ updates:
       interval: "monthly"
     cooldown:
       default-days: 7
+    groups:
+      # The fontsource faces move together and land as one PR.
+      fonts:
+        patterns:
+          - "@fontsource/*"
+          - "@fontsource-variable/*"
+      # Dev tooling in one PR: lint, typecheck, smoke tests, Lighthouse, and
+      # Astro with its integrations.
+      tooling:
+        patterns:
+          - "@biomejs/*"
+          - "@playwright/*"
+          - "@lhci/*"
+          - "typescript"
+          - "astro"
+          - "@astrojs/*"
+          - "astro-icon"
+    ignore:
+      # astro check does not run on TypeScript 7 yet.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "github-actions"
     directory: "/"

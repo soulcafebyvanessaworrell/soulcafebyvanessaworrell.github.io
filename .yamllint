@@ -7,11 +7,9 @@ ignore: |
   .astro/
   dist/
   _site/
-  coverage/
   playwright-report/
   test-results/
   .claude/
-  ignore/
 
 rules:
   document-start: "disable"

@@ -13,6 +13,10 @@ repository:
   has_discussions: false
   default_branch: main
   allow_squash_merge: true
+  # The squash commit takes the pull request's title and body, so the title
+  # check in pr-title.yml governs the commit subject on main.
+  squash_merge_commit_title: PR_TITLE
+  squash_merge_commit_message: PR_BODY
   allow_merge_commit: false
   allow_rebase_merge: false
   delete_branch_on_merge: true
@@ -32,9 +36,18 @@ labels:
   - name: enhancement
     color: "a2eeef"
     description: New feature or request
-  - name: fix-lint
-    color: "fbca04"
-    description: Lint / formatting fixes
+  # The translation correction issue form applies this one.
+  - name: translation
+    color: "c5def5"
+    description: A sentence reads wrong in one of the site's languages
+  # Dependabot applies these two to its bun and GitHub Actions PRs; listing
+  # them here keeps the settings sync from deleting them.
+  - name: javascript
+    color: "f1e05a"
+    description: Pull requests that update JavaScript or TypeScript dependencies
+  - name: github_actions
+    color: "000000"
+    description: Pull requests that update GitHub Actions code
   # release-please manages these two; listing them here keeps the settings
   # sync from deleting them (it removes any label not declared in this file).
   - name: "autorelease: pending"
@@ -44,8 +57,9 @@ labels:
     color: "ededed"
     description: release-please release PR has been tagged
 
-# Branch ruleset for the default branch. Admins (RepositoryRole id 5) are in the
-# bypass list, so direct pushes to main still work.
+# Branch ruleset for the default branch. The maintainer pushes to main directly
+# through the admin bypass (RepositoryRole id 5). Pull requests are the path for
+# outside contributions and for Dependabot.
 rulesets:
   - name: main
     target: branch

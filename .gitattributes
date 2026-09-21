@@ -6,6 +6,3 @@
 CLAUDE.md -text
 .github/copilot-instructions.md -text
 .github/agents.md -text
-template/CLAUDE.md -text
-template/.github/copilot-instructions.md -text
-template/.github/agents.md -text

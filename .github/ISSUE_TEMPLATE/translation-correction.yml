@@ -1,0 +1,79 @@
+name: "Translation correction"
+description: "A sentence reads wrong in your language. Tell us what it says and what it should say."
+title: "[i18n] "
+labels:
+  - "translation"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you. The English text is the practice's own; every other language is a machine translation awaiting review by native speakers. No code is needed here.
+  - type: dropdown
+    id: language
+    attributes:
+      label: "Language"
+      description: "The language the wrong text appears in."
+      options:
+        - "en: English"
+        - "hi: हिन्दी"
+        - "bn: বাংলা"
+        - "mr: मराठी"
+        - "te: తెలుగు"
+        - "ta: தமிழ்"
+        - "gu: ગુજરાતી"
+        - "ur: اردو"
+        - "kn: ಕನ್ನಡ"
+        - "or: ଓଡ଼ିଆ"
+        - "ml: മലയാളം"
+        - "pa: ਪੰਜਾਬੀ"
+        - "as: অসমীয়া"
+        - "mai: मैथिली"
+        - "sat: ᱥᱟᱱᱛᱟᱲᱤ"
+        - "ks: کٲشُر"
+        - "ne: नेपाली"
+        - "sd: سنڌي"
+        - "doi: डोगरी"
+        - "kok: कोंकणी"
+        - "ru: Русский"
+        - "de: Deutsch"
+        - "fr: Français"
+        - "it: Italiano"
+        - "es: Español"
+        - "pl: Polski"
+        - "uk: Українська"
+        - "ro: Română"
+        - "nl: Nederlands"
+    validations:
+      required: true
+  - type: input
+    id: location
+    attributes:
+      label: "Page or dictionary key"
+      description: "The page address where you saw it, or the key in src/i18n/<code>.ts if you know it."
+      placeholder: "/hi/about/, second paragraph"
+    validations:
+      required: true
+  - type: textarea
+    id: current
+    attributes:
+      label: "Current text"
+      description: "Copy the text exactly as the site shows it."
+    validations:
+      required: true
+  - type: textarea
+    id: suggested
+    attributes:
+      label: "Suggested text"
+      description: "What it should say. A short note on why helps the reviewer."
+    validations:
+      required: true
+  - type: dropdown
+    id: native
+    attributes:
+      label: "Are you a native speaker of this language?"
+      options:
+        - "Yes"
+        - "No, but I read it fluently"
+        - "No"
+    validations:
+      required: true

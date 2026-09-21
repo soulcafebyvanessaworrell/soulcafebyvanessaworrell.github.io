@@ -6,9 +6,9 @@
 # 2. Fill in the five lines below (keep the wording of the labels).
 # 3. Delete these comment lines (every line that starts with #).
 # 4. Write your post under the second "---" line.
-# 5. Commit with a subject that starts with `feat:` so the post goes into the
-#    next release. A plain subject publishes it to /latest/ only, until then.
-#    The post reaches the site root once the release pull request is merged.
+# 5. Commit with a subject that starts with `feat:` (the same as the pull
+#    request title, if you open one) so the post goes into the next release.
+#    A plain subject on a direct push publishes to /latest/ only, until then.
 title: Your post title goes here
 description: One plain sentence. It shows in the blog list and in search results.
 pubDate: 2026-07-16      # the date you publish, written as YYYY-MM-DD

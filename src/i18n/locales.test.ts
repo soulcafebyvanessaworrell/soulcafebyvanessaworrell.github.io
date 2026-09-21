@@ -3,6 +3,8 @@
 // shows up as a wrong URL or a missing page at build time.
 
 import { describe, expect, test } from "bun:test";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { DEFAULT_LOCALE, LOCALE_TABLE, LOCALES, localePrefix } from "./locales";
 
 // Without this, two rows sharing a code would build the same URL twice and the
@@ -29,5 +31,19 @@ describe("Intl resolves every dateLocale", () => {
     test(`${row.code} uses ${row.dateLocale}`, () => {
       expect(Intl.DateTimeFormat.supportedLocalesOf(row.dateLocale)).toEqual([row.dateLocale]);
     });
+  }
+});
+
+// Without this, a thirtieth locale row would leave README.md and AGENTS.md
+// still saying 29. The table carries endonyms only, so the count is all the
+// docs and the table share.
+test("README.md and AGENTS.md state the locale count the table has", () => {
+  const root = join(import.meta.dir, "..", "..");
+  for (const [file, noun] of [
+    ["README.md", "languages"],
+    ["AGENTS.md", "locales"],
+  ] as const) {
+    const text = readFileSync(join(root, file), "utf8");
+    expect(text).toContain(`${LOCALE_TABLE.length} ${noun}`);
   }
 });
