@@ -1,6 +1,6 @@
 import { expect, type Page, test } from "@playwright/test";
 import { LANGUAGE_STORAGE_KEY } from "../src/i18n/languageStorage";
-import { LOCALE_TABLE, type LocaleMeta } from "../src/i18n/locales";
+import { LOCALE_TABLE } from "../src/i18n/locales";
 import { dictionaries } from "../src/i18n/ui";
 import { PRIVACY_UPDATED, SITE_BASE } from "../src/lib/constants";
 
@@ -27,8 +27,11 @@ const CONTENT_PATHS = [
 
 const DEFAULT_LOCALE = LOCALE_TABLE[0];
 
+// A row of the locale table itself, so `row.code` is a SiteLocale and can index the dictionaries.
+type LocaleRow = (typeof LOCALE_TABLE)[number];
+
 /** `<base>/<prefix>` for a locale row, so `${localeBase(row)}/about/` is a URL. */
-function localeBase(row: LocaleMeta): string {
+function localeBase(row: LocaleRow): string {
   return row.code === DEFAULT_LOCALE.code ? BASE : `${BASE}/${row.code}`;
 }
 
@@ -36,8 +39,8 @@ function localeBase(row: LocaleMeta): string {
 // (the second fully translated locale), the first right-to-left row, and the
 // first row of every other script. Every distinct rendering path is covered
 // while the per-route suite stays quick.
-const SAMPLE_LOCALES: LocaleMeta[] = (() => {
-  const picked: LocaleMeta[] = [DEFAULT_LOCALE];
+const SAMPLE_LOCALES: LocaleRow[] = (() => {
+  const picked: LocaleRow[] = [DEFAULT_LOCALE];
   const hi = LOCALE_TABLE.find((row) => row.code === "hi");
   if (hi) picked.push(hi);
   const rtl = LOCALE_TABLE.find((row) => row.dir === "rtl");
@@ -336,7 +339,7 @@ for (const row of SAMPLE_LOCALES.slice(0, 3)) {
 // The heading is the control that the reveal did run on this page.
 test.describe("with motion allowed", () => {
   test.use({ reducedMotion: "no-preference" });
-  const row = SAMPLE_LOCALES[0];
+  const row = DEFAULT_LOCALE;
   test(`the language menu is not a scroll-reveal target: ${row.code}`, async ({ page }) => {
     await page.goto(`${localeBase(row)}/`, { waitUntil: "load" });
     const heading = page.locator("main h1[data-reveal]").first();

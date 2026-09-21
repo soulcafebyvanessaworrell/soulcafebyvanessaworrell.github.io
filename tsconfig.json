@@ -13,5 +13,12 @@
     "allowImportingTsExtensions": true,
     "types": ["astro/client", "bun"]
   },
-  "include": ["src/**/*.ts", "src/**/*.astro", "scripts/**/*.ts", "scripts/**/*.mts"]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.astro",
+    "scripts/**/*.ts",
+    "scripts/**/*.mts",
+    "tests/**/*.ts",
+    "playwright.config.ts"
+  ]
 }
