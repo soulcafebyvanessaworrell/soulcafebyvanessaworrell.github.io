@@ -8,8 +8,9 @@
 // adding a language later needs no change here. A file is named
 // `<slug>-<locale>.md`, and the same slug across locales is one post.
 
-import { defineCollection, z } from "astro:content";
+import { defineCollection } from "astro:content";
 import { glob } from "astro/loaders";
+import { z } from "astro/zod";
 import { DEFAULT_LOCALE, LOCALES, type SiteLocale } from "./i18n/locales";
 
 const localeValues = [...LOCALES] as [SiteLocale, ...SiteLocale[]];
