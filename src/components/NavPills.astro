@@ -7,16 +7,16 @@
 import type { SiteLocale } from "../i18n/locales";
 import { localizePath } from "../i18n/locales";
 import { t } from "../i18n/ui";
-import { NAV_ITEMS } from "../lib/nav";
+import { NAV_ITEMS, type NavId } from "../lib/nav";
 
 interface Props {
-  active?: string;
+  active?: NavId;
   locale: SiteLocale;
   size?: "default" | "compact";
   class?: string;
 }
 
-const { active = "", locale, size = "default", class: klass = "" } = Astro.props;
+const { active, locale, size = "default", class: klass = "" } = Astro.props;
 
 // Both sizes stay at text-lg (18px): Dancing Script turns illegible below that.
 // Compact only trims horizontal padding so the desktop bar fits; if it must,

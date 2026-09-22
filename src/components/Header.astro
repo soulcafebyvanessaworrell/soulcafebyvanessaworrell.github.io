@@ -20,12 +20,13 @@ import { Icon } from "astro-icon/components";
 import { LOCALES, localizePath, type SiteLocale } from "../i18n/locales";
 import { t } from "../i18n/ui";
 import { logo, teacupDoodle } from "../lib/assets";
+import type { NavId } from "../lib/nav";
 import LanguagePicker from "./LanguagePicker.astro";
 import NavPills from "./NavPills.astro";
 import PillButton from "./PillButton.astro";
 
 interface Props {
-  active?: string;
+  active?: NavId;
   locale: SiteLocale;
   /** Forwarded to the language picker: the locales this page exists in, and
    *  where to send the others (see Base.astro). */
@@ -33,7 +34,7 @@ interface Props {
   fallbackPath?: string;
 }
 
-const { active = "", locale, available = LOCALES, fallbackPath = "" } = Astro.props;
+const { active, locale, available = LOCALES, fallbackPath = "" } = Astro.props;
 
 const homeHref = localizePath("", locale);
 const contactHref = localizePath("contact/", locale);

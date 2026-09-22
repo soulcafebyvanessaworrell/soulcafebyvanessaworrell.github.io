@@ -18,12 +18,13 @@ import {
 } from "../i18n/locales";
 import { pages, t } from "../i18n/ui";
 import { CONTACT, PUBLISHED_SOCIALS, SITE_BASE, SITE_TITLE } from "../lib/constants";
+import type { NavId } from "../lib/nav";
 import { formatPrice, OFFERS } from "../lib/pricing";
 
 interface Props {
   title: string;
   description: string;
-  active?: string;
+  active?: NavId;
   /** Force a noindex robots tag on this page (e.g. the contact thank-you). */
   noindex?: boolean;
   /** Locales in which this page exists. Defaults to all of them; a page with
@@ -42,7 +43,7 @@ interface Props {
 const {
   title,
   description,
-  active = "",
+  active,
   noindex = false,
   available = LOCALES,
   fallbackPath = "",
