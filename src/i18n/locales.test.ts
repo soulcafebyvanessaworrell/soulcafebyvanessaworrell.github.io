@@ -6,6 +6,7 @@ import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
+  alternateUrls,
   DEFAULT_LOCALE,
   LOCALE_TABLE,
   LOCALES,
@@ -126,5 +127,32 @@ describe("URLs under a base path", () => {
     );
     // The default locale is missing too: its picker entry goes to the unprefixed fallback.
     expect(pickerTarget(DEFAULT_LOCALE, { ...page, available: [prefixed] })).toBe("/site/blog/");
+  });
+
+  // Without this, a post that exists in two languages could advertise an
+  // alternate for every locale in the table, all but two of them 404s, which
+  // search engines treat as invalid hreflang and drop for the whole cluster;
+  // or x-default could point at the English URL that does not exist for that
+  // post.
+  test("alternateUrls emits only the available locales, x-default following the first when the default is missing", () => {
+    const site = new URL("https://example.test");
+    const path = "blog/welcome/";
+    const [, second, third] = LOCALE_TABLE;
+    const partial = alternateUrls(path, site, [second.code, third.code]);
+    expect(partial).toEqual([
+      { hreflang: second.htmlLang, href: `https://example.test/site/${second.code}/${path}` },
+      { hreflang: third.htmlLang, href: `https://example.test/site/${third.code}/${path}` },
+      { hreflang: "x-default", href: `https://example.test/site/${second.code}/${path}` },
+    ]);
+
+    // Full availability: one alternate per row, no two rows sharing an
+    // hreflang, and x-default last at the unprefixed default locale.
+    const full = alternateUrls(path, site);
+    expect(full.length).toBe(LOCALE_TABLE.length + 1);
+    expect(new Set(full.map((alt) => alt.hreflang)).size).toBe(full.length);
+    expect(full.at(-1)).toEqual({
+      hreflang: "x-default",
+      href: `https://example.test/site/${path}`,
+    });
   });
 });
