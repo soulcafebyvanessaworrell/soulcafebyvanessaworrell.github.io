@@ -2,6 +2,8 @@
 import "../styles/fonts.css";
 import "../styles.css";
 import { ClientRouter } from "astro:transitions";
+import naskh400 from "../assets/fonts/noto-naskh-arabic-400-arabic.woff2?url";
+import nastaliq400 from "../assets/fonts/noto-nastaliq-urdu-400-arabic.woff2?url";
 import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
 import WhatsAppFloat from "../components/WhatsAppFloat.astro";
@@ -14,6 +16,7 @@ import {
   localeFromUrl,
   localeMeta,
   pagePathFromUrl,
+  type Script,
   type SiteLocale,
 } from "../i18n/locales";
 import { pages, t } from "../i18n/ui";
@@ -66,6 +69,12 @@ const meta = localeMeta(locale);
 // astro.config.mjs sets `site` from the same constant, which always has a
 // value (locally the preview origin), so absolute URLs never need a guard.
 const site = new URL(SITE_ORIGIN);
+
+// The Arabic-script body face is the largest asset on its pages and the browser
+// only discovers it once the stylesheet has parsed; preloading the 400 file
+// starts that fetch with the HTML. Latin pages get no preload.
+const PRELOAD_FONT: Partial<Record<Script, string>> = { nastaliq: nastaliq400, naskh: naskh400 };
+const preloadFont = PRELOAD_FONT[meta.script];
 
 // Non-root tiers (latest/, vX.Y.Z/) are noindex site-wide (read at
 // build time from the env the deploy sets). Any page can also opt in via the `noindex` prop.
@@ -159,6 +168,7 @@ const jsonLd = {
     {robotsNoindex && <meta name="robots" content="noindex" />}
 
     <title>{fullTitle}</title>
+    {preloadFont && <link rel="preload" as="font" type="font/woff2" href={preloadFont} crossorigin />}
     <link rel="canonical" href={canonical} />
     {alternates.map((alt) => <link rel="alternate" hreflang={alt.hreflang} href={alt.href} />)}
 
