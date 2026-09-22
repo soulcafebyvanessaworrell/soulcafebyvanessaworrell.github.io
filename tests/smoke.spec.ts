@@ -490,6 +490,26 @@ for (const row of SAMPLE_LOCALES) {
   });
 }
 
+// Without this, a blog post could go back to ending on "book a session or just
+// say hello" as plain text with "Back to blog" as its only link, or the pills
+// under it could point into the default locale's tree instead of the reader's.
+// The welcome post exists in every locale, so it stands for every post.
+for (const row of SAMPLE_LOCALES) {
+  test(`a blog post ends with Book and Contact pills into its own locale: ${row.code}`, async ({
+    page,
+  }) => {
+    await page.goto(`${localeBase(row)}/blog/welcome/`, { waitUntil: "load" });
+    const cta = page.locator("[data-post-cta]");
+    await expect(cta, "one CTA row under the post").toHaveCount(1);
+    for (const target of ["book/", "contact/"]) {
+      const pill = cta.locator(`a[href="${localeBase(row)}/${target}"]`);
+      await expect(pill, `pill to ${target} in the ${row.code} tree`).toHaveCount(1);
+      await expect(pill).toBeVisible();
+      await expect(pill, `pill to ${target} has a label`).not.toHaveText("");
+    }
+  });
+}
+
 // Without this, a tighter footer row pitch would again leave neighbouring
 // links overlapping hit areas (the old 33px rows gave a finger 33px per link,
 // the next row's `.tap` pseudo-element covering the rest). Probed with

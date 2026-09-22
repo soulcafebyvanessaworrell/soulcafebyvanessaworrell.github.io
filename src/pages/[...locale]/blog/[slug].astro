@@ -4,13 +4,18 @@
 // locales carry a translation, and passes that as `available` so the language
 // picker sends the others to the blog index instead of a 404. Body renders
 // through @tailwindcss/typography, with the prose colors tuned to the ink palette.
+// Every post ends on a mint strip with the Book and Contact pills, the same
+// pair the header carries, so the invitation the prose closes on has a link.
+// The strip is a plain band-mint section with its own tighter rhythm, since
+// SectionBand's full padding around two pills leaves the pair floating.
 import { Image } from "astro:assets";
 import { getCollection, render } from "astro:content";
 import { Icon } from "astro-icon/components";
+import PillButton from "../../../components/PillButton.astro";
 import ScriptHeading from "../../../components/ScriptHeading.astro";
 import { localizePath } from "../../../i18n/locales";
 import { localeParam } from "../../../i18n/routes";
-import { blogUi } from "../../../i18n/ui";
+import { blogUi, t } from "../../../i18n/ui";
 import Base from "../../../layouts/Base.astro";
 import { groupBySlug, isoDate, postDateFormatter } from "../../../lib/blog";
 
@@ -69,4 +74,18 @@ const dateFmt = postDateFormatter(locale);
       <Content />
     </div>
   </article>
+
+  <section class="band-mint">
+    <div
+      data-post-cta
+      class="mx-auto flex w-full max-w-3xl flex-col items-center justify-center gap-3 px-5 py-10 sm:flex-row sm:flex-wrap sm:py-12"
+    >
+      <PillButton href={localizePath("book/", locale)} variant="indigo">
+        {t(locale, "book_session")}
+      </PillButton>
+      <PillButton href={localizePath("contact/", locale)} variant="coral-outline">
+        {t(locale, "contact_us")}
+      </PillButton>
+    </div>
+  </section>
 </Base>
