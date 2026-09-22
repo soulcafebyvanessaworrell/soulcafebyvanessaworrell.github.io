@@ -186,8 +186,9 @@ describe("no em dash, en dash, or ellipsis character in any visible string", () 
 });
 
 /** Locales whose dictionary is still the English stub. The assertion below runs
- *  under I18N_REQUIRE_TRANSLATED=1, which CI sets; a local run without it skips
- *  the check so a translation can be drafted in steps. */
+ *  under I18N_REQUIRE_TRANSLATED=1, which CI and the pre-commit hook set; a bare
+ *  `bun test` without it skips the check so a translation can be drafted in
+ *  steps. */
 export function stubLocales(): string[] {
   return LOCALES.filter((locale) => dictionaries[locale].translation.source === "stub");
 }
