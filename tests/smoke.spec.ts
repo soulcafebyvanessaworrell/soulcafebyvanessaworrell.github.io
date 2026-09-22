@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { expect, type Page, test } from "@playwright/test";
 import { LANGUAGE_STORAGE_KEY } from "../src/i18n/languageStorage";
-import { LOCALE_TABLE } from "../src/i18n/locales";
+import { LOCALE_TABLE, localeMeta } from "../src/i18n/locales";
 import { dictionaries, fill, PLACEHOLDER } from "../src/i18n/ui";
 import { BRAND, CRISIS, PRIVACY_UPDATED, SITE_BASE } from "../src/lib/constants";
 
@@ -37,6 +37,18 @@ type LocaleRow = (typeof LOCALE_TABLE)[number];
 function localeBase(row: LocaleRow): string {
   return row.code === DEFAULT_LOCALE.code ? BASE : `${BASE}/${row.code}`;
 }
+
+/** The header's links to a locale's home outside the picker, whose row for
+ *  that locale points at the same place: the logo link, which wraps the logo
+ *  image, and the brand row's Home pill, which does not. Found by destination
+ *  so the assertions survive restyling. */
+function headerHomeLinks(page: Page, row: LocaleRow) {
+  return page.locator(`header a[href="${localeBase(row)}/"]:not([data-locale])`);
+}
+const logoLink = (page: Page, row: LocaleRow) =>
+  headerHomeLinks(page, row).filter({ has: page.locator("img") });
+const homePill = (page: Page, row: LocaleRow) =>
+  headerHomeLinks(page, row).filter({ hasNot: page.locator("img") });
 
 // A representative sample of locales rather than all 29: the default, Hindi
 // (the second fully translated locale), the first right-to-left row, and the
@@ -201,10 +213,10 @@ test("primary nav links are all visible at mobile width", async ({ page }) => {
 // and a mobile copy, each with its own eager logo and language picker): the
 // page would carry two eager images and two pickers, one pair hidden, and only
 // the byte count would notice. One header means one of each in the DOM, not
-// just one shown. The home link is counted outside the picker, whose English
-// row also points at the English home: the logo is the one home control, and
-// a house icon beside it would double the destination.
-test("the header renders once: one eager logo, one home link, one picker, one nav", async ({
+// just one shown. The home links are counted outside the picker, whose English
+// row also points at the English home: the logo and the Home pill at the start
+// of the brand row are the two, one wrapping the eager logo and one not.
+test("the header renders once: one eager logo, two home links, one picker, one nav", async ({
   page,
 }) => {
   const width = page.viewportSize()?.width ?? 0;
@@ -215,11 +227,96 @@ test("the header renders once: one eager logo, one home link, one picker, one na
   await page.goto(`${BASE}/`, { waitUntil: "load" });
   await expect(page.locator("header")).toHaveCount(1);
   await expect(page.locator('header img[loading="eager"]')).toHaveCount(1);
-  await expect(page.locator(`header a[href="${BASE}/"]:not([data-locale])`)).toHaveCount(1);
+  await expect(headerHomeLinks(page, DEFAULT_LOCALE)).toHaveCount(2);
+  await expect(logoLink(page, DEFAULT_LOCALE)).toHaveCount(1);
   await expect(page.locator("header details[data-language-picker]")).toHaveCount(1);
   await expect(page.locator("header nav")).toHaveCount(1);
   await expect(page.locator('header a[href$="/book/"]')).toHaveCount(1);
   await expect(page.locator('header a[href$="/contact/"]')).toHaveCount(1);
+});
+
+// Without this, the Home pill could drift to the wrong edge in a right-to-left
+// locale (a physical `left-*` would put it on the picker's side in Urdu) or
+// lose its aria-current on the home page, where the header gets no `active`
+// and derives the state from the URL.
+//
+// Three widths cover the three forms of the pill: the icon round below `sm`,
+// icon plus label from `sm`, and the row-centred desktop form. The rows are
+// the default, Hindi (the one row that transliterates the practice's name,
+// which the logo's name must take), and the first right-to-left locale.
+test.describe("the Home pill sits at the inline start, opposite the picker", () => {
+  for (const row of SAMPLE_LOCALES.slice(0, 3)) {
+    test(`${row.code}: placement, href, and aria-current at 320, 640, and 1280`, async ({
+      page,
+    }) => {
+      const width = page.viewportSize()?.width ?? 0;
+      test.skip(width <= 500, "sets its own viewports; runs once, in the desktop project");
+      // State and names do not depend on the width: once per locale.
+      await page.goto(`${localeBase(row)}/`, { waitUntil: "load" });
+      const pill = homePill(page, row);
+      await expect(pill, `${row.code} pill on home`).toHaveAttribute("aria-current", "page");
+      await expect(pill).toHaveAccessibleName(dictionaries[row.code].ui.home);
+      // Only the pill is named Home: the logo link's name leads with the
+      // brand, so a screen reader's link list does not read Home twice.
+      const brand = localeMeta(row.code).brand?.[BRAND] ?? BRAND;
+      await expect(logoLink(page, row)).toHaveAccessibleName(new RegExp(`^${brand}(?=\\s|$)`));
+
+      for (const vw of [320, 640, 1280]) {
+        await page.setViewportSize({ width: vw, height: 800 });
+        await page.goto(`${localeBase(row)}/`, { waitUntil: "load" });
+
+        const pillBox = await pill.boundingBox();
+        const pickerBox = await page
+          .locator("header details[data-language-picker] summary")
+          .boundingBox();
+        const logoBox = await page.locator("header a img").first().boundingBox();
+        // The brand row both pills are pinned to; measured rather than taken
+        // as the viewport, which a visible scrollbar narrows in headed runs.
+        const rowBox = await page
+          .locator("header > div:has(details[data-language-picker])")
+          .boundingBox();
+        expect(pillBox, "pill box").not.toBeNull();
+        expect(pickerBox, "picker box").not.toBeNull();
+        expect(logoBox, "logo box").not.toBeNull();
+        expect(rowBox, "brand row box").not.toBeNull();
+        if (!pillBox || !pickerBox || !logoBox || !rowBox) return;
+
+        // Both controls share the row: the pill's vertical band overlaps the picker's.
+        expect(pillBox.y, `${row.code} pill row at ${vw}`).toBeLessThan(
+          pickerBox.y + pickerBox.height,
+        );
+        expect(pillBox.y + pillBox.height).toBeGreaterThan(pickerBox.y);
+        // The pill clears the logo and sits on the picker's far side.
+        if (row.dir === "rtl") {
+          expect(pillBox.x, `${row.code} pill right of the logo at ${vw}`).toBeGreaterThanOrEqual(
+            logoBox.x + logoBox.width,
+          );
+          expect(pillBox.x).toBeGreaterThan(pickerBox.x + pickerBox.width);
+        } else {
+          expect(
+            pillBox.x + pillBox.width,
+            `${row.code} pill left of the logo at ${vw}`,
+          ).toBeLessThanOrEqual(logoBox.x);
+          expect(pillBox.x + pillBox.width).toBeLessThan(pickerBox.x);
+        }
+        // The two wrappers carry their insets as separate class strings, so
+        // only a measurement says they still mirror each other.
+        const rowEnd = rowBox.x + rowBox.width;
+        const pillInset =
+          row.dir === "rtl" ? rowEnd - (pillBox.x + pillBox.width) : pillBox.x - rowBox.x;
+        const pickerInset =
+          row.dir === "rtl" ? pickerBox.x - rowBox.x : rowEnd - (pickerBox.x + pickerBox.width);
+        expect(
+          Math.abs(pillInset - pickerInset),
+          `${row.code} insets at ${vw}`,
+        ).toBeLessThanOrEqual(1);
+      }
+
+      // Off the home page the pill is a plain link.
+      await page.goto(`${localeBase(row)}/about/`, { waitUntil: "load" });
+      await expect(homePill(page, row)).not.toHaveAttribute("aria-current");
+    });
+  }
 });
 
 // Without this, a translated CTA label could wrap the header pills to two
@@ -655,8 +752,9 @@ test.describe("the crisis note's two tel: links are 44px tall and never overlap,
 });
 
 // Without this, a wider picker label or a larger logo could collide at the
-// narrowest supported width: the mobile brand row pins the picker to the
-// inline end and centers the logo on the row, so nothing else measures the gap.
+// narrowest supported width: the mobile brand row pins the Home pill and the
+// picker to the inline edges and centers the logo on the row, so nothing else
+// measures the gaps.
 for (const row of SAMPLE_LOCALES.slice(0, 3)) {
   test(`brand-row controls clear the logo at 320px: ${row.code}`, async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 568 });
@@ -671,9 +769,11 @@ for (const row of SAMPLE_LOCALES.slice(0, 3)) {
     expect(pickerBox, "visible picker trigger").not.toBeNull();
     expect(pickerBox?.width ?? 0, "picker trigger width below sm").toBeLessThanOrEqual(44);
 
-    const controls = page.locator("header details[data-language-picker]:visible summary");
+    const controls = page
+      .locator("header details[data-language-picker]:visible summary")
+      .or(homePill(page, row));
     const count = await controls.count();
-    expect(count, "brand-row controls found").toBeGreaterThan(0);
+    expect(count, "brand-row controls found").toBe(2);
     const margin = 4;
     for (let i = 0; i < count; i++) {
       const box = await controls.nth(i).boundingBox();
@@ -817,11 +917,6 @@ test.describe("a 404 under a locale tree takes that locale's chrome", () => {
   const rows = LOCALE_TABLE.filter((row) => row.code === "hi" || row.code === "ur");
   const notFoundTitle = (row: LocaleRow) =>
     `${dictionaries[row.code].ui.not_found_title} · ${BRAND}`;
-  // The header's one home link (the logo), not the picker's link to the same
-  // locale's home.
-  const homeLink = (page: Page, row: LocaleRow) =>
-    page.locator(`header a[href="${localeBase(row)}/"]:not([data-locale])`).first();
-
   for (const row of rows) {
     test(`${row.code}: lang, dir, script, chrome links, title, and picker label follow the row`, async ({
       page,
@@ -836,7 +931,10 @@ test.describe("a 404 under a locale tree takes that locale's chrome", () => {
 
       // The home link and the privacy link moved into the locale's tree, and
       // no header or footer link outside the picker stayed in the English one.
-      await expect(homeLink(page, row)).toBeAttached();
+      await expect(logoLink(page, row)).toBeAttached();
+      // The 404 is built at Astro's own route, not at a home path, so the
+      // URL-derived home state stays off however the page was reached.
+      await expect(homePill(page, row)).not.toHaveAttribute("aria-current");
       await expect(page.locator(`footer a[href="${localeBase(row)}/privacy/"]`)).toHaveCount(1);
       const strayed = await page.locator(`a[href^="${BASE}/"]`).evaluateAll(
         (links, tree) =>
@@ -923,7 +1021,7 @@ test.describe("a 404 under a locale tree takes that locale's chrome", () => {
     await pageLoads(2);
     await expect(page).toHaveURL(`${localeBase(row)}/no-such-page/`);
     await expect(page.locator("html")).toHaveAttribute("lang", row.htmlLang);
-    await expect(homeLink(page, row)).toBeAttached();
+    await expect(logoLink(page, row)).toBeAttached();
     await expect(page).toHaveTitle(notFoundTitle(row));
   });
 
@@ -959,7 +1057,7 @@ test.describe("a 404 under a locale tree takes that locale's chrome", () => {
       expect(resp?.status(), "status").toBe(404);
       await expect(page.locator("html")).toHaveAttribute("lang", DEFAULT_LOCALE.htmlLang);
       await expect(page).toHaveTitle(notFoundTitle(DEFAULT_LOCALE));
-      await expect(homeLink(page, DEFAULT_LOCALE)).toBeAttached();
+      await expect(logoLink(page, DEFAULT_LOCALE)).toBeAttached();
       await expect(page.locator(`footer a[href="${BASE}/privacy/"]`)).toHaveCount(1);
       await expect(page.locator("main [data-language-homes] a")).toHaveCount(LOCALE_TABLE.length);
     });
