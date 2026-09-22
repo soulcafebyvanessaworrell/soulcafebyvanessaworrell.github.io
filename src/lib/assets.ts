@@ -4,7 +4,6 @@
 // used in plain <img src>. Every component pulls images from here so paths live
 // in one place.
 
-import type { ImageMetadata } from "astro";
 import founder from "../assets/founder.png";
 import logo from "../assets/logo.png";
 // Astro returns an SVG import as a component that also carries ImageMetadata;
@@ -14,12 +13,5 @@ import teacupDoodleSvg from "../assets/teacup-doodle.svg";
 
 const signature: string = signatureSvg.src;
 const teacupDoodle: string = teacupDoodleSvg.src;
-
-export const images: {
-  logo: ImageMetadata;
-  founder: ImageMetadata;
-  signature: string;
-  teacupDoodle: string;
-} = { logo, founder, signature, teacupDoodle };
 
 export { founder, logo, signature, teacupDoodle };
