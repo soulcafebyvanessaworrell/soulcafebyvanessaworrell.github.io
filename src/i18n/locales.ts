@@ -448,11 +448,17 @@ export function pagePathFromUrl(url: URL): string {
 
 /**
  * Base-absolute URL of a page path inside a locale's tree, with no
- * relative-depth math. `path` is locale-relative ("", "about/", "contact/").
+ * relative-depth math. `path` is locale-relative ("", "about/", "contact/");
+ * a leading slash is the rooted form the rules forbid. Every call runs at
+ * build time, so the throw fails the build.
  */
 export function localizePath(path: string, locale: SiteLocale): string {
-  const clean = path.replace(/^\//, "");
-  return `${import.meta.env.BASE_URL}${localePrefix(locale)}${clean}`;
+  if (path.startsWith("/")) {
+    throw new Error(
+      `localizePath("${path}"): the path is locale-relative and takes no leading slash; pass "${path.replace(/^\/+/, "")}".`,
+    );
+  }
+  return `${import.meta.env.BASE_URL}${localePrefix(locale)}${path}`;
 }
 
 /** hreflang alternates for a locale-relative page path. By default every locale

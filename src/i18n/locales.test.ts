@@ -2,10 +2,17 @@
 // `as const`, so a typo in a code or a duplicated row type-checks fine and only
 // shows up as a wrong URL or a missing page at build time.
 
-import { describe, expect, test } from "bun:test";
+import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { DEFAULT_LOCALE, LOCALE_TABLE, LOCALES, localePrefix } from "./locales";
+import {
+  DEFAULT_LOCALE,
+  LOCALE_TABLE,
+  LOCALES,
+  localePrefix,
+  localizePath,
+  type SiteLocale,
+} from "./locales";
 
 // Without this, two rows sharing a code would build the same URL twice and the
 // later row would silently win in localeMeta().
@@ -72,4 +79,33 @@ test("README.md and AGENTS.md state the locale count the table has", () => {
     const text = readFileSync(join(root, file), "utf8");
     expect(text).toContain(`${LOCALE_TABLE.length} ${noun}`);
   }
+});
+
+// The URL helpers read the base path from import.meta.env, which Bun serves
+// from process.env; the Astro build inlines "/preview/" or the deploy's base.
+describe("URLs under a base path", () => {
+  const base = "/site/";
+  let saved: string | undefined;
+  beforeAll(() => {
+    saved = process.env.BASE_URL;
+    process.env.BASE_URL = base;
+  });
+  afterAll(() => {
+    if (saved === undefined) delete process.env.BASE_URL;
+    else process.env.BASE_URL = saved;
+  });
+
+  const prefixed = LOCALES.find((code) => code !== DEFAULT_LOCALE) as SiteLocale;
+
+  // Without this, a rooted "/about/" could be handed to localizePath and the
+  // locale-relative convention of AGENTS.md rule 1 would hold only where a
+  // reader remembered it. Every call runs at build time, so the throw is what
+  // fails the build.
+  test("localizePath rejects a leading slash and joins base, prefix, and path", () => {
+    expect(localizePath("about/", DEFAULT_LOCALE)).toBe("/site/about/");
+    expect(localizePath("about/", prefixed)).toBe(`/site/${prefixed}/about/`);
+    expect(localizePath("", prefixed)).toBe(`/site/${prefixed}/`);
+    expect(() => localizePath("/about/", DEFAULT_LOCALE)).toThrow(/leading slash/);
+    expect(() => localizePath("/", prefixed)).toThrow(/leading slash/);
+  });
 });
