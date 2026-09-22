@@ -23,6 +23,7 @@ import {
   FOUNDER,
   PUBLISHED_SOCIALS,
   SITE_BASE,
+  SITE_ORIGIN,
   SITE_TITLE,
   THEME_COLOR,
 } from "../lib/constants";
@@ -62,6 +63,9 @@ const base = import.meta.env.BASE_URL;
 const locale = localeFromUrl(Astro.url);
 const pagePath = pagePathFromUrl(Astro.url);
 const meta = localeMeta(locale);
+// astro.config.mjs sets `site` from the same constant, which always has a
+// value (locally the preview origin), so absolute URLs never need a guard.
+const site = new URL(SITE_ORIGIN);
 
 // Non-root tiers (latest/, vX.Y.Z/) are noindex site-wide (read at
 // build time from the env the deploy sets). Any page can also opt in via the `noindex` prop.
@@ -69,11 +73,10 @@ const staging = Boolean(process.env.ASTRO_STAGING);
 const robotsNoindex = noindex || staging;
 
 const fullTitle = `${title} · ${BRAND}`;
-const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site) : undefined;
+const canonical = new URL(Astro.url.pathname, site).href;
 // Absolute URLs into public/: the square 512px icon is the JSON-LD logo; the
 // 1200 x 630 card (the logo on the mint brand colour) is the social preview.
-const absolute = (file: string) =>
-  Astro.site ? new URL(`${base}${file}`, Astro.site).href : undefined;
+const absolute = (file: string) => new URL(`${base}${file}`, site).href;
 const logoImage = absolute("icon-512.png");
 const ogImage = absolute("og-image.png");
 const OG_IMAGE = { width: 1200, height: 630, type: "image/png", alt: SITE_TITLE };
@@ -83,7 +86,7 @@ const ogLocale = meta.htmlLang.replace(/-/g, "_");
 
 // hreflang alternates. Non-root tiers are noindex, so alternates there would be
 // misleading; skip them.
-const alternates = robotsNoindex ? [] : alternateUrls(pagePath, Astro.site, available);
+const alternates = robotsNoindex ? [] : alternateUrls(pagePath, site, available);
 
 // The contact and book pages carry their own prominent contact CTAs, and the
 // float overlaps their form / booking card, so hide it there by default.
@@ -94,8 +97,8 @@ const showWhatsApp = !hideWhatsApp && !["contact/", "book/"].includes(pagePath);
 // per-page WebPage that references it. sameAs lists only published socials, so
 // placeholder profiles never enter the identity claim. availableLanguage is
 // derived from LOCALES so a new locale extends it automatically.
-const homeUrl = Astro.site ? new URL(SITE_BASE, Astro.site).href : undefined;
-const businessId = homeUrl ? `${homeUrl}#business` : undefined;
+const homeUrl = new URL(SITE_BASE, site).href;
+const businessId = `${homeUrl}#business`;
 const sameAs = PUBLISHED_SOCIALS.map((s) => s.url);
 // Offers are structured data in INR only, named in the default locale whatever
 // the page language: search engines key offers on the business, not the page.
@@ -114,10 +117,11 @@ const jsonLd = {
   "@graph": [
     {
       "@type": "ProfessionalService",
-      ...(businessId ? { "@id": businessId } : {}),
+      "@id": businessId,
       name: SITE_TITLE,
-      ...(homeUrl ? { url: homeUrl } : {}),
-      ...(logoImage ? { image: logoImage, logo: logoImage } : {}),
+      url: homeUrl,
+      image: logoImage,
+      logo: logoImage,
       telephone: CONTACT.phone,
       email: CONTACT.email,
       availableLanguage: LOCALES.map((l) => htmlLang(l)),
@@ -133,11 +137,13 @@ const jsonLd = {
     },
     {
       "@type": "WebPage",
-      ...(canonical ? { "@id": canonical.href, url: canonical.href } : {}),
+      "@id": canonical,
+      url: canonical,
       name: fullTitle,
       description,
       inLanguage: htmlLang(locale),
-      ...(businessId ? { isPartOf: { "@id": businessId }, about: { "@id": businessId } } : {}),
+      isPartOf: { "@id": businessId },
+      about: { "@id": businessId },
     },
   ],
 };
@@ -153,7 +159,7 @@ const jsonLd = {
     {robotsNoindex && <meta name="robots" content="noindex" />}
 
     <title>{fullTitle}</title>
-    {canonical && <link rel="canonical" href={canonical.href} />}
+    <link rel="canonical" href={canonical} />
     {alternates.map((alt) => <link rel="alternate" hreflang={alt.hreflang} href={alt.href} />)}
 
     {/* Open Graph / Twitter */}
@@ -161,24 +167,18 @@ const jsonLd = {
     <meta property="og:site_name" content={SITE_TITLE} />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
-    {canonical && <meta property="og:url" content={canonical.href} />}
+    <meta property="og:url" content={canonical} />
     <meta property="og:locale" content={ogLocale} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />
-    {
-      ogImage && (
-        <>
-          <meta property="og:image" content={ogImage} />
-          <meta property="og:image:type" content={OG_IMAGE.type} />
-          <meta property="og:image:width" content={String(OG_IMAGE.width)} />
-          <meta property="og:image:height" content={String(OG_IMAGE.height)} />
-          <meta property="og:image:alt" content={OG_IMAGE.alt} />
-          <meta name="twitter:image" content={ogImage} />
-          <meta name="twitter:image:alt" content={OG_IMAGE.alt} />
-        </>
-      )
-    }
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:type" content={OG_IMAGE.type} />
+    <meta property="og:image:width" content={String(OG_IMAGE.width)} />
+    <meta property="og:image:height" content={String(OG_IMAGE.height)} />
+    <meta property="og:image:alt" content={OG_IMAGE.alt} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={OG_IMAGE.alt} />
 
     {/* Icons + manifest */}
     <link rel="icon" type="image/png" sizes="32x32" href={`${base}favicon-32.png`} />
