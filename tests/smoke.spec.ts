@@ -1,7 +1,10 @@
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { expect, type Page, test } from "@playwright/test";
 import { LANGUAGE_STORAGE_KEY } from "../src/i18n/languageStorage";
 import { LOCALE_TABLE } from "../src/i18n/locales";
-import { dictionaries } from "../src/i18n/ui";
+import { dictionaries, PLACEHOLDER } from "../src/i18n/ui";
 import { BRAND, PRIVACY_UPDATED, SITE_BASE } from "../src/lib/constants";
 
 // Base path the site is served under, without its trailing slash so it can be
@@ -890,4 +893,37 @@ test.describe("images and icons", () => {
     expect(body.readUInt16LE(2)).toBe(1);
     expect(body.readUInt16LE(4)).toBeGreaterThanOrEqual(2);
   });
+});
+
+// Without this, a page could ship a literal "{minutes}" or "{price}": fill()
+// hands a token back unchanged when the page passes no value for it, and the
+// dictionary test proves only that every language carries the same tokens as
+// English, not that every page fills them. The sweep reads dist, the tree the
+// preview server serves, so it covers every built page without a browser and
+// runs in one project only: the mobile run would read the same files.
+test("no built page carries an unfilled {token} placeholder", () => {
+  test.skip(test.info().project.name !== "desktop", "runs once, in the desktop project");
+  const dist = fileURLToPath(new URL("../dist/", import.meta.url));
+  const files = readdirSync(dist, { recursive: true, encoding: "utf8" }).filter((name) =>
+    name.endsWith(".html"),
+  );
+  // Every locale builds a book page that splices a token, so fewer files than
+  // locales means the sweep is reading the wrong tree.
+  expect(files.length, "built pages found").toBeGreaterThan(LOCALE_TABLE.length);
+  // The detector matches a token as the dictionaries write it.
+  expect("{minutes}".match(PLACEHOLDER)).toEqual(["{minutes}"]);
+  const leaks: string[] = [];
+  for (const file of files) {
+    // Inline scripts are dropped: the language redirect is code, and the 404
+    // page's script carries its dictionary strings as data the sweep does not
+    // reach. Styles carry no prose. The JSON-LD block keeps its dictionary
+    // strings and stays.
+    const text = readFileSync(join(dist, file), "utf8")
+      .replace(/<script(?![^>]*ld\+json)[^>]*>[\s\S]*?<\/script>/g, "")
+      .replace(/<style[^>]*>[\s\S]*?<\/style>/g, "");
+    for (const [token] of text.matchAll(PLACEHOLDER)) {
+      leaks.push(`${file}: ${token}`);
+    }
+  }
+  expect(leaks, "unfilled placeholders in built HTML").toEqual([]);
 });
