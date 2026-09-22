@@ -19,14 +19,18 @@
 import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { LOCALE_TABLE, type Script, type SiteLocale } from "../src/i18n/locales";
+import { LOCALE_TABLE, type LocaleMeta, type Script, type SiteLocale } from "../src/i18n/locales";
 import { dictionaries } from "../src/i18n/ui";
 import {
+  CONSULTATION_MINUTES,
   CURRENCIES,
+  DISCOUNT_AGES,
   formatNumber,
   formatPrice,
   hoursAndMinutes,
   OFFERS,
+  PACKAGE_FREE_SESSIONS,
+  PACKAGE_PAID_SESSIONS,
   PRICING,
 } from "../src/lib/pricing";
 
@@ -188,18 +192,29 @@ function stringLeaves(node: unknown, path: string, out: { path: string; text: st
     for (const [key, value] of Object.entries(node)) stringLeaves(value, `${path}.${key}`, out);
 }
 
-/* The same Intl calls the pages make: prices and durations on packages/ and
-   book/, the long date on blog/ and blog/[slug], the month and year on
-   privacy/. A leap year covers every month name and day number. */
-function intlText(dateLocale: string): string {
+/* The same Intl calls the pages make: prices, durations, and the other counts
+   pricing.ts quotes on packages/, book/, and the home page, the long date on
+   blog/ and blog/[slug], the month and year on privacy/. A leap year covers
+   every month name and day number. */
+function intlText(row: LocaleMeta): string {
+  const { dateLocale } = row;
   const parts: string[] = [];
   for (const offer of OFFERS)
     for (const currency of CURRENCIES)
-      parts.push(formatPrice(offer.price[currency], currency, dateLocale));
+      parts.push(formatPrice(offer.price[currency], currency, row));
+  const counts = [
+    CONSULTATION_MINUTES,
+    PACKAGE_PAID_SESSIONS,
+    PACKAGE_FREE_SESSIONS,
+    DISCOUNT_AGES.youth.from,
+    DISCOUNT_AGES.youth.to,
+    DISCOUNT_AGES.senior,
+  ];
   for (const { minutes } of Object.values(PRICING)) {
     const split = hoursAndMinutes(minutes);
-    for (const n of [minutes, split.hours, split.minutes]) parts.push(formatNumber(n, dateLocale));
+    counts.push(minutes, split.hours, split.minutes);
   }
+  for (const n of counts) parts.push(formatNumber(n, row));
   const day = new Intl.DateTimeFormat(dateLocale, {
     year: "numeric",
     month: "long",
@@ -264,7 +279,7 @@ export function textSources(face: Face): TextSource[] {
       kind: "Intl",
       locale,
       where: `Intl ${row.dateLocale}`,
-      text: intlText(row.dateLocale),
+      text: intlText(row),
     });
   }
   return sources;
