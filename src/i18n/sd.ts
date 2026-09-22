@@ -32,7 +32,6 @@ export const dict = {
     tagline: "هر روز شفا جي هڪ نئين پيالي...",
 
     founder_role: "باني ۽ نفسياتي معالج",
-    founder_qualification: "M.A.",
 
     footer_contact: "رابطو ڪريو",
     footer_follow: "اسان کي فالو ڪريو",
@@ -55,7 +54,6 @@ export const dict = {
 
     version: "ورزن",
     version_production: "لائيو",
-    version_stable: "مستحڪم",
   },
 
   form: {
@@ -86,8 +84,6 @@ export const dict = {
     intro: "شفا ۽ روزاني سک بابت ڪجهه سچيون ڳالهيون، جيڪي وقت سان گڏ هتي شامل ٿينديون رهنديون.",
     read: "پڙهو",
     back: "بلاگ ڏانهن واپس",
-    heroAlt:
-      "سرءُ جو هڪ خاموش منظر: پارو ڍڪيل ڪريل پن بيٺل پاڻيءَ جي ڀرسان، جنهن ۾ مٿان وارين اگهاڙين ٽارين جو عڪس آهي.",
     metaDescription: "The Soul Cafe طرفان شفا ۽ روزاني ذهني سک بابت ننڍا، سچا نوٽ.",
   },
 

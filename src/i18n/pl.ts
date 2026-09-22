@@ -32,7 +32,6 @@ export const dict = {
     tagline: "Ukojenie parzone codziennie...",
 
     founder_role: "Założycielka i psychoterapeutka",
-    founder_qualification: "M.A.",
 
     footer_contact: "Kontakt",
     footer_follow: "Obserwuj nas",
@@ -54,7 +53,6 @@ export const dict = {
 
     version: "Wersja",
     version_production: "produkcja",
-    version_stable: "stabilna",
   },
 
   form: {
@@ -86,8 +84,6 @@ export const dict = {
       "Kilka szczerych notatek o zdrowieniu i codziennym dobrostanie, dodawanych tu w miarę powstawania.",
     read: "Czytaj",
     back: "Wróć do bloga",
-    heroAlt:
-      "Nastrojowa jesienna scena: oszronione opadłe liście nad nieruchomą wodą, w której odbijają się nagie gałęzie.",
     metaDescription:
       "Krótkie, szczere notatki z The Soul Cafe o zdrowieniu i codziennym zdrowiu psychicznym.",
   },

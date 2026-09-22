@@ -32,7 +32,6 @@ export const dict = {
     tagline: "Cura in infusione, ogni giorno...",
 
     founder_role: "Fondatrice e psicoterapeuta",
-    founder_qualification: "M.A.",
 
     footer_contact: "Contatti",
     footer_follow: "Seguici",
@@ -54,7 +53,6 @@ export const dict = {
 
     version: "Versione",
     version_production: "produzione",
-    version_stable: "stabile",
   },
 
   form: {
@@ -85,8 +83,6 @@ export const dict = {
     intro: "Alcuni appunti sinceri su guarigione e benessere quotidiano, aggiunti qui man mano.",
     read: "Leggi",
     back: "Torna al blog",
-    heroAlt:
-      "Una scena autunnale e raccolta: foglie cadute coperte di brina accanto a un'acqua immobile che riflette i rami spogli.",
     metaDescription:
       "Brevi appunti sinceri di The Soul Cafe su guarigione e benessere mentale quotidiano.",
   },

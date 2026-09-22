@@ -32,7 +32,6 @@ export const dict = {
     tagline: "Herstel, elke dag vers gezet...",
 
     founder_role: "Oprichter en psychotherapeut",
-    founder_qualification: "M.A.",
 
     footer_contact: "Contact opnemen",
     footer_follow: "Volg ons",
@@ -55,7 +54,6 @@ export const dict = {
 
     version: "Versie",
     version_production: "productie",
-    version_stable: "stabiel",
   },
 
   form: {
@@ -87,8 +85,6 @@ export const dict = {
       "Een paar eerlijke notities over herstel en dagelijks welzijn, hier toegevoegd zodra ze er zijn.",
     read: "Lezen",
     back: "Terug naar de blog",
-    heroAlt:
-      "Een ingetogen herfsttafereel: berijpte gevallen bladeren naast stil water dat de kale takken erboven weerspiegelt.",
     metaDescription:
       "Korte, eerlijke notities van The Soul Cafe over herstel en dagelijks mentaal welzijn.",
   },

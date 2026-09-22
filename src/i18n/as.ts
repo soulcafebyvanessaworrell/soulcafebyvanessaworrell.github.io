@@ -32,7 +32,6 @@ export const dict = {
     tagline: "প্ৰতিদিনে বনোৱা এক কাপ আৰোগ্য...",
 
     founder_role: "প্ৰতিষ্ঠাপক আৰু সাইকোথেৰাপিষ্ট",
-    founder_qualification: "M.A.",
 
     footer_contact: "আমাৰ সৈতে যোগাযোগ",
     footer_follow: "আমাক ফলো কৰক",
@@ -54,7 +53,6 @@ export const dict = {
 
     version: "সংস্কৰণ",
     version_production: "লাইভ",
-    version_stable: "স্থিৰ",
   },
 
   form: {
@@ -85,8 +83,6 @@ export const dict = {
     intro: "আৰোগ্য আৰু দৈনন্দিন সুস্থতাৰ বিষয়ে কেইটামান খোলা কথা, যেতিয়া যি আহে ইয়াত যোগ কৰা হয়।",
     read: "পঢ়ক",
     back: "ব্লগলৈ উভতি যাওক",
-    heroAlt:
-      "এখন শান্ত, চিন্তামগ্ন শৰতৰ দৃশ্য: নিথৰ পানীৰ কাষত হিমে ঢকা সৰি পৰা পাত, য'ত ওপৰৰ পাতশূন্য ডালবোৰৰ প্ৰতিবিম্ব পৰিছে।",
     metaDescription: "আৰোগ্য আৰু দৈনন্দিন মানসিক সুস্থতাৰ বিষয়ে The Soul Cafe-ৰ চুটি, খোলা টোকা।",
   },
 

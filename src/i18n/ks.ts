@@ -32,7 +32,6 @@ export const dict = {
     tagline: "شِفا، ہر دۄہ تازٕ دَم دِتھ...",
 
     founder_role: "بانی تہٕ سایکوتھیراپِسٹ",
-    founder_qualification: "M.A.",
 
     footer_contact: "رٲبطٕ کٔرِو",
     footer_follow: "اَسہِ فالو کٔرِو",
@@ -54,7 +53,6 @@ export const dict = {
 
     version: "ورژن",
     version_production: "لایِو",
-    version_stable: "مُستحکم",
   },
 
   form: {
@@ -85,8 +83,6 @@ export const dict = {
     intro: "شِفا تہٕ روزمرہ ذہنی خوش حٲلی پؠٹھ کینٛہہ سیۆدؠ کَتھہٕ، یِم وقتہٕ وقتہٕ یٮ۪تہِ جمع سپدان چھِ۔",
     read: "پٔرِو",
     back: "بلاگ کُن واپس",
-    heroAlt:
-      "ہرٕدُک اکھ سوچ ہیٚوان منظر: جامٕ کٔرِتھ پٮ۪ومٕتؠ پن اکِس ساکِت آبہِ کنؠ، یَتھ منز ہٮ۪ور کِنؠ نٲیؠ ٹٲہنؠ عکس دِوان چھِ۔",
     metaDescription: "The Soul Cafe ہِندؠ لۄکٕٹؠ تہٕ سیۆدؠ نوٹ، شِفا تہٕ روزمرہ ذہنی خوش حٲلی پؠٹھ۔",
   },
 

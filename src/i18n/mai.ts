@@ -32,7 +32,6 @@ export const dict = {
     tagline: "हर दिन चैनक एक नव प्याली...",
 
     founder_role: "संस्थापिका आ मनोचिकित्सक",
-    founder_qualification: "M.A.",
 
     footer_contact: "हमरा सँ जुड़ू",
     footer_follow: "हमरा फॉलो करू",
@@ -54,7 +53,6 @@ export const dict = {
 
     version: "संस्करण",
     version_production: "लाइव",
-    version_stable: "स्थिर",
   },
 
   form: {
@@ -85,7 +83,6 @@ export const dict = {
     intro: "उपचार आ रोजमर्राक मोनक हाल पर किछु सच्चा बात, जे समय-समय पर एतय जुड़ैत रहत।",
     read: "पढ़ू",
     back: "Blog पर घुरू",
-    heroAlt: "एक शांत शरदक दृश्य: पाला पड़ल खसल पात, आ थिर पानि जाहि मे ऊपरक बिनु पातक डारि झलकैत अछि।",
     metaDescription: "उपचार आ रोजमर्राक मानसिक स्वास्थ्य पर The Soul Cafe दिस सँ छोट, सच्चा बात।",
   },
 

@@ -3,8 +3,8 @@
 // qualification and role. `align` controls the horizontal alignment of the
 // stack: "start" (the default, as in the About/home intro) follows the writing
 // direction, so it sits on the right in a right-to-left language. The
-// qualification is a Latin run ("M.A."), isolated per the RTL rule in AGENTS.md
-// so its full stops keep their order on a right-to-left page.
+// qualification comes from FOUNDER, a Latin run ("M.A.") isolated per the RTL
+// rule in AGENTS.md so its full stops keep their order on a right-to-left page.
 import type { SiteLocale } from "../i18n/locales";
 import { t } from "../i18n/ui";
 import { signature } from "../lib/assets";
@@ -31,6 +31,6 @@ const alignClass = align === "center" ? "items-center text-center" : "items-star
     loading="lazy"
     decoding="async"
   />
-  <p class="text-sm font-bold text-ink"><span dir="ltr">{t(locale, "founder_qualification")}</span></p>
+  <p class="text-sm font-bold text-ink"><span dir="ltr">{FOUNDER.qualification}</span></p>
   <p class="text-sm text-soft">{t(locale, "founder_role")}</p>
 </div>

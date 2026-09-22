@@ -32,7 +32,6 @@ export const dict = {
     tagline: "Vindecare preparată zilnic...",
 
     founder_role: "Fondatoare și psihoterapeută",
-    founder_qualification: "M.A.",
 
     footer_contact: "Contact",
     footer_follow: "Urmăriți-ne",
@@ -54,7 +53,6 @@ export const dict = {
 
     version: "Versiune",
     version_production: "producție",
-    version_stable: "stabilă",
   },
 
   form: {
@@ -86,8 +84,6 @@ export const dict = {
       "Câteva însemnări sincere despre vindecare și starea de bine de zi cu zi, adăugate aici pe măsură ce apar.",
     read: "Citiți",
     back: "Înapoi la blog",
-    heroAlt:
-      "O scenă de toamnă liniștită: frunze căzute, acoperite de brumă, lângă o apă nemișcată în care se oglindesc ramurile goale de deasupra.",
     metaDescription:
       "Însemnări scurte și sincere de la The Soul Cafe despre vindecare și sănătatea mintală de zi cu zi.",
   },

@@ -32,7 +32,6 @@ export const dict = {
     tagline: "સાજા થવાની ચા, રોજ તાજી ઉકાળેલી...",
 
     founder_role: "સ્થાપક અને મનોચિકિત્સક",
-    founder_qualification: "M.A.",
 
     footer_contact: "સંપર્કમાં રહો",
     footer_follow: "અમને ફોલો કરો",
@@ -54,7 +53,6 @@ export const dict = {
 
     version: "આવૃત્તિ",
     version_production: "લાઇવ",
-    version_stable: "સ્થિર",
   },
 
   form: {
@@ -85,8 +83,6 @@ export const dict = {
     intro: "સાજા થવા અને રોજિંદી સુખાકારી વિશે થોડી સાચી વાતો, જે સમય મળતાં અહીં ઉમેરાતી રહેશે.",
     read: "વાંચો",
     back: "બ્લોગ પર પાછા",
-    heroAlt:
-      "પાનખરનું એક શાંત દૃશ્ય: હિમથી ઢંકાયેલાં ખરેલાં પાંદડાં અને સ્થિર પાણી, જેમાં ઉપરની પાંદડાં વગરની ડાળીઓ પ્રતિબિંબિત થાય છે.",
     metaDescription: "The Soul Cafe તરફથી સાજા થવા અને રોજિંદા માનસિક સ્વાસ્થ્ય વિશે ટૂંકી, સાચી વાતો.",
   },
 

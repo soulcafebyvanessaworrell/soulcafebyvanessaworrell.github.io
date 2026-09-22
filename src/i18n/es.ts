@@ -32,7 +32,6 @@ export const dict = {
     tagline: "Sanación recién hecha, cada día...",
 
     founder_role: "Fundadora y psicoterapeuta",
-    founder_qualification: "M.A.",
 
     footer_contact: "Contacto",
     footer_follow: "Síguenos",
@@ -54,7 +53,6 @@ export const dict = {
 
     version: "Versión",
     version_production: "producción",
-    version_stable: "estable",
   },
 
   form: {
@@ -86,8 +84,6 @@ export const dict = {
       "Algunas notas sinceras sobre la sanación y el bienestar cotidiano, que iremos añadiendo aquí según lleguen.",
     read: "Leer",
     back: "Volver al blog",
-    heroAlt:
-      "Una escena otoñal y serena: hojas caídas cubiertas de escarcha junto a un agua quieta que refleja las ramas desnudas.",
     metaDescription:
       "Notas breves y sinceras de The Soul Cafe sobre la sanación y el bienestar mental cotidiano.",
   },

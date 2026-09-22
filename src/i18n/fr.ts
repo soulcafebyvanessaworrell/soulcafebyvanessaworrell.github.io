@@ -32,7 +32,6 @@ export const dict = {
     tagline: "De l’apaisement infusé chaque jour...",
 
     founder_role: "Fondatrice et psychothérapeute",
-    founder_qualification: "M.A.",
 
     footer_contact: "Nous joindre",
     footer_follow: "Nous suivre",
@@ -54,7 +53,6 @@ export const dict = {
 
     version: "Version",
     version_production: "production",
-    version_stable: "stable",
   },
 
   form: {
@@ -87,8 +85,6 @@ export const dict = {
       "Quelques notes sincères sur la guérison et le bien-être au quotidien, ajoutées ici au fil du temps.",
     read: "Lire",
     back: "Retour au blog",
-    heroAlt:
-      "Une scène d’automne paisible : des feuilles tombées, couvertes de givre, au bord d’une eau calme où se reflètent les branches nues.",
     metaDescription:
       "De courtes notes sincères de The Soul Cafe sur la guérison et le bien-être mental au quotidien.",
   },

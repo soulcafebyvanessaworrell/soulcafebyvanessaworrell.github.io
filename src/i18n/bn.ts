@@ -32,7 +32,6 @@ export const dict = {
     tagline: "প্রতিদিন তৈরি হয় সেরে ওঠার এক কাপ...",
 
     founder_role: "প্রতিষ্ঠাতা ও সাইকোথেরাপিস্ট",
-    founder_qualification: "M.A.",
 
     footer_contact: "আমাদের সঙ্গে যোগাযোগ",
     footer_follow: "সঙ্গে থাকুন",
@@ -54,7 +53,6 @@ export const dict = {
 
     version: "সংস্করণ",
     version_production: "লাইভ",
-    version_stable: "স্থিতিশীল",
   },
 
   form: {
@@ -85,8 +83,6 @@ export const dict = {
     intro: "সেরে ওঠা আর রোজকার ভালো থাকা নিয়ে কিছু খোলামেলা কথা, যখন যেমন আসে, এখানে যুক্ত হয়।",
     read: "পড়ুন",
     back: "ব্লগে ফিরে যান",
-    heroAlt:
-      "এক শান্ত হেমন্তের দৃশ্য: স্থির জলের পাশে হিমে ঢাকা ঝরা পাতা, আর সেই জলে উপরের পাতাহীন ডালের প্রতিচ্ছবি।",
     metaDescription: "The Soul Cafe-এর ছোট, খোলামেলা কিছু কথা: সেরে ওঠা আর রোজকার মানসিক ভালো থাকা নিয়ে।",
   },
 

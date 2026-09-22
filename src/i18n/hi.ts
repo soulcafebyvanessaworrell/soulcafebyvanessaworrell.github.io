@@ -32,7 +32,6 @@ export const dict = {
     tagline: "हर दिन सुकून की एक नई प्याली...",
 
     founder_role: "संस्थापक और मनोचिकित्सक",
-    founder_qualification: "M.A.",
 
     footer_contact: "संपर्क में रहें",
     footer_follow: "हमें फ़ॉलो करें",
@@ -54,7 +53,6 @@ export const dict = {
 
     version: "संस्करण",
     version_production: "लाइव",
-    version_stable: "स्थिर",
   },
 
   form: {
@@ -85,7 +83,6 @@ export const dict = {
     intro: "उपचार और रोज़मर्रा के मन के हाल पर कुछ सच्ची बातें, जो समय-समय पर यहाँ जुड़ती रहेंगी।",
     read: "पढ़ें",
     back: "ब्लॉग पर वापस",
-    heroAlt: "एक शांत पतझड़ का दृश्य: पाले से ढके गिरे हुए पत्ते और स्थिर पानी में झलकती नंगी टहनियाँ।",
     metaDescription: "द सोल कैफ़े से उपचार और रोज़मर्रा के मानसिक स्वास्थ्य पर छोटी और सच्ची बातें।",
   },
 

@@ -42,7 +42,6 @@ export const en = {
     tagline: "Healing brewed daily...",
 
     founder_role: "Founder and Psychotherapist",
-    founder_qualification: "M.A.",
 
     footer_contact: "Get in touch",
     footer_follow: "Follow along",
@@ -64,7 +63,6 @@ export const en = {
 
     version: "Version",
     version_production: "production",
-    version_stable: "stable",
   },
 
   form: {
@@ -95,8 +93,6 @@ export const en = {
     intro: "A few honest notes on healing and everyday wellbeing, added here as they come.",
     read: "Read",
     back: "Back to blog",
-    heroAlt:
-      "A reflective autumn scene: frosted fallen leaves beside still water that mirrors the bare branches above.",
     metaDescription:
       "Short, honest notes on healing and everyday mental wellbeing from The Soul Cafe.",
   },

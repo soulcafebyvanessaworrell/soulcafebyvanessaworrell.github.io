@@ -32,7 +32,6 @@ export const dict = {
     tagline: "Heilung, täglich frisch aufgebrüht...",
 
     founder_role: "Gründerin und Psychotherapeutin",
-    founder_qualification: "M.A.",
 
     footer_contact: "Kontakt",
     footer_follow: "Folgen Sie uns",
@@ -54,7 +53,6 @@ export const dict = {
 
     version: "Version",
     version_production: "Produktion",
-    version_stable: "stabil",
   },
 
   form: {
@@ -87,8 +85,6 @@ export const dict = {
       "Ein paar ehrliche Notizen über Heilung und Wohlbefinden im Alltag, die hier nach und nach dazukommen.",
     read: "Lesen",
     back: "Zurück zum Blog",
-    heroAlt:
-      "Eine nachdenkliche Herbstszene: gefrostete Blätter am Boden neben stillem Wasser, in dem sich die kahlen Äste darüber spiegeln.",
     metaDescription:
       "Kurze, ehrliche Notizen von The Soul Cafe über Heilung und psychisches Wohlbefinden im Alltag.",
   },

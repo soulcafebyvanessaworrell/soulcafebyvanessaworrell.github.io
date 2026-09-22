@@ -32,7 +32,6 @@ export const dict = {
     tagline: "ہر روز شفا کی ایک تازہ پیالی...",
 
     founder_role: "بانی اور سائیکو تھراپسٹ",
-    founder_qualification: "M.A.",
 
     footer_contact: "رابطہ کریں",
     footer_follow: "ہمیں فالو کریں",
@@ -54,7 +53,6 @@ export const dict = {
 
     version: "ورژن",
     version_production: "لائیو",
-    version_stable: "مستحکم",
   },
 
   form: {
@@ -86,8 +84,6 @@ export const dict = {
       "شفا اور روزمرہ کے ذہنی سکون پر چند سچی باتیں، جو جیسے جیسے لکھی جائیں یہاں شامل ہوتی رہیں گی۔",
     read: "پڑھیں",
     back: "بلاگ پر واپس جائیں",
-    heroAlt:
-      "خزاں کا ایک پرسکون منظر: ساکت پانی کے کنارے پالے سے ڈھکے گرے ہوئے پتے، اور پانی میں اوپر کی بے برگ شاخوں کا عکس۔",
     metaDescription: "The Soul Cafe کی جانب سے شفا اور روزمرہ کی ذہنی صحت پر مختصر، سچی باتیں۔",
   },
 
