@@ -1,0 +1,45 @@
+---
+// A dictionary sentence whose numbers render as markup: the text pieces as they
+// are, each number as a span in the locale's own digits and, when those are not
+// Western, a second smaller span repeating it in Western digits in round
+// brackets. The pieces come from fillPieces (ui.ts) over formatPriceParts or
+// formatNumberParts (lib/pricing.ts), so no HTML is ever built from prose.
+//
+// Each number renders as an array, not a fragment, so no whitespace text node
+// lands between it and a word the dictionary joins to it ("৫টি"). The no-break
+// space before the bracket is the separator joinDigits uses. Being no-break,
+// it keeps the bracket from ever opening a line on its own.
+//
+// Size, weight, and alignment of the Western repeat sit on its outer span,
+// which takes the page direction, and only the inner span is dir="ltr": a
+// logical margin or text-end on the ltr span itself would resolve against
+// that span's own direction and land on the wrong side in Urdu.
+import type { Pieces, Sentence } from "../lib/pricing";
+
+interface Props {
+  /** A plain string renders as is, so a caller need not know whether its
+   *  text has a number in it. */
+  sentence: Sentence;
+  /** Classes of the Western repeat's outer span: its size and weight, and
+   *  `block ... sm:inline` where it takes its own line on a phone. */
+  westernClass: string;
+  /** Classes of the native span, such as `whitespace-nowrap` on a price. */
+  nativeClass?: string;
+}
+
+const { sentence, westernClass, nativeClass } = Astro.props;
+const pieces: Pieces = typeof sentence === "string" ? [sentence] : sentence;
+---
+
+{
+  pieces.map((piece) =>
+    typeof piece === "string"
+      ? piece
+      : [
+          <span data-digits="native" class={nativeClass}>{piece.native}</span>,
+          piece.western && (
+            <span data-digits="western" class={westernClass}>&nbsp;<span dir="ltr">({piece.western})</span></span>
+          ),
+        ],
+  )
+}

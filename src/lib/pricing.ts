@@ -169,6 +169,10 @@ export function formatNumber(value: number, meta: LocaleMeta): string {
  *  them, so a page can render each number as markup. */
 export type Pieces = readonly (string | DualDigits)[];
 
+/** A sentence as a component takes it: Pieces when it carries a number, or
+ *  the plain string when it does not, so a caller passes either as is. */
+export type Sentence = string | Pieces;
+
 /** The "Free 15-minute consultation" pill label with the length filled in, for
  *  every page that links to the consultation: the text around the number and
  *  the number itself as separate pieces, so the page can render the Western

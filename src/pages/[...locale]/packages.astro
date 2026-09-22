@@ -3,6 +3,7 @@
 // unchanged discount band. The currency switch is three radios revealed by CSS
 // :has() (styles.css, "Currency switch"), so it works with JavaScript off.
 // Numbers come from src/lib/pricing.ts; every word comes from the dictionary.
+import DualDigits from "../../components/DualDigits.astro";
 import FeatureGrid from "../../components/FeatureGrid.astro";
 import FeatureItem from "../../components/FeatureItem.astro";
 import PillButton from "../../components/PillButton.astro";
@@ -126,24 +127,8 @@ const discounts = zipLabels(
             <section class="py-10 first:pt-0 last:pb-0" id={cluster.type}>
               <div class="flex flex-wrap items-baseline gap-x-4 gap-y-1">
                 <ScriptHeading level={2}>{cluster.label}</ScriptHeading>
-                {/* The digit pieces are arrays, not fragments, so no whitespace text
-                    node lands between a number and a word the dictionary joins to it
-                    ("৫টি"); the no-break space before the bracket is the separator
-                    the joined string carries, so copied text reads the same. Size and
-                    alignment sit on the outer span and only the inner one is
-                    dir="ltr": a logical margin or text-end on the ltr span itself
-                    resolves against that span's own direction, wrong in Urdu. */}
                 <p class="text-soft">
-                  {cluster.duration.map((piece) =>
-                    typeof piece === "string"
-                      ? piece
-                      : [
-                          <span data-digits="native">{piece.native}</span>,
-                          piece.western && (
-                            <span data-digits="western" class="text-sm">&nbsp;<span dir="ltr">({piece.western})</span></span>
-                          ),
-                        ],
-                  )}
+                  <DualDigits sentence={cluster.duration} westernClass="text-sm" />
                 </p>
               </div>
 
@@ -159,16 +144,7 @@ const discounts = zipLabels(
                       <span class="text-lg font-bold">{row.label}</span>
                       {row.pill && (
                         <span class="pill-coral col-span-2 justify-self-start rounded-full px-3 py-1 text-sm font-bold">
-                          {row.pill.map((piece) =>
-                            typeof piece === "string"
-                              ? piece
-                              : [
-                                  <span data-digits="native">{piece.native}</span>,
-                                  piece.western && (
-                                    <span data-digits="western" class="text-xs font-normal">&nbsp;<span dir="ltr">({piece.western})</span></span>
-                                  ),
-                                ],
-                          )}
+                          <DualDigits sentence={row.pill} westernClass="text-xs font-normal" />
                         </span>
                       )}
                     </div>
@@ -180,12 +156,11 @@ const discounts = zipLabels(
                             data-currency={currency}
                             class:list={[currency !== DEFAULT_CURRENCY && "hidden"]}
                           >
-                            {[
-                              <span data-digits="native" class="whitespace-nowrap">{price.native}</span>,
-                              price.western && (
-                                <span data-digits="western" class="block text-base font-normal text-soft sm:ms-1 sm:inline">&nbsp;<span dir="ltr">({price.western})</span></span>
-                              ),
-                            ]}
+                            <DualDigits
+                              sentence={[price]}
+                              nativeClass="whitespace-nowrap"
+                              westernClass="block text-base font-normal text-soft sm:ms-1 sm:inline"
+                            />
                           </span>
                         );
                       })}
@@ -212,16 +187,7 @@ const discounts = zipLabels(
           </PillButton>
           <PillButton href={`${localizePath("book/", locale)}#consultation`} variant="cream">
             <span>
-              {freeConsultationPieces(locale).map((piece) =>
-                typeof piece === "string"
-                  ? piece
-                  : [
-                      <span data-digits="native">{piece.native}</span>,
-                      piece.western && (
-                        <span data-digits="western" class="text-sm font-normal">&nbsp;<span dir="ltr">({piece.western})</span></span>
-                      ),
-                    ],
-              )}
+              <DualDigits sentence={freeConsultationPieces(locale)} westernClass="text-sm font-normal" />
             </span>
           </PillButton>
         </div>

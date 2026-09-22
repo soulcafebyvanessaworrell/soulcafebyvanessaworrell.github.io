@@ -4,6 +4,7 @@
 import { Image } from "astro:assets";
 import { Icon } from "astro-icon/components";
 import CloudChip from "../../components/CloudChip.astro";
+import DualDigits from "../../components/DualDigits.astro";
 import FeatureGrid from "../../components/FeatureGrid.astro";
 import FeatureItem from "../../components/FeatureItem.astro";
 import PillButton from "../../components/PillButton.astro";
@@ -92,16 +93,7 @@ const cloudOffsets = [
           </PillButton>
           <PillButton href={`${localizePath("book/", locale)}#consultation`} variant="cream">
             <span>
-              {freeConsultationPieces(locale).map((piece) =>
-                typeof piece === "string"
-                  ? piece
-                  : [
-                      <span data-digits="native">{piece.native}</span>,
-                      piece.western && (
-                        <span data-digits="western" class="text-sm font-normal">&nbsp;<span dir="ltr">({piece.western})</span></span>
-                      ),
-                    ],
-              )}
+              <DualDigits sentence={freeConsultationPieces(locale)} westernClass="text-sm font-normal" />
             </span>
           </PillButton>
         </div>
