@@ -660,3 +660,47 @@ test.describe("packages and booking", () => {
     expect(overflow, "document overflows horizontally at 320px").toBeLessThanOrEqual(1);
   });
 });
+
+// Images and icons. Each test pins a fact the source does not state: that two
+// attributes generated in different places agree, or that a file the head
+// points at is really served as the type the tag claims.
+test.describe("images and icons", () => {
+  // The preload in <head> and the hero <img> are rendered from the same
+  // constants, but only the built HTML shows they produced one candidate list.
+  // If they diverged the browser would download the photo twice.
+  test("the hero preload names exactly the candidates the hero image renders", async ({ page }) => {
+    await page.goto(`${BASE}/`, { waitUntil: "load" });
+    const preload = page.locator('link[rel="preload"][as="image"]');
+    await expect(preload).toHaveCount(1);
+    const hero = page.locator("main img[fetchpriority=high]");
+    await expect(hero).toHaveCount(1);
+    expect(await preload.getAttribute("imagesrcset")).toBe(await hero.getAttribute("srcset"));
+    expect(await preload.getAttribute("imagesizes")).toBe(await hero.getAttribute("sizes"));
+  });
+
+  // A phone at 2x used to be handed the largest (900w) candidate because the
+  // sizes value overstated the slot. The slot at 390px is 350px wide, so the
+  // browser should now settle on the 750w candidate.
+  test("a 2x phone picks the 750w hero candidate", async ({ browser }) => {
+    const context = await browser.newContext({
+      viewport: { width: 390, height: 844 },
+      deviceScaleFactor: 2,
+      reducedMotion: "reduce",
+    });
+    try {
+      const page = await context.newPage();
+      await page.goto(`${BASE}/`, { waitUntil: "load" });
+      const hero = page.locator("main img[fetchpriority=high]");
+      const srcset = (await hero.getAttribute("srcset")) ?? "";
+      const candidate750 = srcset
+        .split(",")
+        .map((c) => c.trim().split(/\s+/))
+        .find(([, descriptor]) => descriptor === "750w")?.[0];
+      expect(candidate750, "srcset carries a 750w candidate").toBeTruthy();
+      const currentSrc = await hero.evaluate((img) => (img as HTMLImageElement).currentSrc);
+      expect(new URL(currentSrc).pathname).toBe(candidate750);
+    } finally {
+      await context.close();
+    }
+  });
+});
