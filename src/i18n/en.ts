@@ -102,7 +102,7 @@ export const en = {
       meta: {
         title: "Psychotherapy by Vanessa Worrell",
         description:
-          "A warm, non-judgmental psychotherapy space to explore, heal, and grow. Support for adolescents, adults, and families from an internationally trained psychologist.",
+          "A warm, non-judgmental psychotherapy space to explore, heal, and grow. Support for adolescents, adults, and families from a trained psychologist.",
       },
       hero: {
         heading: "Welcome to The Soul Cafe!",
@@ -151,7 +151,7 @@ export const en = {
       meta: {
         title: "About Us",
         description:
-          "Vanessa Worrell, founder of The Soul Cafe, is a psychologist trained in the US, the UK, and India. Her work is humanistic and existential, and draws on CBT when it helps.",
+          "Vanessa Worrell, founder of The Soul Cafe, is a psychologist trained in the US, the UK, and India. Her work is humanistic and existential.",
       },
       heading: "About Our Founder and Psychotherapist",
       photoAlt: "Vanessa Worrell, founder of The Soul Cafe",
@@ -200,7 +200,7 @@ export const en = {
       meta: {
         title: "Book a Session",
         description:
-          "Book an online psychotherapy session with Vanessa Worrell, M.A., at The Soul Cafe, or start with a free {minutes}-minute consultation to see if it's the right fit.",
+          "Book an online psychotherapy session with Vanessa Worrell, M.A., at The Soul Cafe, or start with a free {minutes}-minute consultation.",
       },
       title: "Book a Session",
       description:
@@ -240,7 +240,7 @@ export const en = {
       meta: {
         title: "Packages",
         description:
-          "One-on-one therapy sessions from {price}, with couples and family therapy too. A package of six sessions saves you one. Discounts for youth, students, armed forces personnel, ex-servicemen, and seniors.",
+          "One-on-one therapy sessions from {price}, with couples and family therapy too. Discounts for youth, students, armed forces personnel, and seniors.",
       },
       heading: "Packages",
       intro:
@@ -279,7 +279,7 @@ export const en = {
       meta: {
         title: "Contact Us",
         description:
-          "Get in touch with The Soul Cafe about bookings, jobs and internships, or collaboration on workshops and trainings. We usually reply within a couple of days.",
+          "Get in touch with The Soul Cafe about bookings, jobs and internships, or collaboration on workshops. We usually reply within a couple of days.",
       },
       title: "Contact Us",
       intro:
@@ -340,7 +340,7 @@ export const en = {
       meta: {
         title: "Privacy",
         description:
-          "How The Soul Cafe handles your information: no cookies or trackers, a contact form used only to reply to you, and bookings handled on Google's own site.",
+          "How The Soul Cafe handles your information: no cookies or trackers, a contact form used only to reply to you, and bookings handled on Google's site.",
       },
       title: "Privacy",
       updated: "Last updated: {date}",
