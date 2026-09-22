@@ -132,20 +132,27 @@ const discounts = zipLabels(
                 </p>
               </div>
 
-              {/* On a phone the label and the price share a row's first line and
-                  the package pill takes the whole second line, since the price
-                  column leaves the pill too little width to stay readable
-                  (display: contents hands the pill to the grid). From sm up the
-                  label and pill sit side by side in the first column. */}
+              {/* On a phone the pill and the package link each take a full line
+                  under the label, since the price column leaves them too little
+                  width beside it. The link is text, not a third pill: a cluster
+                  keeps one primary fill (Book) and one secondary (the pill). */}
               <ul class="mt-6 flex flex-col gap-4">
                 {cluster.rows.map((row) => (
                   <li class="grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-2 pr-16 sm:pr-0">
                     <div class="contents sm:flex sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-3 sm:gap-y-1">
                       <span class="text-lg font-bold">{row.label}</span>
                       {row.pill && (
-                        <span class="pill-coral col-span-2 justify-self-start rounded-full px-3 py-1 text-sm font-bold">
-                          <DualDigits sentence={row.pill} westernClass="text-xs font-normal" />
-                        </span>
+                        <>
+                          <span class="pill-coral col-span-2 justify-self-start rounded-full px-3 py-1 text-sm font-bold">
+                            <DualDigits sentence={row.pill} westernClass="text-xs font-normal" />
+                          </span>
+                          <a
+                            href={localizePath("contact/", locale)}
+                            class="tap col-span-2 justify-self-start text-sm font-bold text-periwinkle-deep hover:underline"
+                          >
+                            {copy.askPackage}
+                          </a>
+                        </>
                       )}
                     </div>
                     <span class="col-start-2 row-start-1 text-end text-3xl font-bold text-ink tabular-nums">

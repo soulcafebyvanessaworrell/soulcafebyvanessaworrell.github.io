@@ -533,6 +533,33 @@ for (const row of SAMPLE_LOCALES) {
   });
 }
 
+// Without this, a six-session row could go back to showing a package price
+// with no way to ask about it: the cluster's only button books a single
+// session, and the one "Ask about a package" link sat under all three
+// clusters. Every row with a package pill carries the link, so three per page,
+// and the bottom note keeps its own; all four point into the reader's own
+// contact page, never the default locale's.
+for (const row of SAMPLE_LOCALES) {
+  test(`every six-session row links to the locale's contact page beside the bottom note: ${row.code}`, async ({
+    page,
+  }) => {
+    await page.goto(`${localeBase(row)}/packages/`, { waitUntil: "load" });
+    const contact = `${localeBase(row)}/contact/`;
+    const rowLinks = page.locator(`li:has([data-currency]) a[href="${contact}"]`);
+    await expect(rowLinks, "one package link per six-session row").toHaveCount(3);
+    for (const link of await rowLinks.all()) await expect(link).toBeVisible();
+    // The three row links and the bottom note's pill, and nothing else in the
+    // page body, lead to the contact page.
+    await expect(
+      page.locator(`main a[href="${contact}"]`),
+      "three row links plus the bottom one",
+    ).toHaveCount(4);
+    const bottom = page.locator(`main a[href="${contact}"]:not(li a)`);
+    await expect(bottom, "the bottom note keeps its link").toHaveCount(1);
+    await expect(bottom).toBeVisible();
+  });
+}
+
 // Without this, a tighter footer row pitch would again leave neighbouring
 // links overlapping hit areas (the old 33px rows gave a finger 33px per link,
 // the next row's `.tap` pseudo-element covering the rest). Probed with
