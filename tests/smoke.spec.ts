@@ -752,4 +752,18 @@ test.describe("images and icons", () => {
       expect(ogLocale?.split("_")[0]).toBe(row.htmlLang.split("-")[0]);
     }
   });
+
+  // Browsers request /favicon.ico on their own whenever no <link rel="icon">
+  // matches (address-bar bookmarks, some RSS readers). It used to be a 404
+  // page; it must be a real icon container.
+  test("/favicon.ico is a real ICO file", async ({ request }) => {
+    const resp = await request.get(`${BASE}/favicon.ico`);
+    expect(resp.status()).toBe(200);
+    expect(resp.headers()["content-type"]).toMatch(/^image\/(x-icon|vnd\.microsoft\.icon)/);
+    const body = await resp.body();
+    // ICONDIR: reserved 0, type 1 (icon), then the image count.
+    expect(body.readUInt16LE(0)).toBe(0);
+    expect(body.readUInt16LE(2)).toBe(1);
+    expect(body.readUInt16LE(4)).toBeGreaterThanOrEqual(2);
+  });
 });
