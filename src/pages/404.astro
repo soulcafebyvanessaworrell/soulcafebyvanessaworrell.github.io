@@ -2,60 +2,106 @@
 // Single 404 for the whole site (Astro serves one). GitHub Pages returns it for
 // unmatched paths in every locale tree and there is no locale at build time, so
 // the page ships English plus a pill for every language's home, and a small
-// inline script re-labels it: from the path's locale prefix when there is one,
-// otherwise from the browser's languages. With JS off, English and the list
-// remain. noindex so crawlers don't list it.
+// inline script turns the whole page, chrome included, to a locale: the failed
+// URL's prefix when it has one, else the language the picker remembered, else
+// the browser's. With JS off, English and the list remain. noindex so crawlers
+// don't list it.
+//
+// The header and footer render English at build, so the script translates
+// them by text: every chrome string it knows, matched by its English wording,
+// swapped for the locale's. That keeps the page independent of how the chrome
+// components are marked up; the JSON payload below is what it knows.
 import PillButton from "../components/PillButton.astro";
 import ScriptHeading from "../components/ScriptHeading.astro";
-import { DEFAULT_LOCALE, LOCALE_TABLE, localizePath } from "../i18n/locales";
+import type { UiKey } from "../i18n/en";
+import { LANGUAGE_STORAGE_KEY } from "../i18n/languageStorage";
+import {
+  DEFAULT_LOCALE,
+  LOCALE_TABLE,
+  localePrefix,
+  localizePath,
+  type SiteLocale,
+} from "../i18n/locales";
 import { dictionaries, t } from "../i18n/ui";
 import Base from "../layouts/Base.astro";
 
 const en = DEFAULT_LOCALE;
 
-// Everything the client script needs to re-label the page in another locale.
+// ui strings the payload leaves out: those with placeholders, the crisis note
+// (it travels as its three pieces), and those no element of this page renders
+// as a whole text node.
+const LEFT_OUT_OF_PAYLOAD: readonly UiKey[] = [
+  "coming_soon",
+  "coming_soon_body",
+  "crisis_note",
+  "free_consultation",
+  "founder_role",
+  "version",
+  "version_production",
+];
+
+/** Every chrome string of a locale, keyed so the client can pair each English
+ *  wording with its translation. The crisis note is split around its two
+ *  tel: links the way Footer.astro splits it, since those are the text nodes. */
+function chromeStrings(locale: SiteLocale): Record<string, string> {
+  const { ui, pages } = dictionaries[locale];
+  const strings: Record<string, string> = {};
+  for (const key of Object.keys(ui) as UiKey[]) {
+    if (!LEFT_OUT_OF_PAYLOAD.includes(key)) strings[key] = ui[key];
+  }
+  const [before, afterShort = ""] = ui.crisis_note.split("{short}");
+  const [between, after = ""] = afterShort.split("{full}");
+  Object.assign(strings, {
+    crisis_before: before,
+    crisis_between: between,
+    crisis_after: after,
+    privacy_title: pages.privacy.meta.title,
+  });
+  return strings;
+}
+
+// The client pairs strings by their English wording, so two keys with the same
+// English text would translate ambiguously. Caught here, at build.
+const englishStrings = Object.values(chromeStrings(en)).map((s) => s.trim());
+if (new Set(englishStrings).size !== englishStrings.length) {
+  throw new Error("404.astro: two chrome strings share their English wording");
+}
+
 const payload = {
   base: import.meta.env.BASE_URL,
+  defaultLocale: en,
+  storageKey: LANGUAGE_STORAGE_KEY,
   locales: Object.fromEntries(
-    LOCALE_TABLE.map((row) => {
-      const { ui } = dictionaries[row.code];
-      return [
-        row.code,
-        {
-          lang: row.htmlLang,
-          dir: row.dir,
-          script: row.script,
-          home: localizePath("", row.code),
-          contact: localizePath("contact/", row.code),
-          title: ui.not_found_title,
-          body: ui.not_found_body,
-          backHome: ui.back_home,
-          contactUs: ui.contact_us,
-        },
-      ];
-    }),
+    LOCALE_TABLE.map((row) => [
+      row.code,
+      {
+        lang: row.htmlLang,
+        dir: row.dir,
+        script: row.script,
+        label: row.label,
+        prefix: localePrefix(row.code),
+        strings: chromeStrings(row.code),
+      },
+    ]),
   ),
 };
 ---
 
-<Base title="404" description="Page not found." noindex available={[]}>
-  <section
-    class="mx-auto flex max-w-2xl flex-col items-center gap-6 px-5 py-24 text-center sm:py-32"
-    data-not-found
-  >
+<Base title={t(en, "not_found_title")} description={t(en, "not_found_body")} noindex available={[]}>
+  <section class="mx-auto flex max-w-2xl flex-col items-center gap-6 px-5 py-24 text-center sm:py-32">
     <p class="font-script text-6xl font-bold text-ink">404</p>
-    <ScriptHeading level={1}><span data-nf="title">{t(en, "not_found_title")}</span></ScriptHeading>
-    <p class="max-w-lg text-lg leading-relaxed text-soft" data-nf="body">{t(en, "not_found_body")}</p>
+    <ScriptHeading level={1}>{t(en, "not_found_title")}</ScriptHeading>
+    <p class="max-w-lg text-lg leading-relaxed text-soft">{t(en, "not_found_body")}</p>
     <div class="mt-2 flex flex-wrap items-center justify-center gap-3">
-      <PillButton href={localizePath("", en)} variant="indigo" data-nf="home">
-        {t(en, "back_home")}
-      </PillButton>
-      <PillButton href={localizePath("contact/", en)} variant="cream" data-nf="contact">
-        {t(en, "contact_us")}
-      </PillButton>
+      <PillButton href={localizePath("", en)} variant="indigo">{t(en, "back_home")}</PillButton>
+      <PillButton href={localizePath("contact/", en)} variant="cream">{t(en, "contact_us")}</PillButton>
     </div>
 
-    <ul class="mt-6 flex w-full max-w-xl list-none flex-wrap items-center justify-center gap-2 border-t border-ink/10 pt-6">
+    {/* Every language's home. The script leaves these links alone. */}
+    <ul
+      class="mt-6 flex w-full max-w-xl list-none flex-wrap items-center justify-center gap-2 border-t border-ink/10 pt-6"
+      data-language-homes
+    >
       {
         LOCALE_TABLE.map((row) => (
           <li>
@@ -80,12 +126,13 @@ const payload = {
     set:html={JSON.stringify(payload).replace(/</g, "\\u003c")}
     is:inline
   />
-  <script is:inline>
+  {/* data-astro-rerun: the ClientRouter otherwise runs an inline script once
+      per session, and a soft navigation back into the 404 would stay English. */}
+  <script is:inline data-astro-rerun>
     (() => {
-      const section = document.querySelector("[data-not-found]");
       const raw = document.getElementById("not-found-locales");
-      if (!section || !raw) return;
-      const { base, locales } = JSON.parse(raw.textContent || "{}");
+      if (!raw) return;
+      const { base, defaultLocale, storageKey, locales } = JSON.parse(raw.textContent || "{}");
       if (!locales) return;
 
       // 1. The locale prefix in the failed URL, if any.
@@ -93,7 +140,15 @@ const payload = {
       const first = path.replace(/^\//, "").split("/")[0];
       let code = Object.hasOwn(locales, first) ? first : "";
 
-      // 2. Otherwise the browser's preferred languages, most preferred first.
+      // 2. Otherwise the language the picker remembered.
+      if (!code) {
+        try {
+          const stored = localStorage.getItem(storageKey);
+          if (stored && Object.hasOwn(locales, stored)) code = stored;
+        } catch {}
+      }
+
+      // 3. Otherwise the browser's preferred languages, most preferred first.
       if (!code) {
         for (const tag of navigator.languages || []) {
           const lower = tag.toLowerCase();
@@ -106,24 +161,74 @@ const payload = {
           }
         }
       }
-      if (!code || !locales[code]) return;
+      if (!code || code === defaultLocale) return;
 
       const l = locales[code];
-      const set = (name, text) => {
-        const el = section.querySelector(`[data-nf="${name}"]`);
-        if (el) el.textContent = text;
+      const root = document.documentElement;
+      root.setAttribute("lang", l.lang);
+      root.setAttribute("dir", l.dir);
+      root.setAttribute("data-script", l.script);
+
+      // The footer and the WhatsApp float come after this script in the
+      // document, so the chrome is translated once the whole page has parsed.
+      const translateChrome = () => {
+        const english = locales[defaultLocale].strings;
+        const words = new Map();
+        for (const key of Object.keys(english)) {
+          const from = english[key].trim();
+          if (from) words.set(from, l.strings[key].trim());
+        }
+
+        // Text nodes and labelling attributes: swap each English chrome string
+        // for the locale's, keeping the whitespace around it.
+        const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+        for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+          const text = node.nodeValue;
+          const local = words.get(text.trim());
+          if (local !== undefined) node.nodeValue = text.replace(text.trim(), () => local);
+        }
+        for (const el of document.body.querySelectorAll("[aria-label], [title]")) {
+          for (const name of ["aria-label", "title"]) {
+            const local = words.get(el.getAttribute(name));
+            if (local !== undefined) el.setAttribute(name, local);
+          }
+        }
+        document.title = document.title.replace(english.not_found_title, () => l.strings.not_found_title);
+
+        // Internal links move into the locale's tree, as localizePath would have
+        // built them: base, then the locale prefix, then the page path. The
+        // picker's and the language list's links already name their locale.
+        for (const a of document.body.querySelectorAll("a[href]")) {
+          if (a.closest("[data-language-picker], [data-language-homes]")) continue;
+          const href = a.getAttribute("href");
+          if (!href.startsWith(base)) continue;
+          const rest = href.slice(base.length);
+          if (Object.hasOwn(locales, rest.split("/")[0])) continue;
+          a.setAttribute("href", base + l.prefix + rest);
+        }
+
+        // The picker's summary names the current language; its list marks it.
+        for (const summary of document.querySelectorAll("[data-language-picker] summary")) {
+          const endonym = summary.querySelector("span[lang]");
+          if (endonym) {
+            endonym.textContent = l.label;
+            endonym.setAttribute("lang", l.lang);
+          }
+          const shortCode = summary.querySelector('span[dir="ltr"]');
+          if (shortCode) shortCode.textContent = code;
+        }
+        for (const a of document.querySelectorAll("[data-language-picker] a[aria-current]")) {
+          a.removeAttribute("aria-current");
+        }
+        for (const a of document.querySelectorAll(`[data-language-picker] a[data-locale="${code}"]`)) {
+          a.setAttribute("aria-current", "page");
+        }
       };
-      set("title", l.title);
-      set("body", l.body);
-      set("home", l.backHome);
-      set("contact", l.contactUs);
-      const home = section.querySelector('[data-nf="home"]');
-      const contact = section.querySelector('[data-nf="contact"]');
-      if (home) home.setAttribute("href", l.home);
-      if (contact) contact.setAttribute("href", l.contact);
-      section.setAttribute("lang", l.lang);
-      section.setAttribute("dir", l.dir);
-      section.setAttribute("data-script", l.script);
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", translateChrome, { once: true });
+      } else {
+        translateChrome();
+      }
     })();
   </script>
 </Base>

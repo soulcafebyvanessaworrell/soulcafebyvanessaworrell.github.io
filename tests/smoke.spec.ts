@@ -2,7 +2,7 @@ import { expect, type Page, test } from "@playwright/test";
 import { LANGUAGE_STORAGE_KEY } from "../src/i18n/languageStorage";
 import { LOCALE_TABLE } from "../src/i18n/locales";
 import { dictionaries } from "../src/i18n/ui";
-import { PRIVACY_UPDATED, SITE_BASE } from "../src/lib/constants";
+import { BRAND, PRIVACY_UPDATED, SITE_BASE } from "../src/lib/constants";
 
 // Base path the site is served under, without its trailing slash so it can be
 // joined with the leading-slash paths below (root base becomes "").
@@ -589,6 +589,130 @@ test("unknown path serves the 404 page", async ({ page }) => {
   });
   expect(resp?.status(), "unknown path status").toBe(404);
   await expect(page.locator("h1, h2").first()).toBeVisible();
+});
+
+// GitHub Pages serves the one English 404.html for every path, so a 404 under
+// a locale tree would keep an English header, footer, title, and <html lang>
+// unless the page's own script turns them; nothing at build time can. These
+// pin that turn for a left-to-right and a right-to-left locale, that the
+// script is what does it, and that without JavaScript the English page stands.
+test.describe("a 404 under a locale tree takes that locale's chrome", () => {
+  const rows = LOCALE_TABLE.filter((row) => row.code === "hi" || row.code === "ur");
+  const notFoundTitle = (row: LocaleRow) =>
+    `${dictionaries[row.code].ui.not_found_title} · ${BRAND}`;
+  // The header's home links, not the picker's link to the same locale's home.
+  const homeLink = (page: Page, row: LocaleRow) =>
+    page.locator(`header a[href="${localeBase(row)}/"]:not([data-locale])`).first();
+
+  for (const row of rows) {
+    test(`${row.code}: lang, dir, script, chrome links, title, and picker label follow the row`, async ({
+      page,
+    }) => {
+      const resp = await page.goto(`${localeBase(row)}/no-such-page/`, { waitUntil: "load" });
+      expect(resp?.status(), "status").toBe(404);
+      const html = page.locator("html");
+      await expect(html).toHaveAttribute("lang", row.htmlLang);
+      await expect(html).toHaveAttribute("dir", row.dir);
+      await expect(html).toHaveAttribute("data-script", row.script);
+      await expect(page).toHaveTitle(notFoundTitle(row));
+
+      // The home link and the privacy link moved into the locale's tree, and
+      // no header or footer link outside the picker stayed in the English one.
+      await expect(homeLink(page, row)).toBeAttached();
+      await expect(page.locator(`footer a[href="${localeBase(row)}/privacy/"]`)).toHaveCount(1);
+      const strayed = await page.locator(`a[href^="${BASE}/"]`).evaluateAll(
+        (links, tree) =>
+          links
+            .filter((a) => !a.closest("[data-language-picker], [data-language-homes]"))
+            .map((a) => a.getAttribute("href"))
+            .filter((href) => !href?.startsWith(tree)),
+        `${localeBase(row)}/`,
+      );
+      expect(strayed, "page links left in the English tree").toEqual([]);
+
+      // The header reads in the locale, and the picker names it.
+      await expect(page.locator("header nav a").first()).toHaveText(
+        dictionaries[row.code].ui.nav_about,
+      );
+      await expect(
+        page.locator("details[data-language-picker] summary span[lang]").first(),
+      ).toHaveText(row.label);
+      await expect(
+        page.locator(`details[data-language-picker] a[data-locale="${row.code}"]`).first(),
+      ).toHaveAttribute("aria-current", "page");
+    });
+  }
+
+  // The ClientRouter runs an inline script once per session unless it is
+  // marked to rerun, and it swaps a 404 response like any page. Leaving a
+  // localized 404 by its home pill and coming back must turn the chrome again.
+  test("a soft navigation back into the 404 turns the chrome again", async ({ page }) => {
+    const row = rows[0] as LocaleRow;
+    await page.goto(`${localeBase(row)}/no-such-page/`, { waitUntil: "load" });
+    await expect(page.locator("html")).toHaveAttribute("lang", row.htmlLang);
+    // The URL is in place before the router fires astro:page-load (on the
+    // traverse back, even before the swap), so each step waits for the
+    // page-load count, not for the URL.
+    type Counted = Window & { pageLoads: number };
+    await page.evaluate(() => {
+      (window as unknown as Counted).pageLoads = 0;
+      document.addEventListener("astro:page-load", () => {
+        (window as unknown as Counted).pageLoads += 1;
+      });
+    });
+    const pageLoads = (count: number) =>
+      page.waitForFunction((n) => (window as unknown as Counted).pageLoads === n, count);
+    await page
+      .locator(`main a[href="${localeBase(row)}/"]`)
+      .first()
+      .click();
+    await pageLoads(1);
+    await expect(page).toHaveURL(`${localeBase(row)}/`);
+    await page.goBack();
+    await pageLoads(2);
+    await expect(page).toHaveURL(`${localeBase(row)}/no-such-page/`);
+    await expect(page.locator("html")).toHaveAttribute("lang", row.htmlLang);
+    await expect(homeLink(page, row)).toBeAttached();
+    await expect(page).toHaveTitle(notFoundTitle(row));
+  });
+
+  // Control for the lang assertion above: the same page with its locale payload
+  // hidden from the script stays English, so a green run above means the
+  // script ran, not that the attribute was already there.
+  test("with the locale payload hidden from the script, the chrome stays English", async ({
+    page,
+  }) => {
+    const row = rows[0] as LocaleRow;
+    let hidden = false;
+    await page.route(`**${localeBase(row)}/no-such-page/`, async (route) => {
+      const response = await route.fetch();
+      const html = await response.text();
+      const cut = html.replace('id="not-found-locales"', 'id="not-found-locales-off"');
+      hidden = cut !== html;
+      await route.fulfill({ response, body: cut });
+    });
+    await page.goto(`${localeBase(row)}/no-such-page/`, { waitUntil: "load" });
+    expect(hidden, "the payload element was found and renamed").toBe(true);
+    await expect(page.locator("html")).toHaveAttribute("lang", DEFAULT_LOCALE.htmlLang);
+    await expect(page).toHaveTitle(notFoundTitle(DEFAULT_LOCALE));
+  });
+
+  test.describe("without JavaScript", () => {
+    test.use({ javaScriptEnabled: false });
+
+    test("the English chrome, the 404 status, and every language's home link stand", async ({
+      page,
+    }) => {
+      const row = rows[0] as LocaleRow;
+      const resp = await page.goto(`${localeBase(row)}/no-such-page/`, { waitUntil: "load" });
+      expect(resp?.status(), "status").toBe(404);
+      await expect(page.locator("html")).toHaveAttribute("lang", DEFAULT_LOCALE.htmlLang);
+      await expect(page).toHaveTitle(notFoundTitle(DEFAULT_LOCALE));
+      await expect(homeLink(page, DEFAULT_LOCALE)).toBeAttached();
+      await expect(page.locator(`footer a[href="${BASE}/privacy/"]`)).toHaveCount(1);
+      await expect(page.locator("main [data-language-homes] a")).toHaveCount(LOCALE_TABLE.length);
+    });
+  });
 });
 
 // Pricing and booking. The currency switch is pure CSS (:has() on a checked
