@@ -4,16 +4,14 @@
    Latin display: Dancing Script (variable). Devanagari display: Kalam. Body:
    PT Sans plus one Noto face per script.
 
-   The two Arabic-script faces (Nastaliq, Naskh) come from ../assets/fonts
-   instead: scripts/subset-fonts.mts cuts the fontsource files down to the
-   characters the site's own text uses and generates subsets.css with the same
-   family names and unicode-ranges. */
+   The three heaviest faces (Nastaliq, Naskh, Kalam) and the one-glyph Rupee
+   Sign face come from ../assets/fonts instead: scripts/subset-fonts.mts cuts
+   the fontsource files down to the characters the site's own text uses and
+   generates subsets.css with the same family names and unicode-ranges. */
 @import "../assets/fonts/subsets.css";
 @import "@fontsource/pt-sans/400.css";
 @import "@fontsource/pt-sans/700.css";
 @import "@fontsource-variable/dancing-script/index.css";
-@import "@fontsource/kalam/400.css";
-@import "@fontsource/kalam/700.css";
 @import "@fontsource/noto-sans-devanagari/400.css";
 @import "@fontsource/noto-sans-devanagari/700.css";
 @import "@fontsource/noto-sans-bengali/400.css";

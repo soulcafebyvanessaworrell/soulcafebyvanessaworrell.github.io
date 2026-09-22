@@ -64,6 +64,33 @@
         }
       }
     },
+    "kalam": {
+      "family": "Kalam",
+      "absentInSource": "U+200E-200F",
+      "parts": {
+        "devanagari": {
+          "unicodeRange": "U+0900-097F,U+1CD0-1CF9,U+200C-200D,U+20A8,U+20B9,U+20F0,U+25CC,U+A830-A839,U+A8E0-A8FF,U+11B00-11B09",
+          "files": {
+            "700": "kalam-700-devanagari.woff2"
+          },
+          "covered": "U+0901-0903,U+0905-090A,U+090F-0911,U+0913-0928,U+092A-0933,U+0935-0939,U+093C-0943,U+0945,U+0947-0949,U+094B-094D,U+0964-096F,U+200C-200D"
+        },
+        "latin-ext": {
+          "unicodeRange": "U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF",
+          "files": {
+            "700": "kalam-700-latin-ext.woff2"
+          },
+          "covered": "U+20B9"
+        },
+        "latin": {
+          "unicodeRange": "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD",
+          "files": {
+            "700": "kalam-700-latin.woff2"
+          },
+          "covered": "U+0020-007E,U+00A0,U+00A3,U+00A9,U+00B7,U+2018-2019,U+201C-201D,U+2026"
+        }
+      }
+    },
     "rupee-sign": {
       "family": "Rupee Sign",
       "absentInSource": "",

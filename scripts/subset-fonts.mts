@@ -69,6 +69,8 @@ const COMMON = "U+0020-007E,U+00A0,U+2018-2019,U+201C-201D,U+2026,U+20B9,U+200C-
    Arabic-Indic (ur, ks) digits and separators; a translator may also type the
    Arabic comma, semicolon, question mark, and the Urdu full stop. */
 const ARABIC_EXTRAS = "U+060C,U+061B,U+061F,U+0660-066C,U+06D4,U+06F0-06F9";
+/* Intl formats mr and ne with Devanagari digits; the dandas end Hindi lines. */
+const DEVANAGARI_EXTRAS = "U+0964-096F";
 
 export const FACES: readonly Face[] = [
   {
@@ -90,6 +92,21 @@ export const FACES: readonly Face[] = [
     textScripts: ["naskh", "nastaliq"],
     labelScripts: ["nastaliq", "naskh"],
     always: `${COMMON},${ARABIC_EXTRAS}`,
+  },
+  {
+    // The Devanagari display face. Only 700 ships: .script, .pill, and every
+    // font-script element set font-weight 700, so a browser never asks for 400.
+    // Its conjunct ligatures keep nearly every glyph reachable, so the bytes
+    // that go are the hinting instructions, three fifths of the file, which
+    // no heading size needs.
+    id: "kalam",
+    family: "Kalam",
+    pkg: "@fontsource/kalam",
+    weights: [700],
+    textScripts: ["devanagari"],
+    labelScripts: [],
+    always: `${COMMON},${DEVANAGARI_EXTRAS}`,
+    noHinting: true,
   },
   {
     // One glyph borrowed from Noto Sans Devanagari; styles.css says why.
