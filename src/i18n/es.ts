@@ -93,7 +93,7 @@ export const dict = {
       meta: {
         title: "Psicoterapia con Vanessa Worrell",
         description:
-          "Un espacio de psicoterapia cálido y sin juicios para explorar, sanar y crecer. Acompañamiento a adolescentes, adultos y familias de la mano de una psicóloga con formación internacional.",
+          "Un espacio de psicoterapia cálido y sin juicios para explorar, sanar y crecer. Acompañamiento de una psicóloga a adolescentes, adultos y familias.",
       },
       hero: {
         heading: "¡Te damos la bienvenida a The Soul Cafe!",
@@ -142,7 +142,7 @@ export const dict = {
       meta: {
         title: "Quiénes somos",
         description:
-          "Vanessa Worrell, fundadora de The Soul Cafe, es psicóloga formada en Estados Unidos, el Reino Unido y la India. Su trabajo es humanista y existencial, y recurre a la TCC cuando resulta útil.",
+          "Vanessa Worrell, fundadora de The Soul Cafe, es psicóloga formada en Estados Unidos, el Reino Unido y la India. Su trabajo es humanista y existencial.",
       },
       heading: "Sobre nuestra fundadora y psicoterapeuta",
       photoAlt: "Vanessa Worrell, fundadora de The Soul Cafe",
@@ -191,7 +191,7 @@ export const dict = {
       meta: {
         title: "Reservar una sesión",
         description:
-          "Reserva una sesión de psicoterapia en línea con Vanessa Worrell, M.A., en The Soul Cafe, o empieza con una consulta gratuita de {minutes} minutos para ver si encaja contigo.",
+          "Reserva una sesión de psicoterapia en línea con Vanessa Worrell, M.A., en The Soul Cafe, o empieza con una consulta gratuita de {minutes} minutos.",
       },
       title: "Reservar una sesión",
       description:
@@ -232,7 +232,7 @@ export const dict = {
       meta: {
         title: "Paquetes",
         description:
-          "Sesiones de terapia individual desde {price}, y también terapia de pareja y familiar. Con el paquete de seis sesiones te ahorras una. Descuentos para jóvenes, estudiantes, personal de las fuerzas armadas, veteranos y personas mayores.",
+          "Sesiones de terapia individual desde {price}, y también terapia de pareja y familiar. Descuentos para jóvenes, estudiantes y personas mayores.",
       },
       heading: "Paquetes",
       intro:
@@ -271,7 +271,7 @@ export const dict = {
       meta: {
         title: "Contacto",
         description:
-          "Ponte en contacto con The Soul Cafe para reservas, empleo y prácticas, o para colaborar en talleres y formaciones. Solemos responder en un par de días.",
+          "Ponte en contacto con The Soul Cafe para reservas, empleo y prácticas, o para colaborar en talleres. Solemos responder en un par de días.",
       },
       title: "Ponte en contacto",
       intro:
@@ -310,7 +310,7 @@ export const dict = {
       meta: {
         title: "The Soul Food Supper Club",
         description:
-          "Una velada de buena comida, conversación abierta y buena compañía, organizada por The Soul Cafe. Muy pronto. Síguenos en Instagram o escríbenos para saber más.",
+          "Una velada de buena comida, conversación abierta y buena compañía, organizada por The Soul Cafe. Muy pronto. Síguenos en Instagram o escríbenos.",
       },
       title: "The Soul Food Supper Club",
       intro:
@@ -332,7 +332,7 @@ export const dict = {
       meta: {
         title: "Privacidad",
         description:
-          "Cómo trata The Soul Cafe tu información: sin cookies ni rastreadores, un formulario de contacto que solo usamos para responderte y reservas gestionadas en el propio sitio de Google.",
+          "Cómo trata The Soul Cafe tu información: sin cookies ni rastreadores, un formulario de contacto que solo usamos para responderte.",
       },
       title: "Privacidad",
       updated: "Última actualización: {date}",
