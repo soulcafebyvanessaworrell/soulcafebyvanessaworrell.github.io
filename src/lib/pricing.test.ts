@@ -1,9 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { LOCALES } from "../i18n/locales";
-import { dictionaries } from "../i18n/ui";
-import { CURRENCIES, formatPrice, OFFERS, SESSION_TYPES } from "./pricing";
+import { localeMeta, type SiteLocale } from "../i18n/locales";
+import { CURRENCIES, formatNumber, formatPrice, OFFERS } from "./pricing";
 
 // Without this, a price typed as 1500.5 or 0 would type-check and then render
 // as "₹1,501" or "₹0", since formatPrice rounds to whole units.
@@ -16,56 +15,62 @@ test("every offer prices every currency as a positive whole number", () => {
   expect(bad).toEqual([]);
 });
 
-// The pages fill placeholders from PRICING: {price} in packages.meta.description
-// and book.from, {minutes} in each booking card description, {n} and {h} {m} in
-// the duration templates. A translation that drops one would ship a stale
-// number or lose the minutes, and the parity test compares key sets, not text.
-describe("dictionary copy keeps the placeholders the pages fill from PRICING", () => {
-  for (const locale of LOCALES) {
-    test(`${locale}`, () => {
-      const { packages, book } = dictionaries[locale].pages;
-      const required: [string, string, string[]][] = [
-        ["packages.meta.description", packages.meta.description, ["{price}"]],
-        ["packages.duration.minutes", packages.duration.minutes, ["{n}"]],
-        ["packages.duration.hours", packages.duration.hours, ["{h}", "{m}"]],
-        ["book.from", book.from, ["{price}"]],
-        ...SESSION_TYPES.map((type): [string, string, string[]] => [
-          `book.cards.${type}.description`,
-          book.cards[type].description,
-          ["{minutes}"],
-        ]),
-      ];
-      const missing = required
-        .filter(([, text, tokens]) => tokens.some((token) => !text.includes(token)))
-        .map(([path]) => path);
-      expect(missing).toEqual([]);
+// External fact: ICU renders en-GB and hi-IN with Latin digits, narrowSymbol
+// gives the bare symbol everywhere, including the Italian "INR" case, and
+// useGrouping "always" puts the separator in a four-digit Spanish amount,
+// which ICU's default drops under both Bun and Node (Italian differs only
+// under Node). A locale whose table row names a non-Latin numbering system
+// (Marathi, Bengali) shows its own digits first and the Western digits in
+// brackets after a space; a Latin-digit locale (German) shows the amount
+// once. The Western repeat keeps the locale's own symbols, so Kashmiri
+// groups it with the Arabic comma (U+060C) its CLDR data pairs with Latin
+// digits, where Urdu uses the ASCII comma: pinned here so the difference is
+// a recorded choice. This pins Bun's ICU, which `bun test` runs under (it
+// puts a no-break space after the Urdu rupee sign; Node's ICU does not); the
+// build runs `astro build` under Node, whose ICU is pinned by the smoke
+// test's English literals against the built HTML.
+describe("formatPrice per locale", () => {
+  const cases: readonly [SiteLocale, (typeof CURRENCIES)[number], number, string][] = [
+    ["en", "INR", 1500, "₹1,500"],
+    ["en", "INR", 12500, "₹12,500"],
+    ["hi", "INR", 1500, "₹1,500"],
+    ["en", "GBP", 25, "£25"],
+    ["hi", "USD", 30, "$30"],
+    ["en", "USD", 30, "$30"],
+    ["it", "INR", 12500, "12.500\u00a0₹"],
+    ["es", "INR", 1500, "1.500\u00a0₹"],
+    ["de", "INR", 1500, "1.500\u00a0₹"],
+    ["de", "INR", 12500, "12.500\u00a0₹"],
+    ["bn", "INR", 1500, "₹১,৫০০ (₹1,500)"],
+    ["mr", "INR", 1500, "₹१,५०० (₹1,500)"],
+    ["mr", "INR", 12500, "₹१२,५०० (₹12,500)"],
+    ["mr", "USD", 30, "$३० ($30)"],
+    ["ur", "INR", 1500, "₹\u00a0۱٬۵۰۰ (₹1,500)"],
+    ["ks", "INR", 1500, "₹۱٬۵۰۰ (₹1\u060c500)"],
+    ["sd", "INR", 1500, "١٬٥٠٠\u00a0₹ (₹\u00a01,500)"],
+  ];
+  for (const [locale, currency, amount, expected] of cases) {
+    test(`${amount} ${currency} in ${locale} is ${expected}`, () => {
+      expect(formatPrice(amount, currency, localeMeta(locale))).toBe(expected);
     });
   }
 });
 
-// External fact: ICU renders en-GB and hi-IN with Latin digits, narrowSymbol
-// gives the bare symbol everywhere, including the Italian "INR" case (other
-// locales keep their own numerals, which is intended), and useGrouping "always"
-// puts the separator in a four-digit Spanish amount, which ICU's default drops
-// under both Bun and Node (Italian differs only under Node). This pins Bun's
-// ICU, which `bun test` runs under; the build runs `astro build` under Node,
-// whose ICU is pinned by the smoke test's English literals against the built
-// HTML.
-describe("formatPrice per locale", () => {
-  const cases = [
-    ["en-GB", "INR", 1500, "₹1,500"],
-    ["en-GB", "INR", 12500, "₹12,500"],
-    ["hi-IN", "INR", 1500, "₹1,500"],
-    ["en-GB", "GBP", 25, "£25"],
-    ["hi-IN", "USD", 30, "$30"],
-    ["en-GB", "USD", 30, "$30"],
-    ["it-IT", "INR", 12500, "12.500\u00a0₹"],
-    ["es-ES", "INR", 1500, "1.500\u00a0₹"],
-    ["bn-IN", "INR", 1500, "₹১,৫০০"],
-  ] as const;
-  for (const [dateLocale, currency, amount, expected] of cases) {
-    test(`${amount} ${currency} in ${dateLocale} is ${expected}`, () => {
-      expect(formatPrice(amount, currency, dateLocale)).toBe(expected);
+// Same dual-digit rule for the bare counts beside a price (minutes, sessions,
+// ages), so "५० (50) मिनिटं" sits next to "₹१,५०० (₹1,500)" and a German page
+// shows "50" once.
+describe("formatNumber per locale", () => {
+  const cases: readonly [SiteLocale, number, string][] = [
+    ["de", 50, "50"],
+    ["de", 1, "1"],
+    ["en", 105, "105"],
+    ["mr", 50, "५० (50)"],
+    ["mr", 1, "१ (1)"],
+    ["mr", 105, "१०५ (105)"],
+  ];
+  for (const [locale, value, expected] of cases) {
+    test(`${value} in ${locale} is ${expected}`, () => {
+      expect(formatNumber(value, localeMeta(locale))).toBe(expected);
     });
   }
 });

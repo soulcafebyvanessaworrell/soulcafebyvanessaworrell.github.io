@@ -25,7 +25,7 @@ export const dict = {
     cart: "Panier",
 
     book_session: "Réserver une séance",
-    free_consultation: "Consultation gratuite (15 min)",
+    free_consultation: "Consultation gratuite ({minutes} min)",
     contact_us: "Nous contacter",
     back_home: "Retour à l’accueil",
 
@@ -196,7 +196,7 @@ export const dict = {
       meta: {
         title: "Réserver une séance",
         description:
-          "Réservez une séance de psychothérapie en ligne avec Vanessa Worrell, M.A., chez The Soul Cafe, ou commencez par une consultation gratuite de 15 minutes pour voir si cela vous convient.",
+          "Réservez une séance de psychothérapie en ligne avec Vanessa Worrell, M.A., chez The Soul Cafe, ou commencez par une consultation gratuite de {minutes} minutes pour voir si cela vous convient.",
       },
       title: "Réserver une séance",
       description:
@@ -223,7 +223,7 @@ export const dict = {
       consultBand: "Vous hésitez encore à commencer ?",
       consultLead:
         "C’est tout à fait normal. Rencontrez d’abord Vanessa et voyez si le courant passe. Aucune obligation de réserver quoi que ce soit.",
-      consultTitle: "Consultation gratuite de 15 minutes",
+      consultTitle: "Consultation gratuite de {minutes} minutes",
       consultDesc:
         "Un court appel de présentation, en toute simplicité, pour poser vos questions et sentir comment nous travaillons ensemble avant de réserver une séance complète.",
       consultEmbed: "Calendrier de réservation pour une consultation gratuite",
@@ -255,7 +255,7 @@ export const dict = {
       },
       single: "Une séance",
       package: "Six séances",
-      packagePill: "5 achetées, 1 offerte",
+      packagePill: "{paid} achetées, {free} offerte",
       duration: {
         minutes: "{n} minutes",
         hours: "{h} h {m} min",
@@ -264,11 +264,11 @@ export const dict = {
       askPackage: "Demander un forfait",
       discountHeading: "Tarifs réduits pour :",
       discounts: [
-        "Jeunes (18 à 25 ans)",
+        "Jeunes ({from} à {to} ans)",
         "Étudiants",
         "Personnel des forces armées indiennes",
         "Anciens militaires",
-        "Seniors (60 ans et plus)",
+        "Seniors ({age} ans et plus)",
       ],
     },
 

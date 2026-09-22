@@ -8,7 +8,7 @@ import { describe, expect, test } from "bun:test";
 import { readdirSync, readFileSync } from "node:fs";
 import { basename, join } from "node:path";
 import { DEFAULT_LOCALE, LOCALES } from "./locales";
-import { dictionaries, type LocaleDict } from "./ui";
+import { dictionaries, type LocaleDict, PLACEHOLDER } from "./ui";
 
 interface Leaf {
   path: string;
@@ -58,30 +58,49 @@ describe("every leaf is a non-empty string", () => {
   }
 });
 
-// Footer.astro splits crisis_note on these placeholders to inject the tel:
-// links; a translation that drops or reorders one would silently break that.
-describe("crisis_note keeps its helpline placeholders", () => {
+/** How often each `{name}` token occurs in a string. */
+function placeholderCounts(text: string): Map<string, number> {
+  const counts = new Map<string, number>();
+  for (const [token] of text.matchAll(PLACEHOLDER)) {
+    counts.set(token, (counts.get(token) ?? 0) + 1);
+  }
+  return counts;
+}
+
+// The pages splice numbers, dates, and helpline links into `{name}` tokens
+// (fill() in ui.ts, Footer.astro's crisis_note split). A translation that
+// dropped a token would ship without its price or date, one that typed the
+// number by hand would drift from pricing.ts, and one that invented a token
+// would print it literally. Same tokens, same count, in every leaf.
+describe("every leaf carries exactly the English placeholders", () => {
+  const reference = new Map(
+    leaves(prose(DEFAULT_LOCALE)).map((leaf) => [leaf.path, placeholderCounts(String(leaf.value))]),
+  );
   for (const locale of LOCALES) {
-    test(`${locale} has {short} then {full}, each once`, () => {
-      const note = dictionaries[locale].ui.crisis_note;
-      const shortAt = note.indexOf("{short}");
-      const fullAt = note.indexOf("{full}");
-      expect(shortAt).toBeGreaterThan(-1);
-      expect(fullAt).toBeGreaterThan(shortAt);
-      expect(note.indexOf("{short}", shortAt + 1)).toBe(-1);
-      expect(note.indexOf("{full}", fullAt + 1)).toBe(-1);
+    test(`${locale} placeholders match '${DEFAULT_LOCALE}' leaf by leaf`, () => {
+      const drift = leaves(prose(locale))
+        .filter((leaf) => {
+          const expected = reference.get(leaf.path) ?? new Map<string, number>();
+          const actual = placeholderCounts(String(leaf.value));
+          const tokens = new Set([...expected.keys(), ...actual.keys()]);
+          return [...tokens].some(
+            (token) => (expected.get(token) ?? 0) !== (actual.get(token) ?? 0),
+          );
+        })
+        .map((leaf) => leaf.path);
+      expect(drift).toEqual([]);
     });
   }
 });
 
-// privacy.astro splices the formatted last-updated date into this placeholder;
-// a translation that dropped it would ship a policy with no date, and one that
-// typed a month by hand would drift from PRIVACY_UPDATED.
-describe("privacy.updated keeps its {date} placeholder", () => {
+// Footer.astro splits crisis_note on {short} then {full} to inject the tel:
+// links in that order; the parity test above pins their presence, this pins
+// the order a translation might swap.
+describe("crisis_note keeps {short} before {full}", () => {
   for (const locale of LOCALES) {
-    test(`${locale} has {date} exactly once`, () => {
-      const updated = dictionaries[locale].pages.privacy.updated;
-      expect(updated.split("{date}").length - 1).toBe(1);
+    test(`${locale}`, () => {
+      const note = dictionaries[locale].ui.crisis_note;
+      expect(note.indexOf("{short}")).toBeLessThan(note.indexOf("{full}"));
     });
   }
 });

@@ -35,7 +35,7 @@ export const en = {
     cart: "Cart",
 
     book_session: "Book a Session",
-    free_consultation: "Free 15-minute consultation",
+    free_consultation: "Free {minutes}-minute consultation",
     contact_us: "Contact Us",
     back_home: "Back to home",
 
@@ -204,7 +204,7 @@ export const en = {
       meta: {
         title: "Book a Session",
         description:
-          "Book an online psychotherapy session with Vanessa Worrell, M.A., at The Soul Cafe, or start with a free 15-minute consultation to see if it's the right fit.",
+          "Book an online psychotherapy session with Vanessa Worrell, M.A., at The Soul Cafe, or start with a free {minutes}-minute consultation to see if it's the right fit.",
       },
       title: "Book a Session",
       description:
@@ -231,7 +231,7 @@ export const en = {
       consultBand: "Not Sure About Starting Yet?",
       consultLead:
         "That's completely okay. Meet Vanessa first and see whether it feels like a fit. There's no pressure to book anything.",
-      consultTitle: "Free 15-minute consultation",
+      consultTitle: "Free {minutes}-minute consultation",
       consultDesc:
         "A short, friendly introductory call to ask questions and get a feel for how we work together before you book a full session.",
       consultEmbed: "Booking calendar for a free consultation",
@@ -262,7 +262,7 @@ export const en = {
       },
       single: "One session",
       package: "Six sessions",
-      packagePill: "Buy 5, get 1 free",
+      packagePill: "Buy {paid}, get {free} free",
       duration: {
         minutes: "{n} minutes",
         hours: "{h} hour {m} minutes",
@@ -271,11 +271,11 @@ export const en = {
       askPackage: "Ask about a package",
       discountHeading: "Discounted Pricing Available for:",
       discounts: [
-        "Youth (18 to 25 y/o)",
+        "Youth ({from} to {to} y/o)",
         "Students",
         "Personnel of Indian Armed Forces",
         "Ex-Servicemen",
-        "Seniors (60 y/o+)",
+        "Seniors ({age} y/o+)",
       ],
     },
 

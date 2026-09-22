@@ -112,7 +112,7 @@ const sameAs = PUBLISHED_SOCIALS.map((s) => s.url);
 // Offers are structured data in INR only, named in the default locale whatever
 // the page language: search engines key offers on the business, not the page.
 const inrPrices = OFFERS.map((offer) => offer.price.INR);
-const inr = (amount: number) => formatPrice(amount, "INR", localeMeta(DEFAULT_LOCALE).dateLocale);
+const inr = (amount: number) => formatPrice(amount, "INR", localeMeta(DEFAULT_LOCALE));
 const priceRange = `${inr(Math.min(...inrPrices))} - ${inr(Math.max(...inrPrices))}`;
 const { types, single, package: sixSessions } = pages(DEFAULT_LOCALE).packages;
 const makesOffer = OFFERS.map((offer) => ({

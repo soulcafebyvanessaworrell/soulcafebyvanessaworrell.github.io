@@ -34,6 +34,19 @@ describe("Intl resolves every dateLocale", () => {
   }
 });
 
+// The table row, not ICU, decides which digits pricing.ts renders, and each
+// row is meant to be the locale's own default. Without this, a row typed with
+// another system would ship those digits unnoticed, and a CLDR update that
+// changed a locale's default would leave the table quietly disagreeing with
+// what every other Intl consumer on the page (the blog dates) shows.
+describe("numberingSystem is what Intl resolves for the dateLocale", () => {
+  for (const row of LOCALE_TABLE) {
+    test(`${row.code} is ${row.numberingSystem}`, () => {
+      const resolved = new Intl.NumberFormat(row.dateLocale).resolvedOptions().numberingSystem;
+      expect(resolved).toBe(row.numberingSystem);
+    });
+  }
+});
 // Without this, a thirtieth locale row would leave README.md and AGENTS.md
 // still saying 29. The table carries endonyms only, so the count is all the
 // docs and the table share.

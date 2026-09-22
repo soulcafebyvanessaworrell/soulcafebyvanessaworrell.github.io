@@ -25,7 +25,7 @@ export const dict = {
     cart: "Carrello",
 
     book_session: "Prenota una seduta",
-    free_consultation: "Colloquio gratuito (15 min)",
+    free_consultation: "Colloquio gratuito ({minutes} min)",
     contact_us: "Contattaci",
     back_home: "Torna alla home",
 
@@ -195,7 +195,7 @@ export const dict = {
       meta: {
         title: "Prenota una seduta",
         description:
-          "Prenota una seduta di psicoterapia online con Vanessa Worrell, M.A., a The Soul Cafe, oppure inizia con un colloquio gratuito di 15 minuti per capire se è la scelta giusta per te.",
+          "Prenota una seduta di psicoterapia online con Vanessa Worrell, M.A., a The Soul Cafe, oppure inizia con un colloquio gratuito di {minutes} minuti per capire se è la scelta giusta per te.",
       },
       title: "Prenota una seduta",
       description:
@@ -222,7 +222,7 @@ export const dict = {
       consultBand: "Non sai ancora se iniziare?",
       consultLead:
         "Va benissimo. Incontra prima Vanessa e vedi se ti senti a tuo agio. Nessun obbligo di prenotare nulla.",
-      consultTitle: "Colloquio gratuito di 15 minuti",
+      consultTitle: "Colloquio gratuito di {minutes} minuti",
       consultDesc:
         "Una breve chiamata conoscitiva, in tutta tranquillità, per fare domande e capire come lavoriamo insieme prima di prenotare una seduta completa.",
       consultEmbed: "Calendario di prenotazione per un colloquio gratuito",
@@ -254,7 +254,7 @@ export const dict = {
       },
       single: "Una seduta",
       package: "Sei sedute",
-      packagePill: "Paghi 5, 1 in omaggio",
+      packagePill: "Paghi {paid}, {free} in omaggio",
       duration: {
         minutes: "{n} minuti",
         hours: "{h} ora e {m} minuti",
@@ -263,11 +263,11 @@ export const dict = {
       askPackage: "Informazioni sui pacchetti",
       discountHeading: "Prezzi scontati per:",
       discounts: [
-        "Giovani (da 18 a 25 anni)",
+        "Giovani (da {from} a {to} anni)",
         "Studenti",
         "Personale delle Forze Armate indiane",
         "Veterani delle Forze Armate",
-        "Senior (dai 60 anni in su)",
+        "Senior (dai {age} anni in su)",
       ],
     },
 

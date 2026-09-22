@@ -25,7 +25,7 @@ export const dict = {
     cart: "Warenkorb",
 
     book_session: "Sitzung buchen",
-    free_consultation: "Kostenloses Erstgespräch (15 Min.)",
+    free_consultation: "Kostenloses Erstgespräch ({minutes} Min.)",
     contact_us: "Kontakt aufnehmen",
     back_home: "Zurück zur Startseite",
 
@@ -196,7 +196,7 @@ export const dict = {
       meta: {
         title: "Sitzung buchen",
         description:
-          "Buchen Sie eine Online-Psychotherapiesitzung mit Vanessa Worrell, M.A., bei The Soul Cafe, oder beginnen Sie mit einem kostenlosen 15-Minuten-Erstgespräch, um zu sehen, ob es passt.",
+          "Buchen Sie eine Online-Psychotherapiesitzung mit Vanessa Worrell, M.A., bei The Soul Cafe, oder beginnen Sie mit einem kostenlosen {minutes}-Minuten-Erstgespräch, um zu sehen, ob es passt.",
       },
       title: "Sitzung buchen",
       description:
@@ -223,7 +223,7 @@ export const dict = {
       consultBand: "Noch unsicher, ob Sie anfangen möchten?",
       consultLead:
         "Das ist völlig in Ordnung. Lernen Sie Vanessa zuerst kennen und sehen Sie, ob es für Sie passt. Sie müssen nichts buchen.",
-      consultTitle: "Kostenloses 15-Minuten-Erstgespräch",
+      consultTitle: "Kostenloses {minutes}-Minuten-Erstgespräch",
       consultDesc:
         "Ein kurzes, freundliches Kennenlerngespräch, um Fragen zu stellen und ein Gefühl dafür zu bekommen, wie wir zusammenarbeiten, bevor Sie eine reguläre Sitzung buchen.",
       consultEmbed: "Buchungskalender für ein kostenloses Erstgespräch",
@@ -255,7 +255,7 @@ export const dict = {
       },
       single: "Eine Sitzung",
       package: "Sechs Sitzungen",
-      packagePill: "5 kaufen, 1 gratis",
+      packagePill: "{paid} kaufen, {free} gratis",
       duration: {
         minutes: "{n} Minuten",
         hours: "{h} Stunde {m} Minuten",
@@ -264,11 +264,11 @@ export const dict = {
       askPackage: "Nach einem Paket fragen",
       discountHeading: "Ermäßigte Preise gibt es für:",
       discounts: [
-        "Junge Erwachsene (18 bis 25 Jahre)",
+        "Junge Erwachsene ({from} bis {to} Jahre)",
         "Studierende",
         "Angehörige der indischen Streitkräfte",
         "Veteranen",
-        "Seniorinnen und Senioren (ab 60 Jahren)",
+        "Seniorinnen und Senioren (ab {age} Jahren)",
       ],
     },
 

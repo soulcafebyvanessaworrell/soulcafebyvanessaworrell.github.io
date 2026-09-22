@@ -68,6 +68,16 @@ export const dictionaries: Record<SiteLocale, LocaleDict> = {
   nl,
 };
 
+/** A `{name}` placeholder in a dictionary string; the name is the capture. */
+export const PLACEHOLDER = /\{([a-z]+)\}/g;
+
+/** Splices values into a dictionary string's placeholders. Every locale
+ *  carries each placeholder exactly as often as English does (i18n.test.ts),
+ *  so a value is never left unspliced in one language. */
+export function fill(text: string, values: Record<string, string>): string {
+  return text.replace(PLACEHOLDER, (token, name: string) => values[name] ?? token);
+}
+
 /** A shared-chrome string. */
 export function t(locale: SiteLocale, key: UiKey): string {
   return dictionaries[locale].ui[key];

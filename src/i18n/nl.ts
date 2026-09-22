@@ -25,7 +25,7 @@ export const dict = {
     cart: "Winkelwagen",
 
     book_session: "Sessie boeken",
-    free_consultation: "Gratis kennismaking (15 min)",
+    free_consultation: "Gratis kennismaking ({minutes} min)",
     contact_us: "Neem contact op",
     back_home: "Terug naar home",
 
@@ -196,7 +196,7 @@ export const dict = {
       meta: {
         title: "Sessie boeken",
         description:
-          "Boek een online psychotherapiesessie met Vanessa Worrell, M.A., bij The Soul Cafe, of begin met een gratis kennismakingsgesprek van 15 minuten om te zien of het past.",
+          "Boek een online psychotherapiesessie met Vanessa Worrell, M.A., bij The Soul Cafe, of begin met een gratis kennismakingsgesprek van {minutes} minuten om te zien of het past.",
       },
       title: "Sessie boeken",
       description:
@@ -223,7 +223,7 @@ export const dict = {
       consultBand: "Nog niet zeker of je wilt beginnen?",
       consultLead:
         "Dat is helemaal oké. Maak eerst kennis met Vanessa en kijk of het klikt. Je hoeft niets te boeken.",
-      consultTitle: "Gratis kennismakingsgesprek van 15 minuten",
+      consultTitle: "Gratis kennismakingsgesprek van {minutes} minuten",
       consultDesc:
         "Een kort, vriendelijk kennismakingsgesprek om vragen te stellen en een gevoel te krijgen voor hoe we samenwerken, voordat je een volledige sessie boekt.",
       consultEmbed: "Boekingskalender voor een gratis kennismakingsgesprek",
@@ -254,7 +254,7 @@ export const dict = {
       },
       single: "Eén sessie",
       package: "Zes sessies",
-      packagePill: "Koop 5, krijg 1 gratis",
+      packagePill: "Koop {paid}, krijg {free} gratis",
       duration: {
         minutes: "{n} minuten",
         hours: "{h} uur {m} minuten",
@@ -263,11 +263,11 @@ export const dict = {
       askPackage: "Vraag naar een pakket",
       discountHeading: "Korting beschikbaar voor:",
       discounts: [
-        "Jongeren (18 tot 25 jaar)",
+        "Jongeren ({from} tot {to} jaar)",
         "Studenten",
         "Personeel van de Indiase krijgsmacht",
         "Veteranen",
-        "Senioren (60 jaar en ouder)",
+        "Senioren ({age} jaar en ouder)",
       ],
     },
 

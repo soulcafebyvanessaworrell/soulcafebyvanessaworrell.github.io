@@ -1,9 +1,17 @@
-// Session prices, the one place a number is written. Labels ("One session",
-// "minutes", the type names) live in the dictionaries under pages.packages and
-// pages.book, with {price} and {minutes} placeholders the pages fill from here,
-// so a translation never carries a price and a price change never touches a
-// translation. Base.astro reads OFFERS for the structured-data offers.
+// Session prices and the other numbers the pages quote, the one place any of
+// them is written. Labels ("One session", "minutes", the type names) live in
+// the dictionaries under pages.packages and pages.book, with placeholders such
+// as {price} and {minutes} the pages fill from here, so a translation never
+// carries a number and a number change never touches a translation.
+// Base.astro reads OFFERS for the structured-data offers.
 
+import {
+  type LocaleMeta,
+  localeMeta,
+  type NumberingSystem,
+  type SiteLocale,
+} from "../i18n/locales";
+import { fill, t } from "../i18n/ui";
 import { BOOKING } from "./constants";
 
 export const CURRENCIES = ["INR", "USD", "GBP"] as const;
@@ -23,7 +31,18 @@ export const BOOKING_LINK: Record<SessionType, string> = {
 export type Prices = Record<Currency, number>;
 
 const PACKAGE_SESSIONS = 6;
-const PACKAGE_PAID_SESSIONS = 5;
+/** Sessions paid for in a package; the rest are free, as the packages pill says. */
+export const PACKAGE_PAID_SESSIONS = 5;
+export const PACKAGE_FREE_SESSIONS = PACKAGE_SESSIONS - PACKAGE_PAID_SESSIONS;
+
+/** Length of the free introductory call. */
+export const CONSULTATION_MINUTES = 15;
+
+/** Age bands of the discounted groups on the packages page. */
+export const DISCOUNT_AGES = {
+  youth: { from: 18, to: 25 },
+  senior: 60,
+} as const;
 
 export interface SessionPricing {
   minutes: number;
@@ -66,27 +85,59 @@ export const OFFERS: readonly Offer[] = SESSION_TYPES.flatMap((type) => {
   ];
 });
 
+/** Formats `amount` through `render` in the digits the locale row names and,
+ *  when those are not Western, again in Western digits in round brackets after
+ *  a space ("₹१,५०० (₹1,500)"), so a reader of either system finds the number. */
+function dualDigits(
+  amount: number,
+  { dateLocale, numberingSystem }: LocaleMeta,
+  render: (tag: string, numberingSystem: NumberingSystem) => Intl.NumberFormat,
+): string {
+  const native = render(dateLocale, numberingSystem).format(amount);
+  if (numberingSystem === "latn") return native;
+  return `${native} (${render(dateLocale, "latn").format(amount)})`;
+}
+
 /** A whole-unit price in the reader's own numerals and symbol placement, always
  *  with the bare symbol (₹, $, £): several European locales would otherwise
  *  print "INR" for a foreign currency. Grouping is forced so a four-digit
  *  amount reads like the five-digit one beside it ("1.500 ₹" next to
  *  "10.000 ₹"; Italian and a few others skip the separator below 10,000 by
- *  default). `dateLocale` is the locale table's BCP 47 tag
- *  (localeMeta(locale).dateLocale). */
-export function formatPrice(amount: number, currency: Currency, dateLocale: string): string {
-  return new Intl.NumberFormat(dateLocale, {
-    style: "currency",
-    currency,
-    currencyDisplay: "narrowSymbol",
-    maximumFractionDigits: 0,
-    useGrouping: "always",
-  }).format(amount);
+ *  default). A locale whose digits are not Western repeats the price in
+ *  Western digits in brackets (dualDigits). */
+export function formatPrice(amount: number, currency: Currency, meta: LocaleMeta): string {
+  return dualDigits(
+    amount,
+    meta,
+    (tag, numberingSystem) =>
+      new Intl.NumberFormat(tag, {
+        style: "currency",
+        currency,
+        currencyDisplay: "narrowSymbol",
+        maximumFractionDigits: 0,
+        useGrouping: "always",
+        numberingSystem,
+      }),
+  );
 }
 
-/** A plain count (minutes, hours) in the same numerals formatPrice uses for
- *  that locale, so a duration never mixes digit systems with the price beside it. */
-export function formatNumber(value: number, dateLocale: string): string {
-  return new Intl.NumberFormat(dateLocale).format(value);
+/** A plain count (minutes, hours, sessions, ages) in the same numerals
+ *  formatPrice uses for that locale, so a duration never mixes digit systems
+ *  with the price beside it, with the same Western repeat in brackets. */
+export function formatNumber(value: number, meta: LocaleMeta): string {
+  return dualDigits(
+    value,
+    meta,
+    (tag, numberingSystem) => new Intl.NumberFormat(tag, { numberingSystem }),
+  );
+}
+
+/** The "Free 15-minute consultation" pill label with the length filled in, for
+ *  every page that links to the consultation. */
+export function freeConsultationLabel(locale: SiteLocale): string {
+  return fill(t(locale, "free_consultation"), {
+    minutes: formatNumber(CONSULTATION_MINUTES, localeMeta(locale)),
+  });
 }
 
 /** Whole hours and leftover minutes of a session length, for the dictionary's

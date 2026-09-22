@@ -11,14 +11,16 @@ import ScriptHeading from "../../components/ScriptHeading.astro";
 import SectionBand from "../../components/SectionBand.astro";
 import { localeMeta, localizePath } from "../../i18n/locales";
 import { localeStaticPaths } from "../../i18n/routes";
-import { pages, t } from "../../i18n/ui";
+import { fill, pages, t } from "../../i18n/ui";
 import Base from "../../layouts/Base.astro";
 import { BOOKING } from "../../lib/constants";
 import {
   BOOKING_LINK,
+  CONSULTATION_MINUTES,
   DEFAULT_CURRENCY,
   formatNumber,
   formatPrice,
+  freeConsultationLabel,
   PRICING,
   SESSION_TYPES,
   type SessionType,
@@ -28,29 +30,26 @@ export const getStaticPaths = localeStaticPaths;
 
 const { locale } = Astro.props;
 const copy = pages(locale).book;
-const { dateLocale } = localeMeta(locale);
+const meta = localeMeta(locale);
 
 /** The card copy with its numbers filled from PRICING. */
 function card(type: SessionType): { title: string; description: string; note: string } {
   const { minutes, single } = PRICING[type];
   return {
     title: copy.cards[type].title,
-    description: copy.cards[type].description.replace(
-      "{minutes}",
-      formatNumber(minutes, dateLocale),
-    ),
-    note: copy.from.replace(
-      "{price}",
-      formatPrice(single[DEFAULT_CURRENCY], DEFAULT_CURRENCY, dateLocale),
-    ),
+    description: fill(copy.cards[type].description, { minutes: formatNumber(minutes, meta) }),
+    note: fill(copy.from, { price: formatPrice(single[DEFAULT_CURRENCY], DEFAULT_CURRENCY, meta) }),
   };
 }
+
+const consult = { minutes: formatNumber(CONSULTATION_MINUTES, meta) };
+const description = fill(copy.meta.description, consult);
 
 const featured: SessionType = "individual";
 const rest = SESSION_TYPES.filter((type) => type !== featured);
 ---
 
-<Base title={copy.meta.title} description={copy.meta.description}>
+<Base title={copy.meta.title} description={description}>
   <SectionBand color="white">
     <ScriptHeading level={1} class="mb-4 text-center">{copy.title}</ScriptHeading>
     <p class="mx-auto mb-10 max-w-2xl text-center text-lg leading-relaxed text-soft">
@@ -82,10 +81,10 @@ const rest = SESSION_TYPES.filter((type) => type !== featured);
       {copy.consultLead}
     </p>
     <BookingCard
-      title={copy.consultTitle}
+      title={fill(copy.consultTitle, consult)}
       description={copy.consultDesc}
       url={BOOKING.consultation}
-      ctaLabel={t(locale, "free_consultation")}
+      ctaLabel={freeConsultationLabel(locale)}
       embedTitle={copy.consultEmbed}
       titleLevel={3}
       locale={locale}

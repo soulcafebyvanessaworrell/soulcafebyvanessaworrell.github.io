@@ -25,7 +25,7 @@ export const dict = {
     cart: "Carrito",
 
     book_session: "Reservar una sesión",
-    free_consultation: "Consulta gratuita (15 min)",
+    free_consultation: "Consulta gratuita ({minutes} min)",
     contact_us: "Ponte en contacto",
     back_home: "Volver al inicio",
 
@@ -195,7 +195,7 @@ export const dict = {
       meta: {
         title: "Reservar una sesión",
         description:
-          "Reserva una sesión de psicoterapia en línea con Vanessa Worrell, M.A., en The Soul Cafe, o empieza con una consulta gratuita de 15 minutos para ver si encaja contigo.",
+          "Reserva una sesión de psicoterapia en línea con Vanessa Worrell, M.A., en The Soul Cafe, o empieza con una consulta gratuita de {minutes} minutos para ver si encaja contigo.",
       },
       title: "Reservar una sesión",
       description:
@@ -222,7 +222,7 @@ export const dict = {
       consultBand: "¿Aún no sabes si empezar?",
       consultLead:
         "No pasa nada. Conoce primero a Vanessa y comprueba si sientes que encaja. No hay ninguna presión para reservar nada.",
-      consultTitle: "Consulta gratuita de 15 minutos",
+      consultTitle: "Consulta gratuita de {minutes} minutos",
       consultDesc:
         "Una llamada breve y cercana para hacer preguntas y hacerte una idea de cómo trabajamos juntos antes de reservar una sesión completa.",
       consultEmbed: "Calendario de reservas para una consulta gratuita",
@@ -254,7 +254,7 @@ export const dict = {
       },
       single: "Una sesión",
       package: "Seis sesiones",
-      packagePill: "Compra 5 y llévate 1 gratis",
+      packagePill: "Compra {paid} y llévate {free} gratis",
       duration: {
         minutes: "{n} minutos",
         hours: "{h} hora {m} minutos",
@@ -263,11 +263,11 @@ export const dict = {
       askPackage: "Preguntar por un paquete",
       discountHeading: "Precios con descuento para:",
       discounts: [
-        "Jóvenes (de 18 a 25 años)",
+        "Jóvenes (de {from} a {to} años)",
         "Estudiantes",
         "Personal de las Fuerzas Armadas de la India",
         "Veteranos de las Fuerzas Armadas",
-        "Personas mayores (60 años o más)",
+        "Personas mayores ({age} años o más)",
       ],
     },
 

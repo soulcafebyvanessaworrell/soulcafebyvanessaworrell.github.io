@@ -25,7 +25,7 @@ export const dict = {
     cart: "Coș",
 
     book_session: "Programați o ședință",
-    free_consultation: "Consultație gratuită, 15 min",
+    free_consultation: "Consultație gratuită, {minutes} min",
     contact_us: "Contactați-ne",
     back_home: "Înapoi la pagina principală",
 
@@ -195,7 +195,7 @@ export const dict = {
       meta: {
         title: "Programați o ședință",
         description:
-          "Programați o ședință de psihoterapie online cu Vanessa Worrell, M.A., la The Soul Cafe, sau începeți cu o consultație gratuită de 15 minute, ca să vedeți dacă vi se potrivește.",
+          "Programați o ședință de psihoterapie online cu Vanessa Worrell, M.A., la The Soul Cafe, sau începeți cu o consultație gratuită de {minutes} minute, ca să vedeți dacă vi se potrivește.",
       },
       title: "Programați o ședință",
       description:
@@ -222,7 +222,7 @@ export const dict = {
       consultBand: "Încă nu știți sigur dacă vreți să începeți?",
       consultLead:
         "Este perfect în regulă. Cunoașteți-o mai întâi pe Vanessa și vedeți dacă simțiți că vi se potrivește. Nu există nicio obligație de a programa ceva.",
-      consultTitle: "Consultație gratuită de 15 minute",
+      consultTitle: "Consultație gratuită de {minutes} minute",
       consultDesc:
         "O scurtă convorbire prietenoasă de cunoaștere, în care să puneți întrebări și să vă faceți o idee despre cum lucrăm împreună, înainte de a programa o ședință completă.",
       consultEmbed: "Calendar de programare pentru o consultație gratuită",
@@ -253,7 +253,7 @@ export const dict = {
       },
       single: "O ședință",
       package: "Șase ședințe",
-      packagePill: "Cumpărați 5, primiți 1 gratuit",
+      packagePill: "Cumpărați {paid}, primiți {free} gratuit",
       duration: {
         minutes: "{n} de minute",
         hours: "{h} oră și {m} de minute",
@@ -262,11 +262,11 @@ export const dict = {
       askPackage: "Întrebați despre pachete",
       discountHeading: "Prețuri reduse pentru:",
       discounts: [
-        "Tineri (între 18 și 25 de ani)",
+        "Tineri (între {from} și {to} de ani)",
         "Studenți",
         "Personalul Forțelor Armate Indiene",
         "Veterani militari",
-        "Seniori (60 de ani și peste)",
+        "Seniori ({age} de ani și peste)",
       ],
     },
 

@@ -22,6 +22,8 @@ export type Script =
 
 export type Region = "india" | "europe";
 
+/** The CLDR numbering systems Intl picks for the table's dateLocales. */
+export type NumberingSystem = "latn" | "deva" | "beng" | "arabext" | "arab" | "olck";
 export interface LocaleMeta {
   /** URL segment and dictionary key. */
   readonly code: string;
@@ -35,6 +37,12 @@ export interface LocaleMeta {
   /** BCP 47 tag handed to Intl.DateTimeFormat for blog dates; locales.test.ts
    *  checks the runtime's ICU resolves it. */
   readonly dateLocale: string;
+  /** The digits formatPrice and formatNumber render for this locale, which
+   *  show a non-Latin system's digits first and the Western digits after in
+   *  brackets. Written out rather than inherited from ICU; locales.test.ts
+   *  pins each value to Intl's default for `dateLocale`, so a CLDR change or a
+   *  row typed with another system is noticed. */
+  readonly numberingSystem: NumberingSystem;
   /** Selects the font stack and type rules (the [data-script] blocks in styles.css). */
   readonly script: Script;
   /** Which heading the language picker lists it under. */
@@ -48,6 +56,7 @@ export const LOCALE_TABLE = [
     label: "English",
     dir: "ltr",
     dateLocale: "en-GB",
+    numberingSystem: "latn",
     script: "latin",
     region: "india",
   },
@@ -57,6 +66,7 @@ export const LOCALE_TABLE = [
     label: "हिन्दी",
     dir: "ltr",
     dateLocale: "hi-IN",
+    numberingSystem: "latn",
     script: "devanagari",
     region: "india",
   },
@@ -66,6 +76,7 @@ export const LOCALE_TABLE = [
     label: "বাংলা",
     dir: "ltr",
     dateLocale: "bn-IN",
+    numberingSystem: "beng",
     script: "bengali",
     region: "india",
   },
@@ -75,6 +86,7 @@ export const LOCALE_TABLE = [
     label: "मराठी",
     dir: "ltr",
     dateLocale: "mr-IN",
+    numberingSystem: "deva",
     script: "devanagari",
     region: "india",
   },
@@ -84,6 +96,7 @@ export const LOCALE_TABLE = [
     label: "తెలుగు",
     dir: "ltr",
     dateLocale: "te-IN",
+    numberingSystem: "latn",
     script: "telugu",
     region: "india",
   },
@@ -93,6 +106,7 @@ export const LOCALE_TABLE = [
     label: "தமிழ்",
     dir: "ltr",
     dateLocale: "ta-IN",
+    numberingSystem: "latn",
     script: "tamil",
     region: "india",
   },
@@ -102,6 +116,7 @@ export const LOCALE_TABLE = [
     label: "ગુજરાતી",
     dir: "ltr",
     dateLocale: "gu-IN",
+    numberingSystem: "latn",
     script: "gujarati",
     region: "india",
   },
@@ -111,6 +126,7 @@ export const LOCALE_TABLE = [
     label: "اردو",
     dir: "rtl",
     dateLocale: "ur-IN",
+    numberingSystem: "arabext",
     script: "nastaliq",
     region: "india",
   },
@@ -120,6 +136,7 @@ export const LOCALE_TABLE = [
     label: "ಕನ್ನಡ",
     dir: "ltr",
     dateLocale: "kn-IN",
+    numberingSystem: "latn",
     script: "kannada",
     region: "india",
   },
@@ -129,6 +146,7 @@ export const LOCALE_TABLE = [
     label: "ଓଡ଼ିଆ",
     dir: "ltr",
     dateLocale: "or-IN",
+    numberingSystem: "latn",
     script: "oriya",
     region: "india",
   },
@@ -138,6 +156,7 @@ export const LOCALE_TABLE = [
     label: "മലയാളം",
     dir: "ltr",
     dateLocale: "ml-IN",
+    numberingSystem: "latn",
     script: "malayalam",
     region: "india",
   },
@@ -147,6 +166,7 @@ export const LOCALE_TABLE = [
     label: "ਪੰਜਾਬੀ",
     dir: "ltr",
     dateLocale: "pa-IN",
+    numberingSystem: "latn",
     script: "gurmukhi",
     region: "india",
   },
@@ -156,6 +176,7 @@ export const LOCALE_TABLE = [
     label: "অসমীয়া",
     dir: "ltr",
     dateLocale: "as-IN",
+    numberingSystem: "beng",
     script: "bengali",
     region: "india",
   },
@@ -165,6 +186,7 @@ export const LOCALE_TABLE = [
     label: "मैथिली",
     dir: "ltr",
     dateLocale: "mai-IN",
+    numberingSystem: "latn",
     script: "devanagari",
     region: "india",
   },
@@ -174,6 +196,7 @@ export const LOCALE_TABLE = [
     label: "ᱥᱟᱱᱛᱟᱲᱤ",
     dir: "ltr",
     dateLocale: "sat-Olck-IN",
+    numberingSystem: "olck",
     script: "olchiki",
     region: "india",
   },
@@ -183,6 +206,7 @@ export const LOCALE_TABLE = [
     label: "کٲشُر",
     dir: "rtl",
     dateLocale: "ks-Arab-IN",
+    numberingSystem: "arabext",
     script: "naskh",
     region: "india",
   },
@@ -192,6 +216,7 @@ export const LOCALE_TABLE = [
     label: "नेपाली",
     dir: "ltr",
     dateLocale: "ne-NP",
+    numberingSystem: "deva",
     script: "devanagari",
     region: "india",
   },
@@ -201,6 +226,7 @@ export const LOCALE_TABLE = [
     label: "سنڌي",
     dir: "rtl",
     dateLocale: "sd-Arab-IN",
+    numberingSystem: "arab",
     script: "naskh",
     region: "india",
   },
@@ -210,6 +236,7 @@ export const LOCALE_TABLE = [
     label: "डोगरी",
     dir: "ltr",
     dateLocale: "doi-IN",
+    numberingSystem: "latn",
     script: "devanagari",
     region: "india",
   },
@@ -219,6 +246,7 @@ export const LOCALE_TABLE = [
     label: "कोंकणी",
     dir: "ltr",
     dateLocale: "kok-IN",
+    numberingSystem: "latn",
     script: "devanagari",
     region: "india",
   },
@@ -228,6 +256,7 @@ export const LOCALE_TABLE = [
     label: "Русский",
     dir: "ltr",
     dateLocale: "ru-RU",
+    numberingSystem: "latn",
     script: "cyrillic",
     region: "europe",
   },
@@ -237,6 +266,7 @@ export const LOCALE_TABLE = [
     label: "Deutsch",
     dir: "ltr",
     dateLocale: "de-DE",
+    numberingSystem: "latn",
     script: "latin",
     region: "europe",
   },
@@ -246,6 +276,7 @@ export const LOCALE_TABLE = [
     label: "Français",
     dir: "ltr",
     dateLocale: "fr-FR",
+    numberingSystem: "latn",
     script: "latin",
     region: "europe",
   },
@@ -255,6 +286,7 @@ export const LOCALE_TABLE = [
     label: "Italiano",
     dir: "ltr",
     dateLocale: "it-IT",
+    numberingSystem: "latn",
     script: "latin",
     region: "europe",
   },
@@ -264,6 +296,7 @@ export const LOCALE_TABLE = [
     label: "Español",
     dir: "ltr",
     dateLocale: "es-ES",
+    numberingSystem: "latn",
     script: "latin",
     region: "europe",
   },
@@ -273,6 +306,7 @@ export const LOCALE_TABLE = [
     label: "Polski",
     dir: "ltr",
     dateLocale: "pl-PL",
+    numberingSystem: "latn",
     script: "latin",
     region: "europe",
   },
@@ -282,6 +316,7 @@ export const LOCALE_TABLE = [
     label: "Українська",
     dir: "ltr",
     dateLocale: "uk-UA",
+    numberingSystem: "latn",
     script: "cyrillic",
     region: "europe",
   },
@@ -291,6 +326,7 @@ export const LOCALE_TABLE = [
     label: "Română",
     dir: "ltr",
     dateLocale: "ro-RO",
+    numberingSystem: "latn",
     script: "latin",
     region: "europe",
   },
@@ -300,6 +336,7 @@ export const LOCALE_TABLE = [
     label: "Nederlands",
     dir: "ltr",
     dateLocale: "nl-NL",
+    numberingSystem: "latn",
     script: "latin",
     region: "europe",
   },

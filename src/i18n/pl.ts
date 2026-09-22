@@ -25,7 +25,7 @@ export const dict = {
     cart: "Koszyk",
 
     book_session: "Zarezerwuj sesję",
-    free_consultation: "Bezpłatna konsultacja 15 min",
+    free_consultation: "Bezpłatna konsultacja {minutes} min",
     contact_us: "Skontaktuj się z nami",
     back_home: "Wróć na stronę główną",
 
@@ -196,7 +196,7 @@ export const dict = {
       meta: {
         title: "Zarezerwuj sesję",
         description:
-          "Zarezerwuj sesję psychoterapii online w The Soul Cafe. Prowadzi Vanessa Worrell, M.A. Możesz też zacząć od bezpłatnej 15-minutowej konsultacji, by sprawdzić, czy to dla Ciebie.",
+          "Zarezerwuj sesję psychoterapii online w The Soul Cafe. Prowadzi Vanessa Worrell, M.A. Możesz też zacząć od bezpłatnej {minutes}-minutowej konsultacji, by sprawdzić, czy to dla Ciebie.",
       },
       title: "Zarezerwuj sesję",
       description:
@@ -223,7 +223,7 @@ export const dict = {
       consultBand: "Jeszcze nie masz pewności, czy zacząć?",
       consultLead:
         "To zupełnie w porządku. Poznaj najpierw Vanessę i sprawdź, czy to dla Ciebie. Nic nie musisz rezerwować.",
-      consultTitle: "Bezpłatna 15-minutowa konsultacja",
+      consultTitle: "Bezpłatna {minutes}-minutowa konsultacja",
       consultDesc:
         "Krótka, przyjazna rozmowa na początek: możesz zadać pytania i poczuć, jak nam się razem pracuje, zanim zarezerwujesz pełną sesję.",
       consultEmbed: "Kalendarz rezerwacji bezpłatnej konsultacji",
@@ -255,7 +255,7 @@ export const dict = {
       },
       single: "Jedna sesja",
       package: "Sześć sesji",
-      packagePill: "Kup 5, 1 gratis",
+      packagePill: "Kup {paid}, {free} gratis",
       duration: {
         minutes: "{n} min",
         hours: "{h} godz. {m} min",
@@ -264,11 +264,11 @@ export const dict = {
       askPackage: "Zapytaj o pakiet",
       discountHeading: "Ceny ze zniżką dla:",
       discounts: [
-        "Młodzi dorośli (od 18 do 25 lat)",
+        "Młodzi dorośli (od {from} do {to} lat)",
         "Studenci",
         "Żołnierze Indyjskich Sił Zbrojnych",
         "Weterani",
-        "Seniorzy (60+)",
+        "Seniorzy ({age}+)",
       ],
     },
 

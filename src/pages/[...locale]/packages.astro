@@ -10,15 +10,19 @@ import ScriptHeading from "../../components/ScriptHeading.astro";
 import SectionBand from "../../components/SectionBand.astro";
 import { localeMeta, localizePath } from "../../i18n/locales";
 import { localeStaticPaths } from "../../i18n/routes";
-import { pages, t } from "../../i18n/ui";
+import { fill, pages, t } from "../../i18n/ui";
 import Base from "../../layouts/Base.astro";
 import {
   BOOKING_LINK,
   CURRENCIES,
   DEFAULT_CURRENCY,
+  DISCOUNT_AGES,
   formatNumber,
   formatPrice,
+  freeConsultationLabel,
   hoursAndMinutes,
+  PACKAGE_FREE_SESSIONS,
+  PACKAGE_PAID_SESSIONS,
   PRICING,
   SESSION_TYPES,
 } from "../../lib/pricing";
@@ -28,19 +32,27 @@ export const getStaticPaths = localeStaticPaths;
 
 const { locale } = Astro.props;
 const copy = pages(locale).packages;
-const { dateLocale } = localeMeta(locale);
+const meta = localeMeta(locale);
+const n = (value: number) => formatNumber(value, meta);
 
-const description = copy.meta.description.replace(
-  "{price}",
-  formatPrice(PRICING.individual.single[DEFAULT_CURRENCY], DEFAULT_CURRENCY, dateLocale),
-);
+const description = fill(copy.meta.description, {
+  price: formatPrice(PRICING.individual.single[DEFAULT_CURRENCY], DEFAULT_CURRENCY, meta),
+});
+const packagePill = fill(copy.packagePill, {
+  paid: n(PACKAGE_PAID_SESSIONS),
+  free: n(PACKAGE_FREE_SESSIONS),
+});
+const ages = {
+  from: n(DISCOUNT_AGES.youth.from),
+  to: n(DISCOUNT_AGES.youth.to),
+  age: n(DISCOUNT_AGES.senior),
+};
 
 function duration(minutes: number): string {
   const split = hoursAndMinutes(minutes);
-  const n = (value: number) => formatNumber(value, dateLocale);
   return split.hours === 0
-    ? copy.duration.minutes.replace("{n}", n(split.minutes))
-    : copy.duration.hours.replace("{h}", n(split.hours)).replace("{m}", n(split.minutes));
+    ? fill(copy.duration.minutes, { n: n(split.minutes) })
+    : fill(copy.duration.hours, { h: n(split.hours), m: n(split.minutes) });
 }
 
 const clusters = SESSION_TYPES.map((type) => {
@@ -51,19 +63,22 @@ const clusters = SESSION_TYPES.map((type) => {
     duration: duration(minutes),
     rows: [
       { label: copy.single, price: single, pill: undefined },
-      { label: copy.package, price: pack, pill: copy.packagePill },
+      { label: copy.package, price: pack, pill: packagePill },
     ],
     href: BOOKING_LINK[type],
   };
 });
 
-const discounts = zipLabels(copy.discounts, [
-  "lucide:backpack",
-  "lucide:graduation-cap",
-  "lucide:shield",
-  "lucide:medal",
-  "lucide:person-standing",
-]);
+const discounts = zipLabels(
+  copy.discounts.map((label) => fill(label, ages)),
+  [
+    "lucide:backpack",
+    "lucide:graduation-cap",
+    "lucide:shield",
+    "lucide:medal",
+    "lucide:person-standing",
+  ],
+);
 ---
 
 <Base title={copy.meta.title} description={description} active="packages">
@@ -124,7 +139,7 @@ const discounts = zipLabels(copy.discounts, [
                           data-currency={currency}
                           class:list={[currency !== DEFAULT_CURRENCY && "hidden"]}
                         >
-                          {formatPrice(row.price[currency], currency, dateLocale)}
+                          {formatPrice(row.price[currency], currency, meta)}
                         </span>
                       ))}
                     </span>
@@ -149,7 +164,7 @@ const discounts = zipLabels(copy.discounts, [
             {copy.askPackage}
           </PillButton>
           <PillButton href={`${localizePath("book/", locale)}#consultation`} variant="cream">
-            {t(locale, "free_consultation")}
+            {freeConsultationLabel(locale)}
           </PillButton>
         </div>
       </div>
