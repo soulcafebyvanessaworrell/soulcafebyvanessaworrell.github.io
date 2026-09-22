@@ -706,6 +706,40 @@ test(`Latin and digit runs are isolated with dir="ltr" on RTL pages: ${RTL_LOCAL
   expect(unisolated, "runs without a dir=ltr ancestor").toEqual([]);
 });
 
+// Without this, a phone typed as letters would again be reported as a missing
+// reply channel ("give us a phone number or an email") while the dictionary's
+// phoneFormat message stayed unused: only the form's script decides which
+// message a field carries. Submissions are blocked at the network layer, so a
+// validation that failed to hold would not reach FormSubmit from a test.
+for (const row of [DEFAULT_LOCALE, RTL_LOCALE]) {
+  test(`a phone typed as letters reports the format message, not the reply hint: ${row.code}`, async ({
+    page,
+  }) => {
+    await page.route("**/formsubmit.co/**", (route) => route.abort());
+    await page.goto(`${localeBase(row)}/contact/`, { waitUntil: "load" });
+    const { form: copy } = dictionaries[row.code];
+    const phone = page.locator("#cf-num");
+    const message = () => phone.evaluate((el: HTMLInputElement) => el.validationMessage);
+
+    await page.locator("#cf-name").fill("Test");
+    await page.locator("#cf-message").fill("Hello");
+    // Control: with no phone and no email the phone field carries the reply hint.
+    expect(await message(), "empty phone and email").toBe(copy.replyHint);
+
+    await phone.fill("abc");
+    await page.locator("button[type=submit]").click();
+    expect(await message(), "letters in the phone").toBe(copy.phoneFormat);
+    await expect(phone, "the browser stopped at the phone field").toBeFocused();
+    await expect(page, "the submit was blocked").toHaveURL(
+      new RegExp(`${localeBase(row)}/contact/$`),
+    );
+
+    // A number-shaped phone clears both messages.
+    await phone.fill("7009 597 939");
+    expect(await message(), "a real phone").toBe("");
+  });
+}
+
 // An unknown path serves the 404 page with a real 404 status (base-path aware).
 test("unknown path serves the 404 page", async ({ page }) => {
   const resp = await page.goto(`${BASE}/this-route-does-not-exist-xyz/`, {

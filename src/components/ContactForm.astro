@@ -36,6 +36,7 @@ const fileAccept = ".pdf,.doc,.docx,.txt,.rtf,.odt,image/png,image/jpeg,image/we
     enctype="multipart/form-data"
     data-contact-form
     data-reply-hint={s.replyHint}
+    data-phone-format={s.phoneFormat}
     class="flex flex-col gap-5"
   >
     {/* FormSubmit control fields (not shown to the visitor). */}
@@ -199,8 +200,9 @@ const fileAccept = ".pdf,.doc,.docx,.txt,.rtf,.odt,image/png,image/jpeg,image/we
     can't express an or-requirement, so the `required` attribute on email is the
     no-JS fallback (safest: FormSubmit always gets a reply channel). With JS we
     relax it to "email OR phone" via setCustomValidity, clearing as soon as
-    either field is filled. Rebinds on every astro:page-load to survive view
-    transitions, matching src/scripts/site.ts. */}
+    either field is filled; a phone that is typed but does not look like a
+    number gets the format message instead. Rebinds on every astro:page-load
+    to survive view transitions, matching src/scripts/site.ts. */}
 <script>
   function initContactReplyRule() {
     const form = document.querySelector("form[data-contact-form]");
@@ -210,6 +212,7 @@ const fileAccept = ".pdf,.doc,.docx,.txt,.rtf,.odt,image/png,image/jpeg,image/we
     if (!(email instanceof HTMLInputElement) || !(phone instanceof HTMLInputElement)) return;
 
     const hint = form.dataset.replyHint ?? "";
+    const phoneFormat = form.dataset.phoneFormat ?? "";
     // Remove the no-JS fallbacks (email `required`, phone pattern/minlength);
     // sync() below enforces the "email OR phone" rule instead.
     email.removeAttribute("required");
@@ -224,12 +227,16 @@ const fileAccept = ".pdf,.doc,.docx,.txt,.rtf,.odt,image/png,image/jpeg,image/we
     const hasPhone = () => phoneLike.test(phone.value.trim());
     const sync = () => {
       const needsOne = !hasEmail() && !hasPhone();
+      // A typed phone that fails the shape check is a format problem, not a
+      // missing reply channel, so the phone field names that instead.
+      const badPhone = phone.value.trim().length > 0 && !hasPhone();
       for (const el of [email, phone]) {
         el.setAttribute("aria-required", needsOne ? "true" : "false");
-        // A non-empty message makes the field invalid; the browser shows it on
-        // submit and clears the block the moment either field gets a value.
-        el.setCustomValidity(needsOne ? hint : "");
       }
+      // A non-empty message makes the field invalid; the browser shows it on
+      // submit and clears the block the moment either field gets a value.
+      email.setCustomValidity(needsOne ? hint : "");
+      phone.setCustomValidity(badPhone ? phoneFormat : needsOne ? hint : "");
     };
 
     email.addEventListener("input", sync);
