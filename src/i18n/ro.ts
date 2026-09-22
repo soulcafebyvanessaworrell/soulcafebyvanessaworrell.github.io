@@ -93,7 +93,7 @@ export const dict = {
       meta: {
         title: "Psihoterapie cu Vanessa Worrell",
         description:
-          "Un spațiu de psihoterapie cald, fără judecăți, în care să explorați, să vă vindecați și să creșteți. Sprijin pentru adolescenți, adulți și familii, oferit de o psihologă cu formare internațională.",
+          "Un spațiu de psihoterapie cald, fără judecăți, în care să explorați, să vă vindecați și să creșteți. Sprijin pentru adolescenți, adulți și familii.",
       },
       hero: {
         heading: "Bine ați venit la The Soul Cafe!",
@@ -142,7 +142,7 @@ export const dict = {
       meta: {
         title: "Despre noi",
         description:
-          "Vanessa Worrell, fondatoarea The Soul Cafe, este psihologă cu formare în Statele Unite, Regatul Unit și India. Abordarea ei este umanistă și existențială și apelează la TCC atunci când este de folos.",
+          "Vanessa Worrell, fondatoarea The Soul Cafe, este psihologă cu formare în Statele Unite, Regatul Unit și India.",
       },
       heading: "Despre fondatoarea și psihoterapeuta noastră",
       photoAlt: "Vanessa Worrell, fondatoarea The Soul Cafe",
@@ -191,7 +191,7 @@ export const dict = {
       meta: {
         title: "Programați o ședință",
         description:
-          "Programați o ședință de psihoterapie online cu Vanessa Worrell, M.A., la The Soul Cafe, sau începeți cu o consultație gratuită de {minutes} minute, ca să vedeți dacă vi se potrivește.",
+          "Programați o ședință de psihoterapie online cu Vanessa Worrell, M.A., la The Soul Cafe, sau începeți cu o consultație gratuită de {minutes} minute.",
       },
       title: "Programați o ședință",
       description:
@@ -231,7 +231,7 @@ export const dict = {
       meta: {
         title: "Pachete",
         description:
-          "Ședințe de terapie individuală de la {price}, plus terapie de cuplu și de familie. Un pachet de șase ședințe vă economisește una. Reduceri pentru tineri, studenți, militari activi, veterani și seniori.",
+          "Ședințe de terapie individuală de la {price}, plus terapie de cuplu și de familie. Reduceri pentru tineri, studenți, militari activi și seniori.",
       },
       heading: "Pachete",
       intro:
@@ -270,7 +270,7 @@ export const dict = {
       meta: {
         title: "Contactați-ne",
         description:
-          "Luați legătura cu The Soul Cafe pentru programări, locuri de muncă și stagii sau pentru colaborări la ateliere și traininguri. De obicei răspundem în câteva zile.",
+          "Luați legătura cu The Soul Cafe pentru programări, locuri de muncă și stagii sau pentru colaborări la ateliere. De obicei răspundem în câteva zile.",
       },
       title: "Contactați-ne",
       intro:
@@ -309,7 +309,7 @@ export const dict = {
       meta: {
         title: "The Soul Food Supper Club",
         description:
-          "O seară cu mâncare bună, conversație deschisă și companie plăcută, de la The Soul Cafe. În curând. Urmăriți-ne pe Instagram sau scrieți-ne ca să aflați mai multe.",
+          "O seară cu mâncare bună, conversație deschisă și companie plăcută, de la The Soul Cafe. În curând. Urmăriți-ne pe Instagram sau scrieți-ne.",
       },
       title: "The Soul Food Supper Club",
       intro:
@@ -331,7 +331,7 @@ export const dict = {
       meta: {
         title: "Confidențialitate",
         description:
-          "Cum gestionează The Soul Cafe informațiile dumneavoastră: fără cookie-uri sau instrumente de urmărire, un formular de contact folosit doar pentru a vă răspunde și programări gestionate pe site-ul Google.",
+          "Cum gestionează The Soul Cafe informațiile dumneavoastră: fără cookie-uri sau instrumente de urmărire, un formular folosit doar pentru a vă răspunde.",
       },
       title: "Confidențialitate",
       updated: "Ultima actualizare: {date}",
