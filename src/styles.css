@@ -15,7 +15,7 @@
    --------------------------------------------------------------------------- */
 @theme {
   /* Brand pastels */
-  --color-mint: #a9efe3;
+  --color-mint: #a9efe3; /* equals THEME_COLOR in src/lib/constants.ts; a unit test pins the pair */
   --color-mint-deep: #8fe6d6; /* slightly deeper mint for large bands */
   --color-periwinkle: #98a4e8;
   --color-periwinkle-deep: #4f59b5; /* indigo primary + tagline; AA on white (6.1) and mint (4.7) */

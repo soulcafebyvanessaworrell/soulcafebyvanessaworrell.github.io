@@ -17,7 +17,15 @@ import {
   type SiteLocale,
 } from "../i18n/locales";
 import { pages, t } from "../i18n/ui";
-import { CONTACT, PUBLISHED_SOCIALS, SITE_BASE, SITE_TITLE } from "../lib/constants";
+import {
+  BRAND,
+  CONTACT,
+  FOUNDER,
+  PUBLISHED_SOCIALS,
+  SITE_BASE,
+  SITE_TITLE,
+  THEME_COLOR,
+} from "../lib/constants";
 import type { NavId } from "../lib/nav";
 import { formatPrice, OFFERS } from "../lib/pricing";
 
@@ -60,7 +68,7 @@ const meta = localeMeta(locale);
 const staging = Boolean(process.env.ASTRO_STAGING);
 const robotsNoindex = noindex || staging;
 
-const fullTitle = `${title} · The Soul Cafe`;
+const fullTitle = `${title} · ${BRAND}`;
 const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site) : undefined;
 // Absolute URLs into public/: the square 512px icon is the JSON-LD logo; the
 // 1200 x 630 card (the logo on the mint brand colour) is the social preview.
@@ -115,9 +123,9 @@ const jsonLd = {
       availableLanguage: LOCALES.map((l) => htmlLang(l)),
       founder: {
         "@type": "Person",
-        name: "Vanessa Worrell",
-        honorificSuffix: "M.A.",
-        jobTitle: "Psychotherapist",
+        name: FOUNDER.name,
+        honorificSuffix: FOUNDER.qualification,
+        jobTitle: FOUNDER.jobTitle,
       },
       priceRange,
       makesOffer,
@@ -141,7 +149,7 @@ const jsonLd = {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
-    <meta name="theme-color" content="#a9efe3" />
+    <meta name="theme-color" content={THEME_COLOR} />
     {robotsNoindex && <meta name="robots" content="noindex" />}
 
     <title>{fullTitle}</title>

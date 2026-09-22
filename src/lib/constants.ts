@@ -31,7 +31,27 @@ const RAW_BASE = process.env.ASTRO_BASE ?? "/preview/";
 const CORE_BASE = RAW_BASE.replace(/^\/+|\/+$/g, "");
 export const SITE_BASE = CORE_BASE ? `/${CORE_BASE}/` : "/";
 
-export const SITE_TITLE = "The Soul Cafe by Vanessa Worrell";
+/** The brand name, verbatim in every language (the translation contract keeps
+ *  it untranslated). The manifest's short_name and the title suffix on every
+ *  page read it from here. */
+export const BRAND = "The Soul Cafe";
+
+/** The founder, as the JSON-LD `Person` and the signature block write her:
+ *  `qualification` is the honorific suffix ("M.A."), `jobTitle` the English
+ *  role for structured data. Localized role text stays in the dictionaries. */
+export const FOUNDER = {
+  name: "Vanessa Worrell",
+  qualification: "M.A.",
+  jobTitle: "Psychotherapist",
+} as const;
+
+export const SITE_TITLE = `${BRAND} by ${FOUNDER.name}`;
+
+/** The mint brand colour, as the browser UI shows it: `<meta name="theme-color">`
+ *  and the manifest's `theme_color`. CSS cannot import this file, so
+ *  `--color-mint` in src/styles.css repeats the value; a unit test keeps the
+ *  two equal. */
+export const THEME_COLOR = "#a9efe3";
 
 /** The day the privacy policy last changed, as an ISO date. The privacy page
  *  formats it as month and year in each locale, so every dictionary carries
@@ -83,7 +103,7 @@ export const SOCIALS: Social[] = [
   },
   {
     name: "Facebook",
-    handle: "The Soul Cafe",
+    handle: BRAND,
     // TODO(owner): replace with the real Facebook page URL once known, and delete `placeholder`.
     url: "https://www.facebook.com/",
     placeholder: true,
@@ -91,7 +111,7 @@ export const SOCIALS: Social[] = [
   },
   {
     name: "LinkedIn",
-    handle: "The Soul Cafe by Vanessa Worrell",
+    handle: SITE_TITLE,
     // TODO(owner): replace with the real LinkedIn page URL once known, and delete `placeholder`.
     url: "https://www.linkedin.com/",
     placeholder: true,

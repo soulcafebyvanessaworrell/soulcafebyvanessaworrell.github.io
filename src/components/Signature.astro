@@ -8,6 +8,7 @@
 import type { SiteLocale } from "../i18n/locales";
 import { t } from "../i18n/ui";
 import { signature } from "../lib/assets";
+import { FOUNDER } from "../lib/constants";
 
 interface Props {
   locale: SiteLocale;
@@ -23,7 +24,7 @@ const alignClass = align === "center" ? "items-center text-center" : "items-star
 <div class:list={["flex flex-col gap-1", alignClass, klass]}>
   <img
     src={signature}
-    alt="Vanessa Worrell"
+    alt={FOUNDER.name}
     width="340"
     height="92"
     class="h-auto w-[280px] max-w-full sm:w-[340px]"

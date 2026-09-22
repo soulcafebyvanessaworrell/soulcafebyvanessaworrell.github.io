@@ -3,7 +3,6 @@
     "collect": {
       "numberOfRuns": 1,
       "startServerCommand": "bun run preview",
-      "startServerReadyPattern": "localhost:4322",
       "startServerReadyTimeout": 30000
     },
     "assert": {
