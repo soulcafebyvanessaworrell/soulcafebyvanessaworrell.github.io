@@ -83,6 +83,34 @@ test("README.md and AGENTS.md state the locale count the table has", () => {
   }
 });
 
+/** The non-latin scripts of the table whose own `[data-script="..."] {` block
+ *  the stylesheet lacks. Latin is the default the generic rule is written
+ *  against and has no block of its own. Anchored to the block opener: the
+ *  `.script` and `[dir="ltr"]` rules that mention a script do not count. */
+function scriptsWithoutBlock(css: string): string[] {
+  const scripts = [...new Set(LOCALE_TABLE.map((row) => row.script))].filter(
+    (script) => script !== "latin",
+  );
+  return scripts.filter((script) => !new RegExp(`\\[data-script="${script}"\\]\\s*\\{`).test(css));
+}
+
+// Without this, a new script value in the table would render with the Latin
+// type rules: Base.astro sets data-script from the row, and a script with no
+// [data-script="..."] block in styles.css matches only the generic rule, so
+// its own face never loads and nothing at build time says so.
+test("every script in the locale table has its [data-script] block in styles.css", () => {
+  const css = readFileSync(join(import.meta.dir, "..", "styles.css"), "utf8");
+  expect(scriptsWithoutBlock(css)).toEqual([]);
+  // Control on a scratch copy: a block deleted whole is reported even where
+  // other rules still name the script (nastaliq has two), and a block that
+  // exists once is reported when it goes (oriya).
+  for (const script of ["nastaliq", "oriya"]) {
+    const block = new RegExp(`\\[data-script="${script}"\\]\\s*\\{[^}]*\\}\\n`);
+    expect(block.test(css), `${script} block found to delete`).toBe(true);
+    expect(scriptsWithoutBlock(css.replace(block, ""))).toEqual([script]);
+  }
+});
+
 // The URL helpers read the base path from import.meta.env, which Bun serves
 // from process.env; the Astro build inlines "/preview/" or the deploy's base.
 describe("URLs under a base path", () => {
