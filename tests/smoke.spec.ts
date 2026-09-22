@@ -4,8 +4,8 @@ import { fileURLToPath } from "node:url";
 import { expect, type Page, test } from "@playwright/test";
 import { LANGUAGE_STORAGE_KEY } from "../src/i18n/languageStorage";
 import { LOCALE_TABLE } from "../src/i18n/locales";
-import { dictionaries, PLACEHOLDER } from "../src/i18n/ui";
-import { BRAND, PRIVACY_UPDATED, SITE_BASE } from "../src/lib/constants";
+import { dictionaries, fill, PLACEHOLDER } from "../src/i18n/ui";
+import { BRAND, CRISIS, PRIVACY_UPDATED, SITE_BASE } from "../src/lib/constants";
 
 // Base path the site is served under, without its trailing slash so it can be
 // joined with the leading-slash paths below (root base becomes "").
@@ -791,6 +791,21 @@ test.describe("a 404 under a locale tree takes that locale's chrome", () => {
       // The header reads in the locale, and the picker names it.
       await expect(page.locator("header nav a").first()).toHaveText(
         dictionaries[row.code].ui.nav_about,
+      );
+      // Without this, the footer's crisis note could silently stay English on
+      // a localized 404, or lose its tap-to-call links, while every other
+      // chrome string translated: it is the one string refilled through the
+      // footer's data-crisis hooks rather than matched by text.
+      const note = page.locator("footer [data-crisis-note]");
+      await expect(note).toHaveText(
+        fill(dictionaries[row.code].ui.crisis_note, {
+          short: CRISIS.number,
+          full: CRISIS.fullNumber,
+        }),
+      );
+      await expect(note.locator(`a[href="${CRISIS.numberHref}"]`)).toHaveText(CRISIS.number);
+      await expect(note.locator(`a[href="${CRISIS.fullNumberHref}"]`)).toHaveText(
+        CRISIS.fullNumber,
       );
       await expect(
         page.locator("details[data-language-picker] summary span[lang]").first(),

@@ -33,6 +33,8 @@ const ltr = { dir: "ltr" } as const;
 
 // The {short}/{full} placeholders in crisis_note mark where the tap-to-call tel:
 // links go; styled as plain text so they aren't mistaken for a Soul Cafe line.
+// The paragraph and the links carry data-crisis hooks: the 404 page, which
+// ships English chrome, refills the template around them for its locale.
 const crisisNote = t(locale, "crisis_note");
 
 // The email and website are the longest Latin runs in the footer. When a
@@ -121,13 +123,16 @@ const [crisisBetween, crisisAfterFull = ""] = crisisAfterShort.split("{full}");
           {pages(locale).privacy.meta.title}
         </a>
       </div>
+      <p class="max-w-2xl text-balance sm:text-end" data-crisis-note>
         {crisisBefore}<a
           href={CRISIS.numberHref}
           {...ltr}
+          data-crisis="short"
           class="inline-flex min-h-11 items-center whitespace-nowrap text-inherit no-underline">{CRISIS.number}</a
         >{crisisBetween}<a
           href={CRISIS.fullNumberHref}
           {...ltr}
+          data-crisis="full"
           class="inline-flex min-h-11 items-center whitespace-nowrap text-inherit no-underline">{CRISIS.fullNumber}</a
         >{crisisAfterFull}
       </p>

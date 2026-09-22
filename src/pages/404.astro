@@ -9,8 +9,10 @@
 //
 // The header and footer render English at build, so the script translates
 // them by text: every chrome string it knows, matched by its English wording,
-// swapped for the locale's. That keeps the page independent of how the chrome
-// components are marked up; the JSON payload below is what it knows.
+// swapped for the locale's. The crisis note alone is refilled from its
+// template around the tel: links the footer marks with data-crisis. That
+// keeps the page independent of how the chrome components are marked up,
+// those two hooks aside; the JSON payload below is what it knows.
 import PillButton from "../components/PillButton.astro";
 import ScriptHeading from "../components/ScriptHeading.astro";
 import type { UiKey } from "../i18n/en";
@@ -27,13 +29,13 @@ import Base from "../layouts/Base.astro";
 
 const en = DEFAULT_LOCALE;
 
-// ui strings the payload leaves out: those with placeholders, the crisis note
-// (it travels as its three pieces), and those no element of this page renders
-// as a whole text node.
+// ui strings the payload leaves out: those no element of this page renders as
+// a whole text node, and those with placeholders. The crisis note is the one
+// placeholder string kept, whole: the client fills its template around the
+// footer's marked tel: links.
 const LEFT_OUT_OF_PAYLOAD: readonly UiKey[] = [
   "coming_soon",
   "coming_soon_body",
-  "crisis_note",
   "free_consultation",
   "founder_role",
   "version",
@@ -41,22 +43,14 @@ const LEFT_OUT_OF_PAYLOAD: readonly UiKey[] = [
 ];
 
 /** Every chrome string of a locale, keyed so the client can pair each English
- *  wording with its translation. The crisis note is split around its two
- *  tel: links the way Footer.astro splits it, since those are the text nodes. */
+ *  wording with its translation. */
 function chromeStrings(locale: SiteLocale): Record<string, string> {
   const { ui, pages } = dictionaries[locale];
   const strings: Record<string, string> = {};
   for (const key of Object.keys(ui) as UiKey[]) {
     if (!LEFT_OUT_OF_PAYLOAD.includes(key)) strings[key] = ui[key];
   }
-  const [before, afterShort = ""] = ui.crisis_note.split("{short}");
-  const [between, after = ""] = afterShort.split("{full}");
-  Object.assign(strings, {
-    crisis_before: before,
-    crisis_between: between,
-    crisis_after: after,
-    privacy_title: pages.privacy.meta.title,
-  });
+  strings.privacy_title = pages.privacy.meta.title;
   return strings;
 }
 
@@ -192,6 +186,16 @@ const payload = {
             const local = words.get(el.getAttribute(name));
             if (local !== undefined) el.setAttribute(name, local);
           }
+        }
+
+        // The crisis note: the locale's template, with each {name} placeholder
+        // replaced by the footer's tel: link of that name (fill() on the
+        // server does the same splice with strings), so no text is matched.
+        for (const note of document.body.querySelectorAll("[data-crisis-note]")) {
+          const links = new Map();
+          for (const a of note.querySelectorAll("a[data-crisis]")) links.set(a.dataset.crisis, a);
+          const parts = l.strings.crisis_note.split(/\{([a-z]+)\}/);
+          note.replaceChildren(...parts.map((part, i) => (i % 2 ? (links.get(part) ?? `{${part}}`) : part)));
         }
         document.title = document.title.replace(english.not_found_title, () => l.strings.not_found_title);
 
