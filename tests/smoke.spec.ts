@@ -201,8 +201,10 @@ test("primary nav links are all visible at mobile width", async ({ page }) => {
 // and a mobile copy, each with its own eager logo and language picker): the
 // page would carry two eager images and two pickers, one pair hidden, and only
 // the byte count would notice. One header means one of each in the DOM, not
-// just one shown.
-test("the header renders once: one eager logo, one language picker, one nav landmark", async ({
+// just one shown. The home link is counted outside the picker, whose English
+// row also points at the English home: the logo is the one home control, and
+// a house icon beside it would double the destination.
+test("the header renders once: one eager logo, one home link, one picker, one nav", async ({
   page,
 }) => {
   const width = page.viewportSize()?.width ?? 0;
@@ -213,6 +215,7 @@ test("the header renders once: one eager logo, one language picker, one nav land
   await page.goto(`${BASE}/`, { waitUntil: "load" });
   await expect(page.locator("header")).toHaveCount(1);
   await expect(page.locator('header img[loading="eager"]')).toHaveCount(1);
+  await expect(page.locator(`header a[href="${BASE}/"]:not([data-locale])`)).toHaveCount(1);
   await expect(page.locator("header details[data-language-picker]")).toHaveCount(1);
   await expect(page.locator("header nav")).toHaveCount(1);
   await expect(page.locator('header a[href$="/book/"]')).toHaveCount(1);
@@ -652,8 +655,8 @@ test.describe("the crisis note's two tel: links are 44px tall and never overlap,
 });
 
 // Without this, a wider picker label or a larger logo could collide at the
-// narrowest supported width: the mobile brand row pins its controls to the
-// edges and centers the logo between them, so nothing else measures the gap.
+// narrowest supported width: the mobile brand row pins the picker to the
+// inline end and centers the logo on the row, so nothing else measures the gap.
 for (const row of SAMPLE_LOCALES.slice(0, 3)) {
   test(`brand-row controls clear the logo at 320px: ${row.code}`, async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 568 });
@@ -668,9 +671,7 @@ for (const row of SAMPLE_LOCALES.slice(0, 3)) {
     expect(pickerBox, "visible picker trigger").not.toBeNull();
     expect(pickerBox?.width ?? 0, "picker trigger width below sm").toBeLessThanOrEqual(44);
 
-    const controls = page.locator(
-      "header a[aria-label]:visible, header details[data-language-picker]:visible summary",
-    );
+    const controls = page.locator("header details[data-language-picker]:visible summary");
     const count = await controls.count();
     expect(count, "brand-row controls found").toBeGreaterThan(0);
     const margin = 4;
@@ -816,7 +817,8 @@ test.describe("a 404 under a locale tree takes that locale's chrome", () => {
   const rows = LOCALE_TABLE.filter((row) => row.code === "hi" || row.code === "ur");
   const notFoundTitle = (row: LocaleRow) =>
     `${dictionaries[row.code].ui.not_found_title} · ${BRAND}`;
-  // The header's home links, not the picker's link to the same locale's home.
+  // The header's one home link (the logo), not the picker's link to the same
+  // locale's home.
   const homeLink = (page: Page, row: LocaleRow) =>
     page.locator(`header a[href="${localeBase(row)}/"]:not([data-locale])`).first();
 

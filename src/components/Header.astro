@@ -5,22 +5,20 @@
 //
 // Desktop (lg+): the brand row centres the logo and the "Healing brewed
 // daily..." tagline, with the language picker as a quiet ghost pill at the
-// inline end. There is no cart until merch opens. Below a hairline and a
-// slightly deeper mint tint, the action bar. Its order is a fixed user
-// requirement: home icon, then the Book a Session primary, then the six cream
-// nav pills (centred), then the Contact Us outline secondary at the inline end.
+// inline end. The logo is the home control, the universal convention, so no
+// house icon doubles it; there is no cart until merch opens. Below a hairline
+// and a slightly deeper mint tint, the action bar. Its order is a fixed user
+// requirement: the Book a Session primary, then the six cream nav pills
+// (centred), then the Contact Us outline secondary at the inline end.
 //
 // Mobile (< lg): no hamburger. The same pieces stay permanently visible in a
-// compact stack: a brand row (home icon at the start, a smaller logo and the
-// tagline centred, the picker at the end), then Book a Session, the nav
-// pills as a centred wrap, and Contact Us. The home icon is the one piece that
-// moves rows: it lives in the action bar and is pinned to the brand row's start
-// corner on phones, so the header stays a single copy.
+// compact stack: a brand row (a smaller logo and the tagline centred, the
+// picker at the end), then Book a Session, the nav pills as a centred wrap,
+// and Contact Us.
 //
 // Hierarchy throughout: Book a Session is the one loud indigo primary, Contact
 // Us a quieter outline, the nav the soft cream family, the utilities whisper.
 import { Image } from "astro:assets";
-import { Icon } from "astro-icon/components";
 import { LOCALES, localizePath, type SiteLocale } from "../i18n/locales";
 import { t } from "../i18n/ui";
 import { logo, teacupDoodle } from "../lib/assets";
@@ -49,16 +47,9 @@ const bookHref = localizePath("book/", locale);
 // downloads the desktop file. The source is 500px, so nothing is upscaled.
 const LOGO_WIDTHS = [96, 120, 192, 240, 384];
 const LOGO_SIZES = "(min-width: 1024px) 12rem, (min-width: 640px) 7.5rem, 6rem";
-
-const ghostControl =
-  "tap inline-flex h-11 w-11 items-center justify-center rounded-full border border-ink/10 bg-paper/45 text-ink/70 transition-colors hover:bg-paper/80 hover:text-ink lg:h-9 lg:w-9";
 ---
 
-{/* The header is the home icon's containing block on phones: the brand row
-    is its first child with nothing above it, so the icon's top-start offsets
-    land in the brand row's corner, level with the picker. No z-index, so the
-    open language panel is not trapped. */}
-<header class="relative bg-mint text-ink">
+<header class="bg-mint text-ink">
   {/* ---- Brand row --------------------------------------------------------
       The brand block centres on the row itself and the picker is pinned to the
       inline end, so its width cannot push the logo off-centre. Centred with
@@ -92,7 +83,7 @@ const ghostControl =
       </span>
     </a>
 
-    {/* On phones the control aligns with the logo row, above the tagline; on
+    {/* On phones the picker aligns with the logo row, above the tagline; on
         desktop it centres on the whole row. */}
     <div class="absolute end-3 top-3.5 flex items-center lg:top-0 lg:bottom-0 lg:end-6">
       <LanguagePicker locale={locale} available={available} fallbackPath={fallbackPath} align="end" />
@@ -105,26 +96,13 @@ const ghostControl =
       class="mx-auto flex max-w-7xl flex-col items-center gap-2 px-4 pt-2 pb-2.5 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:gap-4 lg:px-6 lg:py-2.5"
     >
       {/* The owner fixed this order; the file comment above spells it out. */}
-      <div class="flex items-center gap-2.5 lg:justify-self-start">
-        {/* `lg:relative`, not static: `.tap` positions its 44px hit area
-            against the control itself, and a static control would let it
-            drift to the header. */}
-        <a
-          href={homeHref}
-          class:list={[
-            ghostControl,
-            "absolute top-3.5 start-3 lg:relative lg:top-auto lg:start-auto",
-          ]}
-          aria-label={t(locale, "home")}
-        >
-          <Icon name="lucide:house" class="h-[1.15rem] w-[1.15rem]" aria-hidden="true" />
-        </a>
+      <div class="lg:justify-self-start">
         <PillButton href={bookHref} variant="indigo">{t(locale, "book_session")}</PillButton>
       </div>
       <div class="min-w-0">
         <NavPills active={active} locale={locale} />
       </div>
-      <div class="flex items-center gap-2.5 lg:justify-self-end">
+      <div class="lg:justify-self-end">
         <PillButton href={contactHref} variant="coral-outline">
           {t(locale, "contact_us")}
         </PillButton>
