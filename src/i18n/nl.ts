@@ -94,7 +94,7 @@ export const dict = {
       meta: {
         title: "Psychotherapie door Vanessa Worrell",
         description:
-          "Een warme, niet-oordelende ruimte voor psychotherapie om te onderzoeken, te helen en te groeien. Ondersteuning voor jongeren, volwassenen en gezinnen door een internationaal opgeleide psycholoog.",
+          "Een warme, niet-oordelende ruimte voor psychotherapie om te onderzoeken, te helen en te groeien. Ondersteuning voor jongeren, volwassenen en gezinnen.",
       },
       hero: {
         heading: "Welkom bij The Soul Cafe!",
@@ -143,7 +143,7 @@ export const dict = {
       meta: {
         title: "Over ons",
         description:
-          "Vanessa Worrell, oprichter van The Soul Cafe, is een psycholoog opgeleid in de VS, het VK en India. Haar werk is humanistisch en existentieel, en put uit CGT wanneer dat helpt.",
+          "Vanessa Worrell, oprichter van The Soul Cafe, is een psycholoog opgeleid in de VS, het VK en India. Haar werk is humanistisch en existentieel.",
       },
       heading: "Over onze oprichter en psychotherapeut",
       photoAlt: "Vanessa Worrell, oprichter van The Soul Cafe",
@@ -192,7 +192,7 @@ export const dict = {
       meta: {
         title: "Sessie boeken",
         description:
-          "Boek een online psychotherapiesessie met Vanessa Worrell, M.A., bij The Soul Cafe, of begin met een gratis kennismakingsgesprek van {minutes} minuten om te zien of het past.",
+          "Boek een online psychotherapiesessie met Vanessa Worrell, M.A., bij The Soul Cafe, of begin met een gratis kennismakingsgesprek van {minutes} minuten.",
       },
       title: "Sessie boeken",
       description:
@@ -232,7 +232,7 @@ export const dict = {
       meta: {
         title: "Pakketten",
         description:
-          "Individuele therapiesessies vanaf {price}, ook relatie- en gezinstherapie. Met een pakket van zes sessies krijg je er één gratis. Korting voor jongeren, studenten, militairen, veteranen en senioren.",
+          "Individuele therapiesessies vanaf {price}, ook relatie- en gezinstherapie. Korting voor jongeren, studenten, militairen, veteranen en senioren.",
       },
       heading: "Pakketten",
       intro:
@@ -271,7 +271,7 @@ export const dict = {
       meta: {
         title: "Neem contact op",
         description:
-          "Neem contact op met The Soul Cafe over boekingen, banen en stages, of samenwerking aan workshops en trainingen. We antwoorden meestal binnen een paar dagen.",
+          "Neem contact op met The Soul Cafe over boekingen, banen en stages, of samenwerking aan workshops. We antwoorden meestal binnen een paar dagen.",
       },
       title: "Neem contact op",
       intro:
@@ -332,7 +332,7 @@ export const dict = {
       meta: {
         title: "Privacy",
         description:
-          "Hoe The Soul Cafe met je gegevens omgaat: geen cookies of trackers, een contactformulier dat alleen wordt gebruikt om je te antwoorden, en boekingen die op de eigen site van Google worden afgehandeld.",
+          "Hoe The Soul Cafe met je gegevens omgaat: geen cookies of trackers, een contactformulier dat alleen wordt gebruikt om je te antwoorden.",
       },
       title: "Privacy",
       updated: "Laatst bijgewerkt: {date}",
