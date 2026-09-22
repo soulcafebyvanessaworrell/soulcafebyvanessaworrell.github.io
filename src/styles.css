@@ -90,31 +90,12 @@ body {
 }
 
 /* PT Sans predates the rupee sign's Unicode slot and draws a ruble-like glyph
-   at U+20B9, so "₹1,500" on a Latin-script page came out as "₽1,500". This
-   one-character face borrows Noto Sans Devanagari's ₹ and leads every
-   --font-sans stack, the per-script overrides included, so the font-sans
-   utility and body text agree on it. unicode-range keeps it from downloading
-   on pages without a ₹, and the files are the ones fonts.css already serves
-   for Hindi, so a reader who has seen a Hindi page pays nothing extra. */
-@font-face {
-  font-family: "Rupee Sign";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("../node_modules/@fontsource/noto-sans-devanagari/files/noto-sans-devanagari-devanagari-400-normal.woff2")
-    format("woff2");
-  unicode-range: U+20B9;
-}
-
-@font-face {
-  font-family: "Rupee Sign";
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url("../node_modules/@fontsource/noto-sans-devanagari/files/noto-sans-devanagari-devanagari-700-normal.woff2")
-    format("woff2");
-  unicode-range: U+20B9;
-}
+   at U+20B9, so "₹1,500" on a Latin-script page came out as "₽1,500". The
+   "Rupee Sign" face, declared in src/assets/fonts/subsets.css, is that one
+   glyph cut from Noto Sans Devanagari (under a kilobyte per weight), and it
+   leads every --font-sans stack, the per-script overrides included, so the
+   font-sans utility and body text agree on it. Its unicode-range keeps it from
+   downloading on pages without a ₹. */
 
 /* Kalam's handwritten digits read as letters at pill size ("15" looked like
    "IS"), so the Devanagari display stack leads with this ten-glyph face and

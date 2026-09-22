@@ -32,7 +32,8 @@ const fontsCss = readFileSync(join(FONTS_DIR, "../../styles/fonts.css"), "utf8")
 const BLOG_DIR = join(FONTS_DIR, "../../content/blog");
 
 /* About 1.5 times the size each file had when the ceiling was set, so the
-   full fontsource file (Nastaliq 159 KB, Naskh 53 KB) fails. The
+   full fontsource file (Nastaliq 159 KB, Naskh 53 KB, Noto Sans Devanagari 50 KB)
+   fails. The
    Latin ceilings sit at 11,000 rather than 1.5 times because the full
    fontsource Latin 400 files (11,876 and 11,500 bytes) must fail too. */
 const CEILING_BYTES: Record<string, number> = {
@@ -40,6 +41,7 @@ const CEILING_BYTES: Record<string, number> = {
   "noto-nastaliq-urdu/latin": 11_000,
   "noto-naskh-arabic/arabic": 24_000,
   "noto-naskh-arabic/latin": 11_000,
+  "rupee-sign/devanagari": 1_200,
 };
 
 const hex = (cp: number) => `U+${cp.toString(16).toUpperCase().padStart(4, "0")}`;

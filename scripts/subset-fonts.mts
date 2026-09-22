@@ -91,6 +91,17 @@ export const FACES: readonly Face[] = [
     labelScripts: ["nastaliq", "naskh"],
     always: `${COMMON},${ARABIC_EXTRAS}`,
   },
+  {
+    // One glyph borrowed from Noto Sans Devanagari; styles.css says why.
+    id: "rupee-sign",
+    family: "Rupee Sign",
+    pkg: "@fontsource/noto-sans-devanagari",
+    weights: [400, 700],
+    textScripts: [],
+    labelScripts: [],
+    always: "U+20B9",
+    borrow: { subset: "devanagari", unicodeRange: "U+20B9" },
+  },
 ];
 
 export type Ranges = readonly (readonly [number, number])[];
