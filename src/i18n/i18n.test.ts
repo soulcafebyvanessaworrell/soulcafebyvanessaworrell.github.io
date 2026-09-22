@@ -7,8 +7,16 @@
 import { describe, expect, test } from "bun:test";
 import { readdirSync, readFileSync } from "node:fs";
 import { basename, join } from "node:path";
+import {
+  CONSULTATION_MINUTES,
+  DEFAULT_CURRENCY,
+  formatNumberParts,
+  formatPrice,
+  joinDigits,
+  PRICING,
+} from "../lib/pricing";
 import { BRAND_NAMES, DEFAULT_LOCALE, LOCALES, localeMeta } from "./locales";
-import { dictionaries, type LocaleDict, PLACEHOLDER } from "./ui";
+import { dictionaries, fill, type LocaleDict, PLACEHOLDER } from "./ui";
 
 interface Leaf {
   path: string;
@@ -181,6 +189,39 @@ describe("no em dash, en dash, or ellipsis character in any visible string", () 
         .filter(({ line }) => BANNED_PUNCTUATION.test(line))
         .map(({ number }) => number);
       expect(lines).toEqual([]);
+    });
+  }
+});
+
+// Without this, a meta description would drift past the point where search
+// engines truncate it, and a result snippet would end mid-sentence. The cap is
+// on the rendered string: book.astro and packages.astro fill `{minutes}` and
+// `{price}` the same way before the text reaches the head, and a locale whose
+// digits are not Western repeats each number in brackets, so the filled text is
+// longer than the template. The blog index's description is measured with the
+// pages' since it reaches a head the same way.
+const META_DESCRIPTION_MAX = 155;
+
+describe("every rendered meta description fits a search snippet", () => {
+  for (const locale of LOCALES) {
+    test(`${locale} descriptions are at most ${META_DESCRIPTION_MAX} characters`, () => {
+      const meta = localeMeta(locale);
+      const values = {
+        minutes: joinDigits(formatNumberParts(CONSULTATION_MINUTES, meta)),
+        price: formatPrice(PRICING.individual.single[DEFAULT_CURRENCY], DEFAULT_CURRENCY, meta),
+      };
+      const { pages, blog } = dictionaries[locale];
+      const descriptions: [string, string][] = [
+        ...Object.entries(pages).map(([page, copy]): [string, string] => [
+          page,
+          copy.meta.description,
+        ]),
+        ["blog", blog.metaDescription],
+      ];
+      const long = descriptions
+        .map(([page, text]) => ({ page, length: [...fill(text, values)].length }))
+        .filter(({ length }) => length > META_DESCRIPTION_MAX);
+      expect(long).toEqual([]);
     });
   }
 });
