@@ -22,6 +22,11 @@ const lhci = Bun.spawn(
     `--collect.startServerReadyPattern=${host}`,
     ...urls.map((url) => `--collect.url=${url}`),
   ],
-  { stdio: ["inherit", "inherit", "inherit"] },
+  {
+    stdio: ["inherit", "inherit", "inherit"],
+    // lhci starts `bun run preview` itself (lighthouserc.json); handing the
+    // resolved port down keeps that server on the port the URLs above name.
+    env: { ...process.env, PREVIEW_PORT: String(PREVIEW_PORT) },
+  },
 );
 process.exit(await lhci.exited);

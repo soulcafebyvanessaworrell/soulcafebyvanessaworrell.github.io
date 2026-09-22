@@ -5,7 +5,9 @@ import { PREVIEW_PORT, SITE_BASE } from "./src/lib/constants";
 // `astro preview` listens on PREVIEW_PORT (distinct from the dev server's
 // port, so a running `astro dev` never gets reused by mistake) and serves
 // ./dist, so a build must exist first (CI builds before `test:e2e`; locally
-// run `bun run build`).
+// run `bun run build`). The constant honours a PREVIEW_PORT environment
+// override, so `PREVIEW_PORT=4399 bun run test:e2e` runs a second suite
+// beside the first.
 const PORT = PREVIEW_PORT;
 const ORIGIN = `http://localhost:${PORT}`;
 
@@ -43,7 +45,9 @@ export default defineConfig({
     // Astro 7 detaches `astro preview` when it detects an agent environment,
     // which Playwright reads as "exited early" and which leaves an orphan on
     // the port. This keeps the server in the foreground so Playwright owns it.
-    env: { ASTRO_PREVIEW_BACKGROUND: "1" },
+    // The port goes along explicitly, so the server binds the same port this
+    // config resolved, whichever way the constant was set.
+    env: { ASTRO_PREVIEW_BACKGROUND: "1", PREVIEW_PORT: String(PORT) },
     url: `${ORIGIN}${SITE_BASE}`,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

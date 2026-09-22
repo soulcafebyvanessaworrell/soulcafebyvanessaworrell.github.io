@@ -2,10 +2,27 @@
 // social handle, and brand value the site writes out lives here, so a change
 // is made in exactly one place.
 
+/** Reads a TCP port from an environment variable. Unset (or empty) means the
+ *  default; anything else must be an integer between 1 and 65535, and a bad
+ *  value throws here, at the one place the constant is made, rather than
+ *  letting one consumer bind a port the others never wait on. */
+function portFromEnv(name: string, fallback: number): number {
+  const raw = process.env[name];
+  if (raw === undefined || raw === "") return fallback;
+  const port = /^\d+$/.test(raw) ? Number(raw) : Number.NaN;
+  if (!Number.isInteger(port) || port < 1 || port > 65535) {
+    throw new Error(`${name} must be an integer port from 1 to 65535, got "${raw}"`);
+  }
+  return port;
+}
+
 /** Preview server port. Distinct from DEV_PORT so `astro preview` (and the
- * Playwright e2e suite that spawns it) never collides with a running dev
- * server. */
-export const PREVIEW_PORT = 4322;
+ *  Playwright e2e suite that spawns it) never collides with a running dev
+ *  server. PREVIEW_PORT in the environment overrides the default so two
+ *  suites can run side by side; astro.config.mjs, playwright.config.ts, and
+ *  scripts/lighthouse.mts all read this constant, so the override reaches the
+ *  server, the URL the tests wait on, and the audit in one step. */
+export const PREVIEW_PORT = portFromEnv("PREVIEW_PORT", 4322);
 
 /** Site origin. The deploy workflow always passes ASTRO_SITE (derived from
  *  the repository's GitHub Pages host, or from the CUSTOM_DOMAIN repo variable).
