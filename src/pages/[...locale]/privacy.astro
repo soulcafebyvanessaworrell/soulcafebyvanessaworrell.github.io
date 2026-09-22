@@ -6,7 +6,7 @@
 import ScriptHeading from "../../components/ScriptHeading.astro";
 import { localeMeta } from "../../i18n/locales";
 import { localeStaticPaths } from "../../i18n/routes";
-import { pages } from "../../i18n/ui";
+import { fill, pages } from "../../i18n/ui";
 import Base from "../../layouts/Base.astro";
 import { CONTACT, PRIVACY_UPDATED } from "../../lib/constants";
 
@@ -21,7 +21,7 @@ const updatedDate = new Intl.DateTimeFormat(localeMeta(locale).dateLocale, {
   year: "numeric",
   timeZone: "UTC",
 }).format(new Date(PRIVACY_UPDATED));
-const updated = copy.updated.replace("{date}", updatedDate);
+const updated = fill(copy.updated, { date: updatedDate });
 
 const linkClass =
   "font-semibold text-ink underline decoration-2 underline-offset-2 transition-colors hover:text-coral-bright";
