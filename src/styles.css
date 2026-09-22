@@ -495,6 +495,17 @@ p {
 }
 
 /* ---------------------------------------------------------------------------
+   Language picker: the current language's row is marked by aria-current, and
+   the highlight keys on that attribute alone, so whoever moves the attribute
+   (the 404 page's chrome localizer, which turns the English page to a locale
+   on the client) moves the fill with it without knowing any class name.
+   --------------------------------------------------------------------------- */
+.language-picker a[aria-current="page"] {
+  background: var(--color-cream-deep);
+  font-weight: 700;
+}
+
+/* ---------------------------------------------------------------------------
    Gentle life: slow, calm motion. Nothing loops fast, nothing is busy.
    CloudChip's float lives in that component; these are the rest.
    --------------------------------------------------------------------------- */

@@ -212,7 +212,9 @@ const payload = {
           a.setAttribute("href", base + l.prefix + rest);
         }
 
-        // The picker's summary names the current language; its list marks it.
+        // The picker's summary names the current language; its list marks it
+        // with aria-current, which also carries the row's highlight (see
+        // styles.css), so moving the attribute moves the fill.
         for (const summary of document.querySelectorAll("[data-language-picker] summary")) {
           const endonym = summary.querySelector("span[lang]");
           if (endonym) {

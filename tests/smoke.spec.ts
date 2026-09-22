@@ -871,6 +871,24 @@ test.describe("a 404 under a locale tree takes that locale's chrome", () => {
       await expect(
         page.locator(`details[data-language-picker] a[data-locale="${row.code}"]`).first(),
       ).toHaveAttribute("aria-current", "page");
+      // The highlight keys on aria-current, so it moved with the attribute:
+      // the locale's row paints the selected fill, and the English row, built
+      // as current, is back to the plain fill of a row that was never current.
+      // Comparing against that third row is what makes the fill assertion
+      // stand on its own: a rule that never shipped would leave all three the
+      // same, and a fill stuck on English would leave English different.
+      const pickerRow = (code: string) =>
+        page.locator(`details[data-language-picker] a[data-locale="${code}"]`).first();
+      await expect(pickerRow(DEFAULT_LOCALE.code)).not.toHaveAttribute("aria-current", /./);
+      await page.locator("details[data-language-picker] summary").first().click();
+      const rowFill = (code: string) =>
+        pickerRow(code).evaluate((el) => getComputedStyle(el).backgroundColor);
+      const neverCurrent = LOCALE_TABLE.find(
+        (other) => other.code !== row.code && other.code !== DEFAULT_LOCALE.code,
+      ) as LocaleRow;
+      const plain = await rowFill(neverCurrent.code);
+      expect(await rowFill(row.code), "current row fill").not.toBe(plain);
+      expect(await rowFill(DEFAULT_LOCALE.code), "English row fill").toBe(plain);
     });
   }
 

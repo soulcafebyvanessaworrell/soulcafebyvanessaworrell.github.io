@@ -7,6 +7,8 @@
 // every locale as a link to the same page in that language, grouped by region
 // from the locale table, each written in its own script; no flags, since a flag
 // names a country, not a language. site.ts adds Escape and outside-click close.
+// The current row carries aria-current, which styles.css also keys the deep
+// cream highlight on, so the 404 page moves both by moving the attribute.
 import { Icon } from "astro-icon/components";
 import {
   LOCALE_TABLE,
@@ -75,29 +77,23 @@ const groups: { region: Region; heading: string }[] = [
           <div class="not-first:mt-4">
             <p class="mb-1.5 px-2 text-sm font-bold text-soft">{group.heading}</p>
             <ul class="flex flex-col">
-              {LOCALE_TABLE.filter((row) => row.region === group.region).map((row) => {
-                const isCurrent = row.code === locale;
-                return (
-                  <li>
-                    <a
-                      href={pickerTarget(row.code, { pagePath, available, fallbackPath })}
-                      data-locale={row.code}
-                      hreflang={row.htmlLang}
-                      lang={row.htmlLang}
-                      aria-current={isCurrent ? "page" : undefined}
-                      class:list={[
-                        "tap block rounded-full px-3 py-1.5 text-base text-ink transition-colors hover:bg-cream",
-                        isCurrent ? "bg-cream-deep font-bold" : "",
-                      ]}
-                    >
-                      {/* Isolated in its own direction: a Latin endonym in an RTL
-                          panel keeps its reading order and, on the Arabic-script
-                          pages, the Latin body face. */}
-                      <span dir={row.dir}>{row.label}</span>
-                    </a>
-                  </li>
-                );
-              })}
+              {LOCALE_TABLE.filter((row) => row.region === group.region).map((row) => (
+                <li>
+                  <a
+                    href={pickerTarget(row.code, { pagePath, available, fallbackPath })}
+                    data-locale={row.code}
+                    hreflang={row.htmlLang}
+                    lang={row.htmlLang}
+                    aria-current={row.code === locale ? "page" : undefined}
+                    class="tap block rounded-full px-3 py-1.5 text-base text-ink transition-colors hover:bg-cream"
+                  >
+                    {/* Isolated in its own direction: a Latin endonym in an RTL
+                        panel keeps its reading order and, on the Arabic-script
+                        pages, the Latin body face. */}
+                    <span dir={row.dir}>{row.label}</span>
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
         ))
