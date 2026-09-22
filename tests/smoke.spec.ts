@@ -966,11 +966,17 @@ test.describe("packages and booking", () => {
   // line box and the package pill at most two, at 320 and 390; the Western
   // half sits under the native half on a phone and after it in the writing
   // direction at 1280, so a right-to-left page reads native then bracket and
-  // never bracket then native. The default locale is the control: one line,
-  // no Western half. Line boxes are counted from the text's client rects, not
-  // from height over line-height, because Nastaliq's content area is twice its
+  // never bracket then native. On the booking page the featured card's "from"
+  // price and the consultation button's label carry the same pair, and there
+  // the Western half follows the native half on the same line at every width:
+  // the two spans share a line because the no-break space sits inside the
+  // Western span and nothing breakable separates them, so a wrap between them
+  // or a bracket-first reading would mean the card stopped rendering pieces.
+  // The default locale is the control: one line, no Western half, on both
+  // pages. Line boxes are counted from the text's client rects, not from
+  // height over line-height, because Nastaliq's content area is twice its
   // line-height and a one-line Urdu price stands 75px tall in a 36px line.
-  test("dual-digit prices keep the native half on one line and the pill within two, every non-Latin locale", async ({
+  test("dual-digit prices keep the native half on one line and the pill within two, on packages and the booking card, every non-Latin locale", async ({
     page,
   }) => {
     const width = page.viewportSize()?.width ?? 0;
@@ -979,9 +985,9 @@ test.describe("packages and booking", () => {
     const dualRows = LOCALE_TABLE.filter((row) => row.numberingSystem !== "latn");
     expect(dualRows.length, "locales with non-Latin digits").toBeGreaterThan(0);
     const problems: string[] = [];
-    const measure = async (row: LocaleRow, vw: number) => {
+    const measure = async (row: LocaleRow, vw: number, path: "/packages/" | "/book/") => {
       await page.setViewportSize({ width: vw, height: 844 });
-      await page.goto(`${localeBase(row)}/packages/`, { waitUntil: "load" });
+      await page.goto(`${localeBase(row)}${path}`, { waitUntil: "load" });
       await page.evaluate(() => document.fonts.ready);
       return page.evaluate(() => {
         // Distinct line boxes of an element's text. A rect starts a new line
@@ -1030,34 +1036,44 @@ test.describe("packages and booking", () => {
           return range.getBoundingClientRect();
         };
         const shown = (el: Element) => (el as HTMLElement).offsetParent !== null;
+        // One element holding a digit pair: how its halves sit and wrap.
+        const measureCell = (cell: Element) => {
+          const native = cell.querySelector('[data-digits="native"]');
+          const western = cell.querySelector('[data-digits="western"]');
+          // The text's own box, not the span's: a block span fills the
+          // column whichever edge its text is aligned to.
+          const n = native && textBox(native);
+          const w = western && textBox(western);
+          return {
+            text: cell.textContent?.replace(/\s+/g, " ").trim() ?? "",
+            nativeLines: native ? lineBoxes(native) : 0,
+            cellLines: lineBoxes(cell),
+            hasWestern: western !== null,
+            placement: !n || !w ? { where: "none", gap: 0, offset: 0 } : place(n, w),
+          };
+        };
         const prices = [...document.querySelectorAll("li [data-currency]")].filter(shown);
+        // The booking page's pairs: the featured card's "from" price (the first
+        // note) and the consultation card's button label. Null on packages.
+        const note = document.querySelector('[data-booking="note"]');
+        const cta = document.querySelector('#consultation [data-booking="cta"]');
         return {
           rtl,
-          prices: prices.map((cell) => {
-            const native = cell.querySelector('[data-digits="native"]');
-            const western = cell.querySelector('[data-digits="western"]');
-            // The text's own box, not the span's: a block span fills the
-            // column whichever edge its text is aligned to.
-            const n = native && textBox(native);
-            const w = western && textBox(western);
-            return {
-              text: cell.textContent?.replace(/\s+/g, " ").trim() ?? "",
-              nativeLines: native ? lineBoxes(native) : 0,
-              cellLines: lineBoxes(cell),
-              hasWestern: western !== null,
-              placement: !n || !w ? { where: "none", gap: 0, offset: 0 } : place(n, w),
-            };
-          }),
+          prices: prices.map(measureCell),
           pills: [...document.querySelectorAll("li .pill-coral")].map((pill) => ({
             text: pill.textContent?.replace(/\s+/g, " ").trim() ?? "",
             lines: lineBoxes(pill),
           })),
+          booking: {
+            note: note && measureCell(note),
+            cta: cta && measureCell(cta),
+          },
         };
       });
     };
     for (const row of dualRows) {
       for (const vw of [320, 390, 1280]) {
-        const found = await measure(row, vw);
+        const found = await measure(row, vw, "/packages/");
         // Six visible prices and three pills render at every width; fewer
         // means the page did not paint and the bounds below would pass empty.
         expect(found.prices.length, `visible prices on ${row.code} at ${vw}`).toBe(6);
@@ -1094,15 +1110,43 @@ test.describe("packages and booking", () => {
               problems.push(`${row.code} at ${vw}: pill "${pill.text}" is ${pill.lines} lines`);
           }
         }
+        const { note, cta } = (await measure(row, vw, "/book/")).booking;
+        // Both hooks render on every booking page; a missing one means the
+        // page did not paint or the card lost its pieces.
+        expect(note, `featured card price on ${row.code}/book at ${vw}`).not.toBeNull();
+        expect(cta, `consultation button on ${row.code}/book at ${vw}`).not.toBeNull();
+        for (const [what, cell] of [
+          ["from price", note],
+          ["consultation button", cta],
+        ] as const) {
+          if (!cell) continue;
+          if (!cell.hasWestern)
+            problems.push(`${row.code}/book at ${vw}: ${what} "${cell.text}" has no Western half`);
+          if (cell.nativeLines !== 1)
+            problems.push(
+              `${row.code}/book at ${vw}: ${what} "${cell.text}" native half is ${cell.nativeLines} lines`,
+            );
+          if (cell.placement.where !== "after")
+            problems.push(
+              `${row.code}/book at ${vw}: ${what} "${cell.text}" Western half is ${cell.placement.where}, not after`,
+            );
+        }
       }
     }
-    const control = await measure(DEFAULT_LOCALE, 390);
+    const control = await measure(DEFAULT_LOCALE, 390, "/packages/");
     expect(control.prices.length, "visible prices in the default locale").toBe(6);
     for (const price of control.prices) {
       if (price.hasWestern || price.cellLines !== 1)
         problems.push(
           `${DEFAULT_LOCALE.code} at 390: "${price.text}" is ${price.cellLines} lines, Western half ${price.hasWestern}`,
         );
+    }
+    const controlBooking = (await measure(DEFAULT_LOCALE, 390, "/book/")).booking;
+    expect(controlBooking.note, "featured card price in the default locale").not.toBeNull();
+    expect(controlBooking.cta, "consultation button in the default locale").not.toBeNull();
+    for (const cell of [controlBooking.note, controlBooking.cta]) {
+      if (cell?.hasWestern)
+        problems.push(`${DEFAULT_LOCALE.code}/book at 390: "${cell.text}" has a Western half`);
     }
     expect(problems, "dual-digit prices or pills wrapping, or the Western half misplaced").toEqual(
       [],

@@ -4,23 +4,26 @@
 // on coral for anyone not ready to commit, closing with a trust line pointing to
 // Contact for booking trouble. Each card links out to Google Calendar via
 // BookingCard's external button; the "from" line quotes the single-session INR
-// price from src/lib/pricing.ts.
+// price from src/lib/pricing.ts. Every number goes to the card as pieces, so
+// its Western repeat renders as the small span the packages page uses.
 import { Icon } from "astro-icon/components";
 import BookingCard from "../../components/BookingCard.astro";
 import ScriptHeading from "../../components/ScriptHeading.astro";
 import SectionBand from "../../components/SectionBand.astro";
 import { localeMeta, localizePath } from "../../i18n/locales";
 import { localeStaticPaths } from "../../i18n/routes";
-import { fill, pages, t } from "../../i18n/ui";
+import { fill, fillPieces, pages, t } from "../../i18n/ui";
 import Base from "../../layouts/Base.astro";
 import { BOOKING } from "../../lib/constants";
 import {
   BOOKING_LINK,
   CONSULTATION_MINUTES,
   DEFAULT_CURRENCY,
-  formatNumber,
-  formatPrice,
-  freeConsultationLabel,
+  formatNumberParts,
+  formatPriceParts,
+  freeConsultationPieces,
+  joinDigits,
+  type Pieces,
   PRICING,
   SESSION_TYPES,
   type SessionType,
@@ -32,18 +35,22 @@ const { locale } = Astro.props;
 const copy = pages(locale).book;
 const meta = localeMeta(locale);
 
-/** The card copy with its numbers filled from PRICING. */
-function card(type: SessionType): { title: string; description: string; note: string } {
+/** The card copy with its numbers filled from PRICING, kept as pieces. */
+function card(type: SessionType): { title: string; description: Pieces; note: Pieces } {
   const { minutes, single } = PRICING[type];
   return {
     title: copy.cards[type].title,
-    description: fill(copy.cards[type].description, { minutes: formatNumber(minutes, meta) }),
-    note: fill(copy.from, { price: formatPrice(single[DEFAULT_CURRENCY], DEFAULT_CURRENCY, meta) }),
+    description: fillPieces(copy.cards[type].description, {
+      minutes: formatNumberParts(minutes, meta),
+    }),
+    note: fillPieces(copy.from, {
+      price: formatPriceParts(single[DEFAULT_CURRENCY], DEFAULT_CURRENCY, meta),
+    }),
   };
 }
 
-const consult = { minutes: formatNumber(CONSULTATION_MINUTES, meta) };
-const description = fill(copy.meta.description, consult);
+const consultMinutes = formatNumberParts(CONSULTATION_MINUTES, meta);
+const description = fill(copy.meta.description, { minutes: joinDigits(consultMinutes) });
 
 const featured: SessionType = "individual";
 const rest = SESSION_TYPES.filter((type) => type !== featured);
@@ -81,10 +88,10 @@ const rest = SESSION_TYPES.filter((type) => type !== featured);
       {copy.consultLead}
     </p>
     <BookingCard
-      title={fill(copy.consultTitle, consult)}
+      title={fillPieces(copy.consultTitle, { minutes: consultMinutes })}
       description={copy.consultDesc}
       url={BOOKING.consultation}
-      ctaLabel={freeConsultationLabel(locale)}
+      ctaLabel={freeConsultationPieces(locale)}
       embedTitle={copy.consultEmbed}
       titleLevel={3}
       locale={locale}

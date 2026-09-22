@@ -13,16 +13,20 @@
 import { Icon } from "astro-icon/components";
 import type { SiteLocale } from "../i18n/locales";
 import { pages } from "../i18n/ui";
+import type { Sentence } from "../lib/pricing";
+import DualDigits from "./DualDigits.astro";
 import PillButton from "./PillButton.astro";
 
 interface Props {
-  title: string;
-  description: string;
+  /** Each text is a Sentence, so a price or a duration passed as Pieces gets
+   *  the small Western repeat the packages and home pages show. */
+  title: Sentence;
+  description: Sentence;
   /** One short line under the description, such as a starting price. */
-  note?: string;
+  note?: Sentence;
   /** Google Calendar appointment URL (external, opened via the button). */
   url: string;
-  ctaLabel: string;
+  ctaLabel: Sentence;
   /** An embeddable calendar URL. When set, the card also renders an iframe.
    *  Do NOT pass a calendar.app.google short link here: it will not frame. */
   embedUrl?: string;
@@ -57,15 +61,15 @@ const { opensIn, orBookHere } = pages(locale).book;
 <article class:list={["card @container mx-auto flex w-full max-w-2xl flex-col gap-6 p-6 text-start sm:p-8 lg:max-w-4xl", klass]}>
   <div class="flex flex-col gap-6 @3xl:grid @3xl:grid-cols-[1.3fr_1fr] @3xl:items-center @3xl:gap-10">
     <div class="flex flex-col gap-2.5">
-      <TitleTag class="script text-[length:var(--text-script-3)] text-ink">{title}</TitleTag>
-      <p class="leading-relaxed text-soft">{description}</p>
-      {note && <p class="text-sm font-bold text-ink">{note}</p>}
+      <TitleTag class="script text-[length:var(--text-script-3)] text-ink"><DualDigits sentence={title} westernClass="text-[0.7em] font-normal" /></TitleTag>
+      <p class="leading-relaxed text-soft"><DualDigits sentence={description} westernClass="text-sm" /></p>
+      {note && <p class="text-sm font-bold text-ink" data-booking="note"><DualDigits sentence={note} westernClass="text-xs font-normal" /></p>}
     </div>
 
     <div class="flex flex-col gap-2">
       <PillButton href={url} variant="indigo" external class="w-full sm:w-fit @3xl:w-full">
         <Icon name="lucide:calendar-heart" class="h-5 w-5 shrink-0" aria-hidden="true" />
-        <span class="text-center">{ctaLabel}</span>
+        <span class="text-center" data-booking="cta"><DualDigits sentence={ctaLabel} westernClass="text-sm font-normal" /></span>
       </PillButton>
       <p class="flex items-center gap-1.5 text-sm text-soft">
         <Icon name="lucide:external-link" class="h-3.5 w-3.5 shrink-0" aria-hidden="true" />

@@ -183,13 +183,6 @@ export function freeConsultationPieces(locale: SiteLocale): Pieces {
   });
 }
 
-/** freeConsultationPieces as one string, for a label that takes no markup. */
-export function freeConsultationLabel(locale: SiteLocale): string {
-  return freeConsultationPieces(locale)
-    .map((piece) => (typeof piece === "string" ? piece : joinDigits(piece)))
-    .join("");
-}
-
 /** Whole hours and leftover minutes of a session length, for the dictionary's
  *  duration templates. */
 export function hoursAndMinutes(minutes: number): { hours: number; minutes: number } {
