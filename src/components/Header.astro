@@ -4,15 +4,15 @@
 // one logo, one language picker, one nav landmark, and one of each pill.
 //
 // Desktop (lg+): the brand row centres the logo and the "Healing brewed
-// daily..." tagline, with two quiet ghost utilities at the inline end: the
-// language picker, then the cart. Below a hairline and a slightly deeper mint
-// tint, the action bar. Its order is a fixed user requirement: home icon, then
-// the Book a Session primary, then the six cream nav pills (centred), then the
-// Contact Us outline secondary at the inline end.
+// daily..." tagline, with the language picker as a quiet ghost pill at the
+// inline end. There is no cart until merch opens. Below a hairline and a
+// slightly deeper mint tint, the action bar. Its order is a fixed user
+// requirement: home icon, then the Book a Session primary, then the six cream
+// nav pills (centred), then the Contact Us outline secondary at the inline end.
 //
 // Mobile (< lg): no hamburger. The same pieces stay permanently visible in a
 // compact stack: a brand row (home icon at the start, a smaller logo and the
-// tagline centred, language and cart at the end), then Book a Session, the nav
+// tagline centred, the picker at the end), then Book a Session, the nav
 // pills as a centred wrap, and Contact Us. The home icon is the one piece that
 // moves rows: it lives in the action bar and is pinned to the brand row's start
 // corner on phones, so the header stays a single copy.
@@ -43,7 +43,6 @@ const { active, locale, available = LOCALES, fallbackPath = "" } = Astro.props;
 const homeHref = localizePath("", locale);
 const contactHref = localizePath("contact/", locale);
 const bookHref = localizePath("book/", locale);
-const merchHref = localizePath("merch/", locale);
 
 // The logo renders at 96px on phones, 120px from `sm`, and 192px from `lg`;
 // the candidates cover each of the three at 1x and 2x so a phone never
@@ -93,24 +92,10 @@ const ghostControl =
       </span>
     </a>
 
-    {/* On phones the controls align with the logo row, above the tagline; on
-        desktop they centre on the whole row. The cart hides on the narrowest
-        phones, where the logo would otherwise meet the fixed 44px language
-        trigger; merch stays one nav pill away. */}
-    <div class="absolute end-3 top-3.5 flex items-center gap-1.5 lg:top-0 lg:bottom-0 lg:end-6">
-      <LanguagePicker
-        locale={locale}
-        available={available}
-        fallbackPath={fallbackPath}
-        align="end"
-      />
-      <a
-        href={merchHref}
-        class:list={[ghostControl, "max-[360px]:hidden"]}
-        aria-label={t(locale, "cart")}
-      >
-        <Icon name="lucide:shopping-cart" class="h-[1.15rem] w-[1.15rem]" aria-hidden="true" />
-      </a>
+    {/* On phones the control aligns with the logo row, above the tagline; on
+        desktop it centres on the whole row. */}
+    <div class="absolute end-3 top-3.5 flex items-center lg:top-0 lg:bottom-0 lg:end-6">
+      <LanguagePicker locale={locale} available={available} fallbackPath={fallbackPath} align="end" />
     </div>
   </div>
 

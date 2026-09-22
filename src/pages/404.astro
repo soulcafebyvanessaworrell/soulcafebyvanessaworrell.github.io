@@ -30,10 +30,11 @@ import Base from "../layouts/Base.astro";
 const en = DEFAULT_LOCALE;
 
 // ui strings the payload leaves out: those no element of this page renders as
-// a whole text node, and those with placeholders. The crisis note is the one
-// placeholder string kept, whole: the client fills its template around the
-// footer's marked tel: links.
+// a whole text node (the header has no cart control until merch opens), and
+// those with placeholders. The crisis note is the one placeholder string kept,
+// whole: the client fills its template around the footer's marked tel: links.
 const LEFT_OUT_OF_PAYLOAD: readonly UiKey[] = [
+  "cart",
   "coming_soon",
   "coming_soon_body",
   "free_consultation",
