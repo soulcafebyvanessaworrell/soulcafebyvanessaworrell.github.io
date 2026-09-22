@@ -74,7 +74,7 @@ export const en = {
     email: "Email",
     subject: "Subject",
     attachment: "Attachment",
-    attachmentHelp: "Optional. A document or image, up to about 10 MB.",
+    attachmentHelp: "Optional. A document or image, up to about {size} MB.",
     message: "Message",
     messagePlaceholder: "Tell us a little about what brings you here...",
     send: "Send message",

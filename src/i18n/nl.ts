@@ -65,7 +65,7 @@ export const dict = {
     email: "E-mail",
     subject: "Onderwerp",
     attachment: "Bijlage",
-    attachmentHelp: "Optioneel. Een document of afbeelding, tot ongeveer 10 MB.",
+    attachmentHelp: "Optioneel. Een document of afbeelding, tot ongeveer {size} MB.",
     message: "Bericht",
     messagePlaceholder: "Vertel ons kort wat je hier brengt...",
     send: "Bericht versturen",

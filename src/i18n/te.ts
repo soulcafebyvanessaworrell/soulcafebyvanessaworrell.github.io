@@ -64,7 +64,7 @@ export const dict = {
     email: "ఇమెయిల్",
     subject: "విషయం",
     attachment: "అటాచ్‌మెంట్",
-    attachmentHelp: "ఐచ్ఛికం. ఒక డాక్యుమెంట్ లేదా చిత్రం, సుమారు 10 MB వరకు.",
+    attachmentHelp: "ఐచ్ఛికం. ఒక డాక్యుమెంట్ లేదా చిత్రం, సుమారు {size} MB వరకు.",
     message: "సందేశం",
     messagePlaceholder: "మీరు ఇక్కడికి ఎందుకు వచ్చారో కొంచెం చెప్పండి...",
     send: "సందేశం పంపండి",

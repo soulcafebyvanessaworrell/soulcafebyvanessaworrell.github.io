@@ -65,7 +65,7 @@ export const dict = {
     email: "ᱤᱢᱮᱞ",
     subject: "ᱵᱤᱥᱚᱭ",
     attachment: "ᱡᱚᱲᱟᱣ ᱯᱷᱟᱭᱤᱞ",
-    attachmentHelp: "ᱞᱟᱹᱠᱛᱤ ᱵᱟᱝ ᱠᱟᱱᱟ᱾ ᱢᱤᱫ ᱠᱟᱜᱚᱡ ᱥᱮ ᱪᱤᱛᱟᱹᱨ, 10 MB ᱫᱷᱟᱹᱵᱤᱡ᱾",
+    attachmentHelp: "ᱞᱟᱹᱠᱛᱤ ᱵᱟᱝ ᱠᱟᱱᱟ᱾ ᱢᱤᱫ ᱠᱟᱜᱚᱡ ᱥᱮ ᱪᱤᱛᱟᱹᱨ, {size} MB ᱫᱷᱟᱹᱵᱤᱡ᱾",
     message: "ᱠᱷᱚᱵᱚᱨ",
     messagePlaceholder: "ᱟᱯᱮ ᱪᱮᱫ ᱞᱟᱹᱜᱤᱫ ᱱᱚᱸᱰᱮ ᱦᱮᱡ ᱟᱠᱟᱱ ᱯᱮ, ᱠᱟᱹᱴᱤᱡ ᱞᱟᱹᱭ ᱟᱞᱮ ᱯᱮ...",
     send: "ᱠᱷᱚᱵᱚᱨ ᱠᱩᱞ ᱯᱮ",

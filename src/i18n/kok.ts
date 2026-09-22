@@ -64,7 +64,7 @@ export const dict = {
     email: "ईमेल",
     subject: "विशय",
     attachment: "अटॅचमेंट",
-    attachmentHelp: "ऐच्छीक. एक दस्तावेज वा प्रतिमा, सुमार 10 MB मेरेन.",
+    attachmentHelp: "ऐच्छीक. एक दस्तावेज वा प्रतिमा, सुमार {size} MB मेरेन.",
     message: "संदेश",
     messagePlaceholder: "तुमकां हांगा कितें हाडलें तें थोडें सांगात...",
     send: "संदेश धाडात",

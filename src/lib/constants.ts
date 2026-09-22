@@ -139,6 +139,11 @@ export const BOOKING = {
  *  click before the endpoint delivers mail. */
 export const FORMSUBMIT_ENDPOINT = `https://formsubmit.co/${CONTACT.email}`;
 
+/** The attachment size the contact form's hint quotes, in megabytes. The
+ *  dictionaries carry it as a `{size}` placeholder so each locale formats
+ *  the number in its own digits. */
+export const ATTACHMENT_MAX_MB = 10;
+
 /** Tele-MANAS, the Government of India's free 24x7 mental-health helpline. Shown
  *  in the footer crisis note; the Soul Cafe is not an emergency service. Both
  *  the short code and the full toll-free number are published as plain text

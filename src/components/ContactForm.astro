@@ -9,9 +9,10 @@
 // (src/lib/constants.ts). Click the link in it once and every later submission
 // delivers silently. Until then, mail is held.
 import { Icon } from "astro-icon/components";
-import { localizePath, type SiteLocale } from "../i18n/locales";
-import { form } from "../i18n/ui";
-import { CONTACT, FORMSUBMIT_ENDPOINT, SITE_ORIGIN } from "../lib/constants";
+import { localeMeta, localizePath, type SiteLocale } from "../i18n/locales";
+import { fill, form } from "../i18n/ui";
+import { ATTACHMENT_MAX_MB, CONTACT, FORMSUBMIT_ENDPOINT, SITE_ORIGIN } from "../lib/constants";
+import { formatNumber } from "../lib/pricing";
 
 interface Props {
   locale: SiteLocale;
@@ -25,6 +26,12 @@ const { locale, class: klass = "" } = Astro.props;
 const nextUrl = `${SITE_ORIGIN}${localizePath("contact/thanks/", locale)}`;
 
 const s = form(locale);
+
+// The size limit in the locale's own digits (with the Western repeat where
+// those differ), as every other count on the site is written.
+const attachmentHelp = fill(s.attachmentHelp, {
+  size: formatNumber(ATTACHMENT_MAX_MB, localeMeta(locale)),
+});
 
 const fileAccept = ".pdf,.doc,.docx,.txt,.rtf,.odt,image/png,image/jpeg,image/webp,image/gif";
 ---
@@ -145,7 +152,7 @@ const fileAccept = ".pdf,.doc,.docx,.txt,.rtf,.odt,image/png,image/jpeg,image/we
         name="attachment"
         accept={fileAccept}
       />
-      <p class="text-sm text-soft">{s.attachmentHelp}</p>
+      <p class="text-sm text-soft">{attachmentHelp}</p>
     </div>
 
     <div class="flex flex-col gap-2">
