@@ -1,10 +1,10 @@
 ---
-// The six cream nav pills in the script face, one visual family. Rendered as a
-// wrapping row in the header's action bar: compact between the Book and
-// Contact pills on desktop, at the default size in the always-visible mobile
-// stack (there is no menu panel; the header has no hamburger). The active
-// section reads as "selected" through a deeper cream fill and aria-current, not
-// a colored ring, so it never competes with the CTAs.
+// The six cream nav pills in the script face, one visual family. Rendered once,
+// as a wrapping row in the header's action bar: between the Book and Contact
+// pills on desktop, centred in the always-visible mobile stack (there is no
+// menu panel; the header has no hamburger). The active section reads as
+// "selected" through a deeper cream fill and aria-current, not a colored ring,
+// so it never competes with the CTAs.
 import type { SiteLocale } from "../i18n/locales";
 import { localizePath } from "../i18n/locales";
 import { t } from "../i18n/ui";
@@ -13,16 +13,15 @@ import { NAV_ITEMS, type NavId } from "../lib/nav";
 interface Props {
   active?: NavId;
   locale: SiteLocale;
-  size?: "default" | "compact";
   class?: string;
 }
 
-const { active, locale, size = "default", class: klass = "" } = Astro.props;
+const { active, locale, class: klass = "" } = Astro.props;
 
-// Both sizes stay at text-lg (18px): Dancing Script turns illegible below that.
-// Compact only trims horizontal padding so the desktop bar fits; if it must,
-// the row wraps rather than shrinking the type.
-const sizeClass = size === "compact" ? "px-3.5 py-2 text-lg" : "px-5 py-2 text-lg";
+// The type stays at text-lg (18px) at every width: Dancing Script turns
+// illegible below that. Desktop only trims horizontal padding so the action bar
+// fits; if it must, the row wraps rather than shrinking the type.
+const sizeClass = "px-5 py-2 text-lg lg:px-3.5";
 ---
 
 <nav aria-label={t(locale, "primary_navigation")} class:list={[klass]}>

@@ -85,8 +85,7 @@ test.describe("every route loads cleanly", () => {
       expect(resp, `no response for ${route}`).not.toBeNull();
       expect(resp?.status(), `HTTP status for ${route}`).toBe(200);
 
-      // Contract: every page shows a visible <nav> landmark. The header renders
-      // a desktop and a mobile copy; exactly one is shown at any viewport.
+      // Contract: every page shows a visible <nav> landmark.
       await expect(page.locator("nav:visible").first()).toBeVisible();
 
       expect(consoleErrors, `console errors on ${route}`).toEqual([]);
@@ -180,9 +179,8 @@ test("primary nav links are all visible at mobile width", async ({ page }) => {
   await page.goto(`${BASE}/`, { waitUntil: "load" });
 
   for (const section of NAV_SECTIONS) {
-    // `:visible` resolves to the shown copy if the header renders more than one
-    // (e.g. a desktop row hidden at this width). Locate inside the header
-    // landmark by href so the assertion survives copy/class changes.
+    // Locate inside the header landmark by href so the assertion survives
+    // copy/class changes.
     const link = page.locator(`header a[href$="/${section}/"]:visible`).first();
     await expect(link, `nav link "${section}" visible`).toBeVisible();
     await expect(link, `nav link "${section}" enabled`).toBeEnabled();
@@ -197,6 +195,28 @@ test("primary nav links are all visible at mobile width", async ({ page }) => {
     page.locator(`header a[href$="/contact/"]:visible`).first(),
     "Contact Us CTA visible",
   ).toBeVisible();
+});
+
+// Without this, the header could go back to rendering twice (a desktop copy
+// and a mobile copy, each with its own eager logo and language picker): the
+// page would carry two eager images and two pickers, one pair hidden, and only
+// the byte count would notice. One header means one of each in the DOM, not
+// just one shown.
+test("the header renders once: one eager logo, one language picker, one nav landmark", async ({
+  page,
+}) => {
+  const width = page.viewportSize()?.width ?? 0;
+  test.skip(
+    width <= 500,
+    "DOM counts do not depend on the viewport; runs once, in the desktop project",
+  );
+  await page.goto(`${BASE}/`, { waitUntil: "load" });
+  await expect(page.locator("header")).toHaveCount(1);
+  await expect(page.locator('header img[loading="eager"]')).toHaveCount(1);
+  await expect(page.locator("header details[data-language-picker]")).toHaveCount(1);
+  await expect(page.locator("header nav")).toHaveCount(1);
+  await expect(page.locator('header a[href$="/book/"]')).toHaveCount(1);
+  await expect(page.locator('header a[href$="/contact/"]')).toHaveCount(1);
 });
 
 // Without this, a translated CTA label could wrap the header pills to two
