@@ -703,4 +703,53 @@ test.describe("images and icons", () => {
       await context.close();
     }
   });
+
+  // The og:image tags describe a file in public/ by hand; nothing at build time
+  // checks that the file exists, is served as the declared type, or has the
+  // declared dimensions. 1200 x 630 is the card size the sharing platforms
+  // recommend, an external fact the tags alone do not carry.
+  test("the social preview image is served at the declared type and size", async ({
+    page,
+    request,
+  }) => {
+    await page.goto(`${BASE}/`, { waitUntil: "load" });
+    const content = (selector: string) => page.locator(selector).getAttribute("content");
+    const ogImage = await content('meta[property="og:image"]');
+    expect(ogImage).toBeTruthy();
+    const width = Number(await content('meta[property="og:image:width"]'));
+    const height = Number(await content('meta[property="og:image:height"]'));
+    expect([width, height]).toEqual([1200, 630]);
+    expect(await content('meta[property="og:image:alt"]')).toBeTruthy();
+
+    // The tag holds an absolute URL on the configured site origin; fetch the
+    // same path from the preview server and read the PNG header (IHDR holds
+    // width and height as big-endian 32-bit integers at bytes 16 and 20).
+    const resp = await request.get(new URL(ogImage ?? "").pathname);
+    expect(resp.status()).toBe(200);
+    expect(resp.headers()["content-type"]).toContain(
+      await content('meta[property="og:image:type"]'),
+    );
+    const body = await resp.body();
+    expect(body.subarray(1, 4).toString("latin1")).toBe("PNG");
+    expect(body.readUInt32BE(16)).toBe(width);
+    expect(body.readUInt32BE(20)).toBe(height);
+    expect(body.length, "og-image.png stays under the 150 KB budget").toBeLessThan(150_000);
+  });
+
+  // Open Graph joins a locale's parts with underscores (language_TERRITORY);
+  // htmlLang joins them with BCP 47 hyphens. The rows with a subtag are the
+  // ones that could leak a hyphen into the tag.
+  test("og:locale is in Open Graph shape on every page whose htmlLang has a subtag", async ({
+    page,
+  }) => {
+    const rows = LOCALE_TABLE.filter((row) => row.htmlLang.includes("-"));
+    expect(rows.length, "the locale table has a row with a subtag").toBeGreaterThan(0);
+    for (const row of rows) {
+      await page.goto(`${localeBase(row)}/`, { waitUntil: "load" });
+      const ogLocale = await page.locator('meta[property="og:locale"]').getAttribute("content");
+      expect(ogLocale, `og:locale on ${row.code}`).toMatch(/^[a-z]{2,3}(_[A-Za-z0-9]{2,8})+$/);
+      // The tag is this page's language, not one constant on every page.
+      expect(ogLocale?.split("_")[0]).toBe(row.htmlLang.split("-")[0]);
+    }
+  });
 });

@@ -61,8 +61,16 @@ const robotsNoindex = noindex || staging;
 
 const fullTitle = `${title} · The Soul Cafe`;
 const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site) : undefined;
-// Social preview + JSON-LD logo: the 512px icon in public/, absolute.
-const ogImage = Astro.site ? new URL(`${base}icon-512.png`, Astro.site).href : undefined;
+// Absolute URLs into public/: the square 512px icon is the JSON-LD logo; the
+// 1200 x 630 card (the logo on the mint brand colour) is the social preview.
+const absolute = (file: string) =>
+  Astro.site ? new URL(`${base}${file}`, Astro.site).href : undefined;
+const logoImage = absolute("icon-512.png");
+const ogImage = absolute("og-image.png");
+const OG_IMAGE = { width: 1200, height: 630, type: "image/png", alt: SITE_TITLE };
+// Open Graph writes a locale as language_TERRITORY (en_GB), so the BCP 47
+// hyphen in htmlLang becomes an underscore.
+const ogLocale = meta.htmlLang.replace(/-/g, "_");
 
 // hreflang alternates. Non-root tiers are noindex, so alternates there would be
 // misleading; skip them.
@@ -100,7 +108,7 @@ const jsonLd = {
       ...(businessId ? { "@id": businessId } : {}),
       name: SITE_TITLE,
       ...(homeUrl ? { url: homeUrl } : {}),
-      ...(ogImage ? { image: ogImage, logo: ogImage } : {}),
+      ...(logoImage ? { image: logoImage, logo: logoImage } : {}),
       telephone: CONTACT.phone,
       email: CONTACT.email,
       availableLanguage: LOCALES.map((l) => htmlLang(l)),
@@ -145,11 +153,23 @@ const jsonLd = {
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     {canonical && <meta property="og:url" content={canonical.href} />}
-    {ogImage && <meta property="og:image" content={ogImage} />}
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:locale" content={ogLocale} />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />
-    {ogImage && <meta name="twitter:image" content={ogImage} />}
+    {
+      ogImage && (
+        <>
+          <meta property="og:image" content={ogImage} />
+          <meta property="og:image:type" content={OG_IMAGE.type} />
+          <meta property="og:image:width" content={String(OG_IMAGE.width)} />
+          <meta property="og:image:height" content={String(OG_IMAGE.height)} />
+          <meta property="og:image:alt" content={OG_IMAGE.alt} />
+          <meta name="twitter:image" content={ogImage} />
+          <meta name="twitter:image:alt" content={OG_IMAGE.alt} />
+        </>
+      )
+    }
 
     {/* Icons + manifest */}
     <link rel="icon" type="image/png" sizes="32x32" href={`${base}favicon-32.png`} />
