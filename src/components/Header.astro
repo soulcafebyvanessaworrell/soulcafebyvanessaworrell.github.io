@@ -93,9 +93,7 @@ const ghostControl =
 
     <div class="border-t border-ink/10 bg-mint-deep/25">
       <div class="mx-auto grid max-w-7xl grid-cols-[1fr_auto_1fr] items-center gap-4 px-6 py-2.5">
-        {/* USER REQUIREMENT (do not change): home icon first, Book a Session
-            second, at the START of the bar. Contact stays at the inline end as the quieter
-            secondary. */}
+        {/* The owner fixed this order; the file comment above spells it out. */}
         <div class="flex items-center gap-2.5 justify-self-start">
           <a href={homeHref} class={ghostControl} aria-label={t(locale, "home")}>
             <Icon name="lucide:house" class="h-[1.15rem] w-[1.15rem]" aria-hidden="true" />

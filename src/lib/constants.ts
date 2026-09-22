@@ -1,7 +1,6 @@
-// Single source of site identity for The Soul Cafe. Mirrors the reference
-// repo's packages/constants pattern: every URL, phone number, and social
-// handle the site links to lives here, so a change is made in exactly one
-// place. Imported by astro.config.mjs (build config) and the components.
+// Single source of site identity for The Soul Cafe: every URL, phone number,
+// social handle, and brand value the site writes out lives here, so a change
+// is made in exactly one place.
 
 /** Preview server port. Distinct from DEV_PORT so `astro preview` (and the
  * Playwright e2e suite that spawns it) never collides with a running dev

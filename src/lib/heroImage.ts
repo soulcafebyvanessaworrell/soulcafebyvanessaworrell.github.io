@@ -1,6 +1,6 @@
-// The founder photo is the LCP element on both home pages. The <head> preload
+// The founder photo is the LCP element of the home page. The <head> preload
 // and the hero <Image> must share these exact values so the browser coalesces
-// them into one request; both locale pages import from here so they cannot drift.
+// them into one request; both read from here so they cannot drift.
 import { getImage } from "astro:assets";
 import { founder } from "./assets";
 
