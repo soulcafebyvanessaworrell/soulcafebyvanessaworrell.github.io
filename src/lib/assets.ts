@@ -5,7 +5,6 @@
 // in one place.
 
 import type { ImageMetadata } from "astro";
-import blogHero from "../assets/blog-hero.png";
 import founder from "../assets/founder.png";
 import logo from "../assets/logo.png";
 // Astro returns an SVG import as a component that also carries ImageMetadata;
@@ -19,9 +18,8 @@ const teacupDoodle: string = teacupDoodleSvg.src;
 export const images: {
   logo: ImageMetadata;
   founder: ImageMetadata;
-  blogHero: ImageMetadata;
   signature: string;
   teacupDoodle: string;
-} = { logo, founder, blogHero, signature, teacupDoodle };
+} = { logo, founder, signature, teacupDoodle };
 
-export { blogHero, founder, logo, signature, teacupDoodle };
+export { founder, logo, signature, teacupDoodle };

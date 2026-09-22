@@ -1,17 +1,13 @@
 ---
-// Blog index. Lists this locale's published posts newest first as cards. If the
-// locale has no posts yet, it falls back to the hero photo plus the "Coming
-// soon" band, so the page is never empty and never a dead end.
-import { Image } from "astro:assets";
+// Blog index. Lists this locale's published posts newest first as cards. Every
+// locale carries at least one post (the welcome post), so there is no empty state.
 import { getCollection } from "astro:content";
 import { Icon } from "astro-icon/components";
-import ComingSoon from "../../../components/ComingSoon.astro";
 import ScriptHeading from "../../../components/ScriptHeading.astro";
 import { localeMeta, localizePath } from "../../../i18n/locales";
 import { localeStaticPaths } from "../../../i18n/routes";
 import { blogUi } from "../../../i18n/ui";
 import Base from "../../../layouts/Base.astro";
-import { blogHero } from "../../../lib/assets";
 import { blogSlug, isoDate } from "../../../lib/blog";
 
 export const getStaticPaths = localeStaticPaths;
@@ -32,52 +28,38 @@ const dateFmt = new Intl.DateTimeFormat(localeMeta(locale).dateLocale, {
 ---
 
 <Base title={copy.title} description={copy.metaDescription} active="blog">
-  {
-    posts.length === 0 ? (
-      <>
-        <section class="mx-auto max-w-4xl px-5 py-16 sm:py-20">
-          <ScriptHeading level={1} class="text-center">
-            {copy.title}
-          </ScriptHeading>
-          <Image src={blogHero} alt={copy.heroAlt} class="mt-10 w-full rounded-3xl shadow-sm" />
-        </section>
-        <ComingSoon color="periwinkle" locale={locale} />
-      </>
-    ) : (
-      <section class="mx-auto max-w-3xl px-5 py-16 sm:py-20">
-        <ScriptHeading level={1} class="text-center">
-          {copy.title}
-        </ScriptHeading>
-        <p class="mx-auto mt-4 max-w-xl text-center text-lg leading-relaxed text-ink/80">
-          {copy.intro}
-        </p>
-        <ul class="mt-12 flex list-none flex-col gap-6">
-          {posts.map((post) => (
-            <li>
-              <a
-                href={localizePath(`blog/${blogSlug(post)}/`, locale)}
-                class="group card card-hover block p-6 sm:p-8"
-              >
-                <time datetime={isoDate(post.data.pubDate)} class="text-sm text-soft">
-                  {dateFmt.format(post.data.pubDate)}
-                </time>
-                <h2 class="script mt-1 text-[length:var(--text-script-3)] text-ink transition-colors group-hover:text-periwinkle-deep">
-                  {post.data.title}
-                </h2>
-                <p class="mt-2 leading-relaxed text-ink/90">{post.data.description}</p>
-                <span class="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-periwinkle-deep">
-                  {copy.read}
-                  <Icon
-                    name="lucide:arrow-right"
-                    class="h-4 w-4 transition-transform group-hover:translate-x-0.5 rtl:-scale-x-100 rtl:group-hover:-translate-x-0.5"
-                    aria-hidden="true"
-                  />
-                </span>
-              </a>
-            </li>
-          ))}
-        </ul>
-      </section>
-    )
-  }
+  <section class="mx-auto max-w-3xl px-5 py-16 sm:py-20">
+    <ScriptHeading level={1} class="text-center">
+      {copy.title}
+    </ScriptHeading>
+    <p class="mx-auto mt-4 max-w-xl text-center text-lg leading-relaxed text-ink/80">
+      {copy.intro}
+    </p>
+    <ul class="mt-12 flex list-none flex-col gap-6">
+      {posts.map((post) => (
+        <li>
+          <a
+            href={localizePath(`blog/${blogSlug(post)}/`, locale)}
+            class="group card card-hover block p-6 sm:p-8"
+          >
+            <time datetime={isoDate(post.data.pubDate)} class="text-sm text-soft">
+              {dateFmt.format(post.data.pubDate)}
+            </time>
+            <h2 class="script mt-1 text-[length:var(--text-script-3)] text-ink transition-colors group-hover:text-periwinkle-deep">
+              {post.data.title}
+            </h2>
+            <p class="mt-2 leading-relaxed text-ink/90">{post.data.description}</p>
+            <span class="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-periwinkle-deep">
+              {copy.read}
+              <Icon
+                name="lucide:arrow-right"
+                class="h-4 w-4 transition-transform group-hover:translate-x-0.5 rtl:-scale-x-100 rtl:group-hover:-translate-x-0.5"
+                aria-hidden="true"
+              />
+            </span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
 </Base>
