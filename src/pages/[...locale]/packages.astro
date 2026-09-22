@@ -10,7 +10,7 @@ import ScriptHeading from "../../components/ScriptHeading.astro";
 import SectionBand from "../../components/SectionBand.astro";
 import { localeMeta, localizePath } from "../../i18n/locales";
 import { localeStaticPaths } from "../../i18n/routes";
-import { fill, pages, t } from "../../i18n/ui";
+import { fill, fillPieces, pages, t } from "../../i18n/ui";
 import Base from "../../layouts/Base.astro";
 import {
   BOOKING_LINK,
@@ -18,11 +18,14 @@ import {
   DEFAULT_CURRENCY,
   DISCOUNT_AGES,
   formatNumber,
+  formatNumberParts,
   formatPrice,
-  freeConsultationLabel,
+  formatPriceParts,
+  freeConsultationPieces,
   hoursAndMinutes,
   PACKAGE_FREE_SESSIONS,
   PACKAGE_PAID_SESSIONS,
+  type Pieces,
   PRICING,
   SESSION_TYPES,
 } from "../../lib/pricing";
@@ -33,26 +36,26 @@ export const getStaticPaths = localeStaticPaths;
 const { locale } = Astro.props;
 const copy = pages(locale).packages;
 const meta = localeMeta(locale);
-const n = (value: number) => formatNumber(value, meta);
+const n = (value: number) => formatNumberParts(value, meta);
 
 const description = fill(copy.meta.description, {
   price: formatPrice(PRICING.individual.single[DEFAULT_CURRENCY], DEFAULT_CURRENCY, meta),
 });
-const packagePill = fill(copy.packagePill, {
+const packagePill: Pieces = fillPieces(copy.packagePill, {
   paid: n(PACKAGE_PAID_SESSIONS),
   free: n(PACKAGE_FREE_SESSIONS),
 });
 const ages = {
-  from: n(DISCOUNT_AGES.youth.from),
-  to: n(DISCOUNT_AGES.youth.to),
-  age: n(DISCOUNT_AGES.senior),
+  from: formatNumber(DISCOUNT_AGES.youth.from, meta),
+  to: formatNumber(DISCOUNT_AGES.youth.to, meta),
+  age: formatNumber(DISCOUNT_AGES.senior, meta),
 };
 
-function duration(minutes: number): string {
+function duration(minutes: number): Pieces {
   const split = hoursAndMinutes(minutes);
   return split.hours === 0
-    ? fill(copy.duration.minutes, { n: n(split.minutes) })
-    : fill(copy.duration.hours, { h: n(split.hours), m: n(split.minutes) });
+    ? fillPieces(copy.duration.minutes, { n: n(split.minutes) })
+    : fillPieces(copy.duration.hours, { h: n(split.hours), m: n(split.minutes) });
 }
 
 const clusters = SESSION_TYPES.map((type) => {
@@ -123,25 +126,69 @@ const discounts = zipLabels(
             <section class="py-10 first:pt-0 last:pb-0" id={cluster.type}>
               <div class="flex flex-wrap items-baseline gap-x-4 gap-y-1">
                 <ScriptHeading level={2}>{cluster.label}</ScriptHeading>
-                <p class="text-soft">{cluster.duration}</p>
+                {/* The digit pieces are arrays, not fragments, so no whitespace text
+                    node lands between a number and a word the dictionary joins to it
+                    ("৫টি"); the no-break space before the bracket is the separator
+                    the joined string carries, so copied text reads the same. Size and
+                    alignment sit on the outer span and only the inner one is
+                    dir="ltr": a logical margin or text-end on the ltr span itself
+                    resolves against that span's own direction, wrong in Urdu. */}
+                <p class="text-soft">
+                  {cluster.duration.map((piece) =>
+                    typeof piece === "string"
+                      ? piece
+                      : [
+                          <span data-digits="native">{piece.native}</span>,
+                          piece.western && (
+                            <span data-digits="western" class="text-sm">&nbsp;<span dir="ltr">({piece.western})</span></span>
+                          ),
+                        ],
+                  )}
+                </p>
               </div>
 
+              {/* On a phone the label and the price share a row's first line and
+                  the package pill takes the whole second line, since the price
+                  column leaves the pill too little width to stay readable
+                  (display: contents hands the pill to the grid). From sm up the
+                  label and pill sit side by side in the first column. */}
               <ul class="mt-6 flex flex-col gap-4">
                 {cluster.rows.map((row) => (
-                  <li class="grid grid-cols-[1fr_auto] items-center gap-x-4 pr-16 sm:pr-0">
-                    <div class="flex flex-col items-start gap-y-1 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-3">
+                  <li class="grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-2 pr-16 sm:pr-0">
+                    <div class="contents sm:flex sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-3 sm:gap-y-1">
                       <span class="text-lg font-bold">{row.label}</span>
-                      {row.pill && <span class="pill-coral rounded-full px-3 py-1 text-sm font-bold">{row.pill}</span>}
-                    </div>
-                    <span class="text-end text-3xl font-bold text-ink tabular-nums">
-                      {CURRENCIES.map((currency) => (
-                        <span
-                          data-currency={currency}
-                          class:list={[currency !== DEFAULT_CURRENCY && "hidden"]}
-                        >
-                          {formatPrice(row.price[currency], currency, meta)}
+                      {row.pill && (
+                        <span class="pill-coral col-span-2 justify-self-start rounded-full px-3 py-1 text-sm font-bold">
+                          {row.pill.map((piece) =>
+                            typeof piece === "string"
+                              ? piece
+                              : [
+                                  <span data-digits="native">{piece.native}</span>,
+                                  piece.western && (
+                                    <span data-digits="western" class="text-xs font-normal">&nbsp;<span dir="ltr">({piece.western})</span></span>
+                                  ),
+                                ],
+                          )}
                         </span>
-                      ))}
+                      )}
+                    </div>
+                    <span class="col-start-2 row-start-1 text-end text-3xl font-bold text-ink tabular-nums">
+                      {CURRENCIES.map((currency) => {
+                        const price = formatPriceParts(row.price[currency], currency, meta);
+                        return (
+                          <span
+                            data-currency={currency}
+                            class:list={[currency !== DEFAULT_CURRENCY && "hidden"]}
+                          >
+                            {[
+                              <span data-digits="native" class="whitespace-nowrap">{price.native}</span>,
+                              price.western && (
+                                <span data-digits="western" class="block text-base font-normal text-soft sm:ms-1 sm:inline">&nbsp;<span dir="ltr">({price.western})</span></span>
+                              ),
+                            ]}
+                          </span>
+                        );
+                      })}
                     </span>
                   </li>
                 ))}
@@ -164,7 +211,18 @@ const discounts = zipLabels(
             {copy.askPackage}
           </PillButton>
           <PillButton href={`${localizePath("book/", locale)}#consultation`} variant="cream">
-            {freeConsultationLabel(locale)}
+            <span>
+              {freeConsultationPieces(locale).map((piece) =>
+                typeof piece === "string"
+                  ? piece
+                  : [
+                      <span data-digits="native">{piece.native}</span>,
+                      piece.western && (
+                        <span data-digits="western" class="text-sm font-normal">&nbsp;<span dir="ltr">({piece.western})</span></span>
+                      ),
+                    ],
+              )}
+            </span>
           </PillButton>
         </div>
       </div>

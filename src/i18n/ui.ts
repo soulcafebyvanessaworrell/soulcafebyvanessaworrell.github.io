@@ -71,11 +71,32 @@ export const dictionaries: Record<SiteLocale, LocaleDict> = {
 /** A `{name}` placeholder in a dictionary string; the name is the capture. */
 export const PLACEHOLDER = /\{([a-z]+)\}/g;
 
-/** Splices values into a dictionary string's placeholders. Every locale
- *  carries each placeholder exactly as often as English does (i18n.test.ts),
- *  so a value is never left unspliced in one language. */
-export function fill(text: string, values: Record<string, string>): string {
-  return text.replace(PLACEHOLDER, (token, name: string) => values[name] ?? token);
+/** Splits a dictionary string at its placeholders into the text between them
+ *  and, in place of each `{name}`, the value passed for it, kept as the value
+ *  rather than spliced into the string. A page renders each value as markup
+ *  (a digit pair as two spans) while the dictionary text around it stays a
+ *  plain string, so no HTML is ever built from prose. A `{name}` with no
+ *  value stays as its literal token; a locale carries each placeholder
+ *  exactly as often as English does (i18n.test.ts), so a value is never left
+ *  out in one language. Empty text between two placeholders is omitted. */
+export function fillPieces<T>(text: string, values: Readonly<Record<string, T>>): (string | T)[] {
+  const pieces: (string | T)[] = [];
+  let cursor = 0;
+  for (const match of text.matchAll(PLACEHOLDER)) {
+    const [token, name] = match;
+    const value = name === undefined ? undefined : values[name];
+    if (value === undefined) continue;
+    if (match.index > cursor) pieces.push(text.slice(cursor, match.index));
+    pieces.push(value);
+    cursor = match.index + token.length;
+  }
+  if (cursor < text.length) pieces.push(text.slice(cursor));
+  return pieces;
+}
+
+/** Splices values into a dictionary string's placeholders. */
+export function fill(text: string, values: Readonly<Record<string, string>>): string {
+  return fillPieces(text, values).join("");
 }
 
 /** A shared-chrome string. */

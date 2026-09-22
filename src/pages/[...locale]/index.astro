@@ -16,7 +16,7 @@ import { pages, t } from "../../i18n/ui";
 import Base from "../../layouts/Base.astro";
 import { founder } from "../../lib/assets";
 import { getHeroPreload, HERO_FORMAT, HERO_SIZES, HERO_WIDTHS } from "../../lib/heroImage";
-import { freeConsultationLabel } from "../../lib/pricing";
+import { freeConsultationPieces } from "../../lib/pricing";
 import { zipLabels } from "../../lib/zipLabels";
 
 export const getStaticPaths = localeStaticPaths;
@@ -91,7 +91,18 @@ const cloudOffsets = [
             {t(locale, "book_session")}
           </PillButton>
           <PillButton href={`${localizePath("book/", locale)}#consultation`} variant="cream">
-            {freeConsultationLabel(locale)}
+            <span>
+              {freeConsultationPieces(locale).map((piece) =>
+                typeof piece === "string"
+                  ? piece
+                  : [
+                      <span data-digits="native">{piece.native}</span>,
+                      piece.western && (
+                        <span data-digits="western" class="text-sm font-normal">&nbsp;<span dir="ltr">({piece.western})</span></span>
+                      ),
+                    ],
+              )}
+            </span>
           </PillButton>
         </div>
       </div>

@@ -12,7 +12,7 @@ import {
   type NumberingSystem,
   type SiteLocale,
 } from "../i18n/locales";
-import { fill, t } from "../i18n/ui";
+import { fillPieces, t } from "../i18n/ui";
 import { BOOKING } from "./constants";
 
 export const CURRENCIES = ["INR", "USD", "GBP"] as const;
@@ -86,6 +86,14 @@ export const OFFERS: readonly Offer[] = SESSION_TYPES.flatMap((type) => {
   ];
 });
 
+/** A number in the digits the locale row names and, when those are not
+ *  Western, the same number again in Western digits, so a reader of either
+ *  system finds it. A Latin-digit locale has no `western`. */
+export interface DualDigits {
+  native: string;
+  western?: string;
+}
+
 /** The row whose separators and symbol placement the Western repeat follows:
  *  the default locale's, so the repeat reads the same in every language
  *  ("₹1,500", "1,500") instead of taking the page locale's own punctuation
@@ -93,17 +101,23 @@ export const OFFERS: readonly Offer[] = SESSION_TYPES.flatMap((type) => {
 const WESTERN = localeMeta(DEFAULT_LOCALE);
 
 /** Formats `amount` through `render` in the digits the locale row names and,
- *  when those are not Western, again through the default locale's row in
- *  round brackets after a space ("₹१,५०० (₹1,500)"), so a reader of either
- *  system finds the number. */
+ *  when those are not Western, again through the default locale's row. */
 function dualDigits(
   amount: number,
   { dateLocale, numberingSystem }: LocaleMeta,
   render: (tag: string, numberingSystem: NumberingSystem) => Intl.NumberFormat,
-): string {
+): DualDigits {
   const native = render(dateLocale, numberingSystem).format(amount);
-  if (numberingSystem === "latn") return native;
-  return `${native} (${render(WESTERN.dateLocale, "latn").format(amount)})`;
+  if (numberingSystem === "latn") return { native };
+  return { native, western: render(WESTERN.dateLocale, "latn").format(amount) };
+}
+
+/** The two halves as one string, the Western repeat in round brackets after a
+ *  no-break space ("₹१,५०० (₹1,500)"), for meta descriptions and the prose a
+ *  component takes as a plain string. The space is no-break so a line never
+ *  ends on the native digits and opens on their bracket. */
+export function joinDigits({ native, western }: DualDigits): string {
+  return western === undefined ? native : `${native}\u00a0(${western})`;
 }
 
 /** A whole-unit price in the reader's own numerals and symbol placement, always
@@ -112,8 +126,9 @@ function dualDigits(
  *  amount reads like the five-digit one beside it ("1.500 ₹" next to
  *  "10.000 ₹"; Italian and a few others skip the separator below 10,000 by
  *  default). A locale whose digits are not Western repeats the price in
- *  Western digits in brackets (dualDigits). */
-export function formatPrice(amount: number, currency: Currency, meta: LocaleMeta): string {
+ *  Western digits (dualDigits), as a separate half so a page can give the
+ *  repeat its own line or a smaller face. */
+export function formatPriceParts(amount: number, currency: Currency, meta: LocaleMeta): DualDigits {
   return dualDigits(
     amount,
     meta,
@@ -129,10 +144,15 @@ export function formatPrice(amount: number, currency: Currency, meta: LocaleMeta
   );
 }
 
+/** formatPriceParts joined as one string, the repeat in brackets. */
+export function formatPrice(amount: number, currency: Currency, meta: LocaleMeta): string {
+  return joinDigits(formatPriceParts(amount, currency, meta));
+}
+
 /** A plain count (minutes, hours, sessions, ages) in the same numerals
- *  formatPrice uses for that locale, so a duration never mixes digit systems
- *  with the price beside it, with the same Western repeat in brackets. */
-export function formatNumber(value: number, meta: LocaleMeta): string {
+ *  formatPriceParts uses for that locale, so a duration never mixes digit
+ *  systems with the price beside it, with the same Western repeat. */
+export function formatNumberParts(value: number, meta: LocaleMeta): DualDigits {
   return dualDigits(
     value,
     meta,
@@ -140,12 +160,30 @@ export function formatNumber(value: number, meta: LocaleMeta): string {
   );
 }
 
+/** formatNumberParts joined as one string, the repeat in brackets. */
+export function formatNumber(value: number, meta: LocaleMeta): string {
+  return joinDigits(formatNumberParts(value, meta));
+}
+
+/** A dictionary sentence with its numbers kept apart from the words around
+ *  them, so a page can render each number as markup. */
+export type Pieces = readonly (string | DualDigits)[];
+
 /** The "Free 15-minute consultation" pill label with the length filled in, for
- *  every page that links to the consultation. */
-export function freeConsultationLabel(locale: SiteLocale): string {
-  return fill(t(locale, "free_consultation"), {
-    minutes: formatNumber(CONSULTATION_MINUTES, localeMeta(locale)),
+ *  every page that links to the consultation: the text around the number and
+ *  the number itself as separate pieces, so the page can render the Western
+ *  repeat as its own span inside the pill. */
+export function freeConsultationPieces(locale: SiteLocale): Pieces {
+  return fillPieces(t(locale, "free_consultation"), {
+    minutes: formatNumberParts(CONSULTATION_MINUTES, localeMeta(locale)),
   });
+}
+
+/** freeConsultationPieces as one string, for a label that takes no markup. */
+export function freeConsultationLabel(locale: SiteLocale): string {
+  return freeConsultationPieces(locale)
+    .map((piece) => (typeof piece === "string" ? piece : joinDigits(piece)))
+    .join("");
 }
 
 /** Whole hours and leftover minutes of a session length, for the dictionary's

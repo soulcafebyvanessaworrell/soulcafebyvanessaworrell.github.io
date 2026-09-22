@@ -956,6 +956,158 @@ test.describe("packages and booking", () => {
     });
     expect(overflow, "document overflows horizontally at 320px").toBeLessThanOrEqual(1);
   });
+
+  // Without this, the two halves of a dual-digit price ("₹۱٬۵۰۰" and
+  // "(₹1,500)") could wrap inside the 3xl price cell on a phone, or the
+  // package pill could run to five lines in Nastaliq, and nothing else would
+  // notice: the per-route suite samples locales and the overflow test above
+  // only measures the page width. Pinned for every locale whose row names a
+  // non-Latin numbering system: the native half of each visible price is one
+  // line box and the package pill at most two, at 320 and 390; the Western
+  // half sits under the native half on a phone and after it in the writing
+  // direction at 1280, so a right-to-left page reads native then bracket and
+  // never bracket then native. The default locale is the control: one line,
+  // no Western half. Line boxes are counted from the text's client rects, not
+  // from height over line-height, because Nastaliq's content area is twice its
+  // line-height and a one-line Urdu price stands 75px tall in a 36px line.
+  test("dual-digit prices keep the native half on one line and the pill within two, every non-Latin locale", async ({
+    page,
+  }) => {
+    const width = page.viewportSize()?.width ?? 0;
+    test.skip(width <= 500, "runs once, in the desktop project");
+    test.slow();
+    const dualRows = LOCALE_TABLE.filter((row) => row.numberingSystem !== "latn");
+    expect(dualRows.length, "locales with non-Latin digits").toBeGreaterThan(0);
+    const problems: string[] = [];
+    const measure = async (row: LocaleRow, vw: number) => {
+      await page.setViewportSize({ width: vw, height: 844 });
+      await page.goto(`${localeBase(row)}/packages/`, { waitUntil: "load" });
+      await page.evaluate(() => document.fonts.ready);
+      return page.evaluate(() => {
+        // Distinct line boxes of an element's text. A rect starts a new line
+        // when its top is at least half the element's line-height below the
+        // line's first rect; rect heights are no guide, since Nastaliq's
+        // content area spans two lines of its own line-height and would
+        // swallow a wrapped second line.
+        const lineBoxes = (el: Element) => {
+          const lineHeight = Number.parseFloat(getComputedStyle(el).lineHeight);
+          const range = document.createRange();
+          range.selectNodeContents(el);
+          const tops = [...range.getClientRects()]
+            .filter((r) => r.width > 0 && r.height > 0)
+            .map((r) => r.top)
+            .sort((a, b) => a - b);
+          let lines = 0;
+          let lineTop = Number.NEGATIVE_INFINITY;
+          for (const top of tops) {
+            if (top - lineTop >= lineHeight / 2) {
+              lines++;
+              lineTop = top;
+            }
+          }
+          return lines;
+        };
+        const rtl = getComputedStyle(document.documentElement).direction === "rtl";
+        // Where the Western half sits: beside the native half (no horizontal
+        // overlap), before or after it in reading order and how far apart, or
+        // under it, with how far its outer edge (the end edge of the page
+        // direction, where text-end puts both) is from the native half's. A
+        // margin or alignment on a dir="ltr" span resolves against that span's
+        // own direction, so the gap would be 0 and the offset 30px in Urdu.
+        const place = (n: DOMRect, w: DOMRect) => {
+          const beside = w.right <= n.left + 1 || w.left >= n.right - 1;
+          if (!beside) {
+            const offset = Math.abs(rtl ? w.left - n.left : w.right - n.right);
+            return { where: w.top > n.top ? "below" : "overlapping", gap: 0, offset };
+          }
+          const after = rtl ? w.right <= n.left + 1 : w.left >= n.right - 1;
+          const gap = rtl ? n.left - w.right : w.left - n.right;
+          return { where: after ? "after" : "before", gap, offset: 0 };
+        };
+        const textBox = (el: Element) => {
+          const range = document.createRange();
+          range.selectNodeContents(el);
+          return range.getBoundingClientRect();
+        };
+        const shown = (el: Element) => (el as HTMLElement).offsetParent !== null;
+        const prices = [...document.querySelectorAll("li [data-currency]")].filter(shown);
+        return {
+          rtl,
+          prices: prices.map((cell) => {
+            const native = cell.querySelector('[data-digits="native"]');
+            const western = cell.querySelector('[data-digits="western"]');
+            // The text's own box, not the span's: a block span fills the
+            // column whichever edge its text is aligned to.
+            const n = native && textBox(native);
+            const w = western && textBox(western);
+            return {
+              text: cell.textContent?.replace(/\s+/g, " ").trim() ?? "",
+              nativeLines: native ? lineBoxes(native) : 0,
+              cellLines: lineBoxes(cell),
+              hasWestern: western !== null,
+              placement: !n || !w ? { where: "none", gap: 0, offset: 0 } : place(n, w),
+            };
+          }),
+          pills: [...document.querySelectorAll("li .pill-coral")].map((pill) => ({
+            text: pill.textContent?.replace(/\s+/g, " ").trim() ?? "",
+            lines: lineBoxes(pill),
+          })),
+        };
+      });
+    };
+    for (const row of dualRows) {
+      for (const vw of [320, 390, 1280]) {
+        const found = await measure(row, vw);
+        // Six visible prices and three pills render at every width; fewer
+        // means the page did not paint and the bounds below would pass empty.
+        expect(found.prices.length, `visible prices on ${row.code} at ${vw}`).toBe(6);
+        expect(found.pills.length, `package pills on ${row.code} at ${vw}`).toBe(3);
+        expect(found.rtl, `direction of ${row.code}`).toBe(row.dir === "rtl");
+        for (const price of found.prices) {
+          if (!price.hasWestern)
+            problems.push(`${row.code} at ${vw}: "${price.text}" has no Western half`);
+          if (price.nativeLines !== 1)
+            problems.push(
+              `${row.code} at ${vw}: "${price.text}" native half is ${price.nativeLines} lines`,
+            );
+          const { where, gap, offset } = price.placement;
+          const expected = vw < 640 ? "below" : "after";
+          if (where !== expected)
+            problems.push(
+              `${row.code} at ${vw}: "${price.text}" Western half is ${where}, not ${expected}`,
+            );
+          // Under the native half its outer edge lines up with it; after it, the
+          // price cell's 4px margin separates the two boxes (the no-break space
+          // sits inside the Western half's own box and adds nothing between them).
+          if (where === "below" && offset > 1)
+            problems.push(
+              `${row.code} at ${vw}: "${price.text}" Western half sits ${offset}px in from the native edge`,
+            );
+          if (where === "after" && gap < 3)
+            problems.push(
+              `${row.code} at ${vw}: "${price.text}" Western half is ${gap}px from the native half`,
+            );
+        }
+        if (vw < 640) {
+          for (const pill of found.pills) {
+            if (pill.lines > 2)
+              problems.push(`${row.code} at ${vw}: pill "${pill.text}" is ${pill.lines} lines`);
+          }
+        }
+      }
+    }
+    const control = await measure(DEFAULT_LOCALE, 390);
+    expect(control.prices.length, "visible prices in the default locale").toBe(6);
+    for (const price of control.prices) {
+      if (price.hasWestern || price.cellLines !== 1)
+        problems.push(
+          `${DEFAULT_LOCALE.code} at 390: "${price.text}" is ${price.cellLines} lines, Western half ${price.hasWestern}`,
+        );
+    }
+    expect(problems, "dual-digit prices or pills wrapping, or the Western half misplaced").toEqual(
+      [],
+    );
+  });
 });
 
 // Images and icons. Each test pins a fact the source does not state: that two
