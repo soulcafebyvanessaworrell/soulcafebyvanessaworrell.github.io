@@ -89,9 +89,6 @@ const absolute = (file: string) => new URL(`${base}${file}`, site).href;
 const logoImage = absolute("icon-512.png");
 const ogImage = absolute("og-image.png");
 const OG_IMAGE = { width: 1200, height: 630, type: "image/png", alt: SITE_TITLE };
-// Open Graph writes a locale as language_TERRITORY (en_GB), so the BCP 47
-// hyphen in htmlLang becomes an underscore.
-const ogLocale = meta.htmlLang.replace(/-/g, "_");
 
 // hreflang alternates. Non-root tiers are noindex, so alternates there would be
 // misleading; skip them.
@@ -178,7 +175,7 @@ const jsonLd = {
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
-    <meta property="og:locale" content={ogLocale} />
+    <meta property="og:locale" content={meta.ogLocale} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />

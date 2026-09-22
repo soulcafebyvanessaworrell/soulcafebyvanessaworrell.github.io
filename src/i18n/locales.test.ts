@@ -47,6 +47,19 @@ describe("numberingSystem is what Intl resolves for the dateLocale", () => {
     });
   }
 });
+
+// Open Graph reads language_TERRITORY with an underscore; a row typed with a
+// BCP 47 hyphen, a lowercase territory, or another row's language would pass
+// the type and ship a tag crawlers ignore or file under the wrong language.
+describe("ogLocale is language_TERRITORY for the row's own language", () => {
+  for (const row of LOCALE_TABLE) {
+    test(`${row.code} has ${row.ogLocale}`, () => {
+      expect(row.ogLocale).toMatch(/^[a-z]{2,3}_[A-Z]{2}$/);
+      expect(row.ogLocale.startsWith(`${row.code}_`)).toBe(true);
+    });
+  }
+});
+
 // Without this, a thirtieth locale row would leave README.md and AGENTS.md
 // still saying 29. The table carries endonyms only, so the count is all the
 // docs and the table share.
