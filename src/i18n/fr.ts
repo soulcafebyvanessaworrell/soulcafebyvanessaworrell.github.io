@@ -94,7 +94,7 @@ export const dict = {
       meta: {
         title: "Psychothérapie avec Vanessa Worrell",
         description:
-          "Un espace de psychothérapie chaleureux et sans jugement pour explorer, guérir et grandir. Un accompagnement pour les adolescents, les adultes et les familles, par une psychologue formée à l’international.",
+          "Un espace de psychothérapie chaleureux et sans jugement pour explorer, guérir et grandir. Un accompagnement pour adolescents, adultes et familles.",
       },
       hero: {
         heading: "Bienvenue chez The Soul Cafe !",
@@ -143,7 +143,7 @@ export const dict = {
       meta: {
         title: "À propos",
         description:
-          "Vanessa Worrell, fondatrice de The Soul Cafe, est une psychologue formée aux États-Unis, au Royaume-Uni et en Inde. Son travail est humaniste et existentiel, et s’appuie sur la TCC lorsque c’est utile.",
+          "Vanessa Worrell, fondatrice de The Soul Cafe, est une psychologue formée aux États-Unis, au Royaume-Uni et en Inde.",
       },
       heading: "À propos de notre fondatrice et psychothérapeute",
       photoAlt: "Vanessa Worrell, fondatrice de The Soul Cafe",
@@ -192,7 +192,7 @@ export const dict = {
       meta: {
         title: "Réserver une séance",
         description:
-          "Réservez une séance de psychothérapie en ligne avec Vanessa Worrell, M.A., chez The Soul Cafe, ou commencez par une consultation gratuite de {minutes} minutes pour voir si cela vous convient.",
+          "Réservez une séance de psychothérapie avec Vanessa Worrell, M.A., chez The Soul Cafe, ou commencez par une consultation gratuite de {minutes} minutes.",
       },
       title: "Réserver une séance",
       description:
@@ -233,7 +233,7 @@ export const dict = {
       meta: {
         title: "Forfaits",
         description:
-          "Séances de thérapie individuelle à partir de {price}, ainsi que thérapie de couple et thérapie familiale. Un forfait de six séances vous en offre une. Tarifs réduits pour les jeunes, les étudiants, les militaires, les anciens militaires et les seniors.",
+          "Séances de thérapie individuelle à partir de {price}, ainsi que thérapie de couple et familiale. Tarifs réduits pour jeunes, étudiants et seniors.",
       },
       heading: "Forfaits",
       intro:
@@ -272,7 +272,7 @@ export const dict = {
       meta: {
         title: "Nous contacter",
         description:
-          "Contactez The Soul Cafe pour une réservation, un emploi ou un stage, ou une collaboration autour d’ateliers et de formations. Nous répondons généralement sous quelques jours.",
+          "Contactez The Soul Cafe pour une réservation, un emploi ou un stage, ou une collaboration autour d’ateliers et de formations.",
       },
       title: "Nous contacter",
       intro:
@@ -311,7 +311,7 @@ export const dict = {
       meta: {
         title: "The Soul Food Supper Club",
         description:
-          "Une soirée de bonne cuisine, de conversations ouvertes et de bonne compagnie proposée par The Soul Cafe. Bientôt disponible. Suivez-nous sur Instagram ou contactez-nous pour en savoir plus.",
+          "Une soirée de bonne cuisine, de conversations ouvertes et de bonne compagnie par The Soul Cafe. Bientôt disponible. Suivez-nous sur Instagram.",
       },
       title: "The Soul Food Supper Club",
       intro:
@@ -322,7 +322,7 @@ export const dict = {
       meta: {
         title: "Merch",
         description:
-          "Le merch douillet et réconfortant de The Soul Cafe arrive bientôt. Suivez-nous sur Instagram ou contactez-nous, et nous vous préviendrons dès son ouverture.",
+          "Le merch douillet et réconfortant de The Soul Cafe arrive bientôt. Suivez-nous sur Instagram ou contactez-nous.",
       },
       title: "Merch",
       intro:
@@ -333,7 +333,7 @@ export const dict = {
       meta: {
         title: "Confidentialité",
         description:
-          "Comment The Soul Cafe traite vos informations : aucun cookie ni traceur, un formulaire de contact utilisé uniquement pour vous répondre, et des réservations gérées sur le site de Google.",
+          "Comment The Soul Cafe traite vos informations : aucun cookie ni traceur, un formulaire de contact utilisé uniquement pour vous répondre.",
       },
       title: "Confidentialité",
       updated: "Dernière mise à jour : {date}",
