@@ -6,7 +6,7 @@ export const dict = {
   translation: {
     source: "ai",
     reviewed: false,
-    note: "Machine-drafted; awaiting a native speaker's review.",
+    note: "Devanagari, polite आप register with formal verb endings (जाएँ, करें), the founder's bio in the first-person feminine; psychotherapy is मनोचिकित्सा, psychologist मनोवैज्ञानिक, therapy and session are the loan words थेरेपी and सेशन, healing is उपचार, non-judgmental is बिना किसी निर्णय, trauma is आघात in the expertise and work lists and ट्रॉमा in the bio, and method names carry the English acronym (CBT, DBT, ABA). The Soul Cafe stays in Latin inside the page prose and is transliterated द सोल कैफ़े at the head of the crisis note and of the blog, learning, supper club, merch, and privacy meta descriptions; the supper club is द सोल फ़ूड सपर क्लब; the nav labels are transliterated (मर्च, लर्निंग, सपर क्लब). Machine draft awaiting a native speaker's review.",
   },
 
   ui: {
