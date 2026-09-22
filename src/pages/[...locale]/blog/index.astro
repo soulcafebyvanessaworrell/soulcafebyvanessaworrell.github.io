@@ -4,11 +4,11 @@
 import { getCollection } from "astro:content";
 import { Icon } from "astro-icon/components";
 import ScriptHeading from "../../../components/ScriptHeading.astro";
-import { localeMeta, localizePath } from "../../../i18n/locales";
+import { localizePath } from "../../../i18n/locales";
 import { localeStaticPaths } from "../../../i18n/routes";
 import { blogUi } from "../../../i18n/ui";
 import Base from "../../../layouts/Base.astro";
-import { blogSlug, isoDate } from "../../../lib/blog";
+import { blogSlug, isoDate, postDateFormatter } from "../../../lib/blog";
 
 export const getStaticPaths = localeStaticPaths;
 
@@ -19,12 +19,7 @@ const posts = (await getCollection("blog", (p) => !p.data.draft && p.data.locale
   (a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime(),
 );
 
-const dateFmt = new Intl.DateTimeFormat(localeMeta(locale).dateLocale, {
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-  timeZone: "UTC",
-});
+const dateFmt = postDateFormatter(locale);
 ---
 
 <Base title={copy.title} description={copy.metaDescription} active="blog">

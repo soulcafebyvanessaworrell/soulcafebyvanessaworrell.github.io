@@ -8,11 +8,11 @@ import { Image } from "astro:assets";
 import { getCollection, render } from "astro:content";
 import { Icon } from "astro-icon/components";
 import ScriptHeading from "../../../components/ScriptHeading.astro";
-import { localeMeta, localizePath } from "../../../i18n/locales";
+import { localizePath } from "../../../i18n/locales";
 import { localeParam } from "../../../i18n/routes";
 import { blogUi } from "../../../i18n/ui";
 import Base from "../../../layouts/Base.astro";
-import { groupBySlug, isoDate } from "../../../lib/blog";
+import { groupBySlug, isoDate, postDateFormatter } from "../../../lib/blog";
 
 export async function getStaticPaths() {
   const all = await getCollection("blog", (p) => !p.data.draft);
@@ -29,12 +29,7 @@ const { post, locale, available } = Astro.props;
 const { Content } = await render(post);
 const copy = blogUi(locale);
 
-const dateFmt = new Intl.DateTimeFormat(localeMeta(locale).dateLocale, {
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-  timeZone: "UTC",
-});
+const dateFmt = postDateFormatter(locale);
 ---
 
 <Base

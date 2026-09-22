@@ -1,6 +1,7 @@
 // Blog route helpers shared by the index and post pages, so the file-name
-// convention lives in exactly one place.
+// convention and the date display live in exactly one place.
 import type { CollectionEntry } from "astro:content";
+import { localeMeta, type SiteLocale } from "../i18n/locales";
 
 /**
  * URL slug for a post, taken from its file id. Posts are named
@@ -41,4 +42,16 @@ export function groupBySlug(
 /** YYYY-MM-DD for <time datetime>. The blog schema pins pubDate to UTC midnight. */
 export function isoDate(d: Date): string {
   return d.toISOString().slice(0, 10);
+}
+
+/** The visible post date, a long date in the locale's own calendar wording
+ *  ("21 September 2026"). UTC, to match the schema's midnight pin, so no build
+ *  machine time zone can shift a post to the day before. */
+export function postDateFormatter(locale: SiteLocale): Intl.DateTimeFormat {
+  return new Intl.DateTimeFormat(localeMeta(locale).dateLocale, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    timeZone: "UTC",
+  });
 }
