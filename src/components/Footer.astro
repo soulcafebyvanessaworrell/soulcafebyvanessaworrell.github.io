@@ -3,6 +3,14 @@
 // socials column (icon + handle links), collapsing 2-col → 1-col, then a
 // bottom row with the copyright line, the privacy link, and the crisis note.
 // Dark ink fill; a light focus ring is provided by the `on-dark` wrapper.
+//
+// Every link a finger might miss is a real 44px-tall box (min-h-11), not a
+// `.tap` pseudo-element: the list links, so neighbouring rows meet without
+// overlapping (with the old 33px pitch each row's pseudo-element covered the
+// next row's link), and the two helpline numbers in the crisis note, whose
+// boxes enlarge the text line they sit on, so when a translation wraps the
+// two numbers onto consecutive lines their hit areas can never share rows.
+// Only the privacy link keeps `.tap`; nothing else reaches its 44px area.
 import { Icon } from "astro-icon/components";
 import type { SiteLocale } from "../i18n/locales";
 import { localizePath } from "../i18n/locales";
@@ -45,16 +53,16 @@ const [crisisBetween, crisisAfterFull = ""] = crisisAfterShort.split("{full}");
       <h2 id="footer-contact" class="mb-4 font-script text-2xl font-bold text-white">
         {t(locale, "footer_contact")}
       </h2>
-      <ul class="space-y-2.5 text-sm">
-        <li>
-          <a class="tap inline-flex items-center gap-2.5 transition-colors hover:text-white" href={CONTACT.phoneHref}>
+      <ul class="text-sm">
+        <li class="flex">
+          <a class="inline-flex min-h-11 items-center gap-2.5 transition-colors hover:text-white" href={CONTACT.phoneHref}>
             <Icon name="lucide:phone" class="h-4 w-4 shrink-0 text-mint" aria-hidden="true" />
             <span {...ltr}>{CONTACT.phone}</span>
           </a>
         </li>
-        <li>
+        <li class="flex">
           <a
-            class="tap inline-flex items-center gap-2.5 transition-colors hover:text-white"
+            class="inline-flex min-h-11 items-center gap-2.5 transition-colors hover:text-white"
             href={CONTACT.whatsappHref}
             target="_blank"
             rel="noopener noreferrer"
@@ -63,13 +71,13 @@ const [crisisBetween, crisisAfterFull = ""] = crisisAfterShort.split("{full}");
             WhatsApp
           </a>
         </li>
-        <li>
-          <a class="tap inline-flex items-center gap-2.5 transition-colors hover:text-white" href={`mailto:${CONTACT.email}`}>
+        <li class="flex">
+          <a class="inline-flex min-h-11 items-center gap-2.5 transition-colors hover:text-white" href={`mailto:${CONTACT.email}`}>
             <Icon name="lucide:mail" class="h-4 w-4 shrink-0 text-mint" aria-hidden="true" />
             <span {...ltr} class="wrap-anywhere">{emailUser}<wbr />@{emailHost}</span>
           </a>
         </li>
-        <li class="inline-flex items-center gap-2.5">
+        <li class="flex min-h-11 items-center gap-2.5">
           <Icon name="lucide:globe" class="h-4 w-4 shrink-0 text-mint" aria-hidden="true" />
           <span {...ltr} class="wrap-anywhere">{websiteName}<wbr />{websiteSuffix}</span>
         </li>
@@ -80,12 +88,12 @@ const [crisisBetween, crisisAfterFull = ""] = crisisAfterShort.split("{full}");
       <h2 id="footer-follow" class="mb-4 font-script text-2xl font-bold text-white">
         {t(locale, "footer_follow")}
       </h2>
-      <ul class="space-y-2.5 text-sm sm:flex sm:flex-col sm:items-end">
+      <ul class="text-sm sm:flex sm:flex-col sm:items-end">
         {
           PUBLISHED_SOCIALS.map((social) => (
-            <li>
+            <li class="flex">
               <a
-                class="tap inline-flex items-center gap-2.5 transition-colors hover:text-white"
+                class="inline-flex min-h-11 items-center gap-2.5 transition-colors hover:text-white"
                 href={social.url}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -113,15 +121,14 @@ const [crisisBetween, crisisAfterFull = ""] = crisisAfterShort.split("{full}");
           {pages(locale).privacy.meta.title}
         </a>
       </div>
-      <p class="max-w-2xl text-balance sm:text-end">
         {crisisBefore}<a
           href={CRISIS.numberHref}
           {...ltr}
-          class="whitespace-nowrap text-inherit no-underline">{CRISIS.number}</a
+          class="inline-flex min-h-11 items-center whitespace-nowrap text-inherit no-underline">{CRISIS.number}</a
         >{crisisBetween}<a
           href={CRISIS.fullNumberHref}
           {...ltr}
-          class="whitespace-nowrap text-inherit no-underline">{CRISIS.fullNumber}</a
+          class="inline-flex min-h-11 items-center whitespace-nowrap text-inherit no-underline">{CRISIS.fullNumber}</a
         >{crisisAfterFull}
       </p>
     </div>

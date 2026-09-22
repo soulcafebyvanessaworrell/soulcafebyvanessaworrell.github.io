@@ -490,6 +490,127 @@ for (const row of SAMPLE_LOCALES) {
   });
 }
 
+// Without this, a tighter footer row pitch would again leave neighbouring
+// links overlapping hit areas (the old 33px rows gave a finger 33px per link,
+// the next row's `.tap` pseudo-element covering the rest). Probed with
+// elementFromPoint down the column centred on each footer link, under a
+// coarse pointer at phone width; the crisis note's two tel: links have their
+// own suite below, across every locale.
+test.describe("footer links each own a 44px tap column at 390px", () => {
+  test.use({ hasTouch: true, viewport: { width: 390, height: 844 } });
+
+  for (const row of SAMPLE_LOCALES.slice(0, 3)) {
+    test(`every footer link is hit for 44px and covered by no other link: ${row.code}`, async ({
+      page,
+    }) => {
+      await page.goto(`${localeBase(row)}/`, { waitUntil: "load" });
+      // Control: the `.tap` rule is behind (pointer: coarse); without it the
+      // probe below would measure the bare links and prove nothing.
+      expect(await page.evaluate(() => matchMedia("(pointer: coarse)").matches)).toBe(true);
+
+      const links = await page.evaluate(() => {
+        const out: { text: string; hit: number; coveredBy: string | null }[] = [];
+        for (const a of document.querySelectorAll<HTMLAnchorElement>("footer a[href]")) {
+          a.scrollIntoView({ block: "center" });
+          const r = a.getBoundingClientRect();
+          const cx = r.left + r.width / 2;
+          const cy = r.top + r.height / 2;
+          // The hit test works on whole pixel rows, so the rows the link owns
+          // are counted over a window wider than its 44px column: a neighbour
+          // reaching into that column shows up as fewer than 44 rows.
+          let hit = 0;
+          let coveredBy: string | null = null;
+          for (let y = Math.floor(cy - 30); y <= Math.ceil(cy + 30); y++) {
+            const el = document.elementFromPoint(cx, y);
+            if (el === a || a.contains(el)) hit++;
+            // Another link hit on a row wholly inside this link's own box is
+            // covering it (a row the box only partly spans belongs to whoever
+            // the pixel snapping gives it to).
+            else if (
+              y >= Math.ceil(r.top) &&
+              y < Math.floor(r.bottom) &&
+              el?.closest("a") &&
+              !coveredBy
+            ) {
+              coveredBy = el.closest("a")?.textContent?.trim() ?? "another link";
+            }
+          }
+          out.push({ text: a.textContent?.trim() ?? "", hit, coveredBy });
+        }
+        return out;
+      });
+      // The footer alone carries at least the phone, WhatsApp, email, the
+      // socials, the privacy link, and the two helpline numbers.
+      expect(links.length, "footer links found").toBeGreaterThanOrEqual(8);
+      for (const link of links) {
+        expect(link.hit, `tap column of "${link.text}" in px`).toBeGreaterThanOrEqual(44);
+        expect(link.coveredBy, `"${link.text}" covered by`).toBeNull();
+      }
+    });
+  }
+});
+
+// Without this, the two Tele-MANAS tel: links could again be 18px lines
+// inside the wrapping crisis paragraph, and a translation that wraps {short}
+// onto one line and {full} onto the next would let a tap at the bottom of the
+// first number dial the second. Each link is a real 44px box that enlarges
+// its line, so the two boxes never share rows; every locale's wording is
+// measured because each wraps differently.
+test.describe("the crisis note's two tel: links are 44px tall and never overlap, every locale", () => {
+  // The mobile project's 390px viewport, with a coarse pointer added.
+  test.use({ hasTouch: true });
+  test.skip(({ viewport }) => (viewport?.width ?? 0) > 500, "runs once, in the mobile project");
+
+  for (const row of LOCALE_TABLE) {
+    test(`${row.code}`, async ({ page }) => {
+      await page.goto(`${localeBase(row)}/`, { waitUntil: "load" });
+      expect(await page.evaluate(() => matchMedia("(pointer: coarse)").matches)).toBe(true);
+      const links = await page.evaluate(() => {
+        // Boxes in document coordinates, so the scroll per link does not matter.
+        const out: {
+          text: string;
+          top: number;
+          bottom: number;
+          left: number;
+          right: number;
+          hit: number;
+        }[] = [];
+        for (const a of document.querySelectorAll<HTMLAnchorElement>(
+          "footer [data-crisis-note] a[href^='tel:']",
+        )) {
+          a.scrollIntoView({ block: "center" });
+          const r = a.getBoundingClientRect();
+          const cx = r.left + r.width / 2;
+          const cy = r.top + r.height / 2;
+          let hit = 0;
+          for (let y = Math.floor(cy - 30); y <= Math.ceil(cy + 30); y++) {
+            const el = document.elementFromPoint(cx, y);
+            if (el === a || a.contains(el)) hit++;
+          }
+          out.push({
+            text: a.textContent?.trim() ?? "",
+            top: r.top + scrollY,
+            bottom: r.bottom + scrollY,
+            left: r.left,
+            right: r.right,
+            hit,
+          });
+        }
+        return out;
+      });
+      expect(links.length, "tel: links in the crisis note").toBe(2);
+      for (const link of links) {
+        expect(link.bottom - link.top, `box of "${link.text}"`).toBeGreaterThanOrEqual(44);
+        expect(link.hit, `rows a finger hits on "${link.text}"`).toBeGreaterThanOrEqual(44);
+      }
+      const [a, b] = links;
+      if (!a || !b) return; // the count above already failed
+      const overlap = a.bottom > b.top && b.bottom > a.top && a.right > b.left && b.right > a.left;
+      expect(overlap, `the two tel: boxes overlap: ${JSON.stringify([a, b])}`).toBe(false);
+    });
+  }
+});
+
 // Without this, a wider picker label or a larger logo could collide at the
 // narrowest supported width: the mobile brand row pins its controls to the
 // edges and centers the logo between them, so nothing else measures the gap.
