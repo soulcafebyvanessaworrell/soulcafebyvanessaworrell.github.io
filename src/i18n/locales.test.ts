@@ -11,6 +11,7 @@ import {
   LOCALES,
   localePrefix,
   localizePath,
+  pickerTarget,
   type SiteLocale,
 } from "./locales";
 
@@ -107,5 +108,23 @@ describe("URLs under a base path", () => {
     expect(localizePath("", prefixed)).toBe(`/site/${prefixed}/`);
     expect(() => localizePath("/about/", DEFAULT_LOCALE)).toThrow(/leading slash/);
     expect(() => localizePath("/", prefixed)).toThrow(/leading slash/);
+  });
+
+  // Without this, a locale missing a blog post could be sent to its 404: the
+  // picker links every page to the same page in every other locale, and only
+  // this decision routes the missing ones to the blog index instead.
+  test("pickerTarget sends an available locale to the same page and a missing one to the fallback", () => {
+    const pagePath = "blog/welcome/";
+    const available = [DEFAULT_LOCALE, prefixed];
+    const other = LOCALES.find((code) => !available.includes(code)) as SiteLocale;
+    const page = { pagePath, available, fallbackPath: "blog/" };
+    expect(pickerTarget(DEFAULT_LOCALE, page)).toBe("/site/blog/welcome/");
+    expect(pickerTarget(prefixed, page)).toBe(`/site/${prefixed}/blog/welcome/`);
+    expect(pickerTarget(other, page)).toBe(`/site/${other}/blog/`);
+    expect(pickerTarget(other, { pagePath, available: [], fallbackPath: "" })).toBe(
+      `/site/${other}/`,
+    );
+    // The default locale is missing too: its picker entry goes to the unprefixed fallback.
+    expect(pickerTarget(DEFAULT_LOCALE, { ...page, available: [prefixed] })).toBe("/site/blog/");
   });
 });

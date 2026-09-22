@@ -12,8 +12,8 @@ import {
   LOCALE_TABLE,
   LOCALES,
   localeMeta,
-  localizePath,
   pagePathFromUrl,
+  pickerTarget,
   type Region,
   type SiteLocale,
 } from "../i18n/locales";
@@ -45,10 +45,6 @@ const groups: { region: Region; heading: string }[] = [
   { region: "india", heading: t(locale, "languages_india") },
   { region: "europe", heading: t(locale, "languages_europe") },
 ];
-
-function targetFor(code: SiteLocale): string {
-  return localizePath(available.includes(code) ? pagePath : fallbackPath, code);
-}
 ---
 
 <details class:list={["language-picker relative", klass]} data-language-picker>
@@ -84,7 +80,7 @@ function targetFor(code: SiteLocale): string {
                 return (
                   <li>
                     <a
-                      href={targetFor(row.code)}
+                      href={pickerTarget(row.code, { pagePath, available, fallbackPath })}
                       data-locale={row.code}
                       hreflang={row.htmlLang}
                       lang={row.htmlLang}

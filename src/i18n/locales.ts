@@ -461,6 +461,17 @@ export function localizePath(path: string, locale: SiteLocale): string {
   return `${import.meta.env.BASE_URL}${localePrefix(locale)}${path}`;
 }
 
+/** Where the language picker sends a visitor who picks `locale` on the page
+ *  at `pagePath`: the same page in that locale, or, for a locale outside
+ *  `available`, `fallbackPath` (the blog index for an untranslated post). */
+export function pickerTarget(
+  locale: SiteLocale,
+  page: { pagePath: string; available: readonly SiteLocale[]; fallbackPath: string },
+): string {
+  const { pagePath, available, fallbackPath } = page;
+  return localizePath(available.includes(locale) ? pagePath : fallbackPath, locale);
+}
+
 /** hreflang alternates for a locale-relative page path. By default every locale
  *  is emitted (all pages are paired) plus an x-default pointing at the default
  *  locale. A page that exists in only some locales (an untranslated blog post)
