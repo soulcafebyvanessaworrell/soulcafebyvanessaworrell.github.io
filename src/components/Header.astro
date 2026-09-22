@@ -4,24 +4,35 @@
 // one logo, one language picker, one nav landmark, and one of each pill.
 //
 // Desktop (lg+): the brand row centres the logo and the "Healing brewed
-// daily..." tagline, with the language picker as a quiet ghost pill at the
-// inline end. The logo is the home control, the universal convention, so no
-// house icon doubles it; there is no cart until merch opens. Below a hairline
-// and a slightly deeper mint tint, the action bar. Its order is a fixed user
-// requirement: the Book a Session primary, then the six cream nav pills
-// (centred), then the Contact Us outline secondary at the inline end.
+// daily..." tagline between two quiet ghost pills, Home at the inline start
+// and the language picker at the inline end. The logo is a home link too; the
+// Home pill is there so the start edge balances the picker (the owner's
+// requirement). There is no cart until merch opens.
+//
+// Below a hairline and a slightly deeper mint tint, the action bar. Its order
+// is a fixed user requirement: the Book a Session primary, then the six cream
+// nav pills (centred), then the Contact Us outline secondary at the inline end.
 //
 // Mobile (< lg): no hamburger. The same pieces stay permanently visible in a
-// compact stack: a brand row (a smaller logo and the tagline centred, the
-// picker at the end), then Book a Session, the nav pills as a centred wrap,
-// and Contact Us.
+// compact stack: the brand row (a smaller logo and the tagline centred, the
+// two pills at the edges, shrunk below `sm` to 44px rounds, the house icon on
+// one and the language code on the other), then Book a Session, the nav pills
+// as a centred wrap, and Contact Us.
 //
 // Hierarchy throughout: Book a Session is the one loud indigo primary, Contact
 // Us a quieter outline, the nav the soft cream family, the utilities whisper.
 import { Image } from "astro:assets";
-import { LOCALES, localizePath, type SiteLocale } from "../i18n/locales";
+import { Icon } from "astro-icon/components";
+import {
+  LOCALES,
+  localeMeta,
+  localizePath,
+  pagePathFromUrl,
+  type SiteLocale,
+} from "../i18n/locales";
 import { t } from "../i18n/ui";
 import { logo, teacupDoodle } from "../lib/assets";
+import { BRAND } from "../lib/constants";
 import type { NavId } from "../lib/nav";
 import LanguagePicker from "./LanguagePicker.astro";
 import NavPills from "./NavPills.astro";
@@ -39,6 +50,15 @@ interface Props {
 const { active, locale, available = LOCALES, fallbackPath = "" } = Astro.props;
 
 const homeHref = localizePath("", locale);
+// The home page passes no `active` (it has no nav pill), so the Home pill reads
+// its own state off the URL: the locale-relative page path is empty on home.
+const onHome = pagePathFromUrl(Astro.url) === "";
+
+// The logo link's name leads with the brand, in the locale's transliteration
+// where the table has one, and the Home pill beside it is the link named
+// "Home". The English brand name is a Latin run, isolated wherever it appears.
+const brandName = localeMeta(locale).brand?.[BRAND] ?? BRAND;
+const brandDir = brandName === BRAND ? "ltr" : undefined;
 const contactHref = localizePath("contact/", locale);
 const bookHref = localizePath("book/", locale);
 
@@ -51,13 +71,27 @@ const LOGO_SIZES = "(min-width: 1024px) 12rem, (min-width: 640px) 7.5rem, 6rem";
 
 <header class="bg-mint text-ink">
   {/* ---- Brand row --------------------------------------------------------
-      The brand block centres on the row itself and the picker is pinned to the
-      inline end, so its width cannot push the logo off-centre. Centred with
-      flex, not a translate: a transform would make the wrapper a stacking
-      context and trap the open menu's z-index under page content. */}
+      The brand block centres on the row itself and the two controls are pinned
+      to the inline edges, so neither one's width can push the logo off-centre.
+      Centred with flex, not a translate: a transform would make the wrapper a
+      stacking context and trap the open menu's z-index under page content. */}
   <div class="relative mx-auto flex max-w-7xl justify-center px-4 pt-2 pb-1.5 lg:px-6 lg:pt-4 lg:pb-3">
+    {/* The Home pill comes first in the DOM, as it does on screen, so focus
+        moves start to end across the row. It shares the picker summary's
+        .pill-ghost look so the two read as one pair. */}
+    <div class="absolute start-3 top-3.5 flex items-center lg:top-0 lg:bottom-0 lg:start-6">
+      <a
+        href={homeHref}
+        aria-current={onHome ? "page" : undefined}
+        class:list={["pill-ghost tap", onHome && "border-ink/15 bg-paper/80 text-ink"]}
+      >
+        <Icon name="lucide:house" class="h-4 w-4 shrink-0" aria-hidden="true" />
+        <span class="sr-only sm:not-sr-only">{t(locale, "home")}</span>
+      </a>
+    </div>
+
     <a href={homeHref} class="flex flex-col items-center gap-0.5 text-center lg:gap-1">
-      <span class="sr-only">{t(locale, "home")}</span>
+      <span class="sr-only" dir={brandDir}>{brandName}</span>
       <Image
         src={logo}
         alt=""
@@ -83,8 +117,6 @@ const LOGO_SIZES = "(min-width: 1024px) 12rem, (min-width: 640px) 7.5rem, 6rem";
       </span>
     </a>
 
-    {/* On phones the picker aligns with the logo row, above the tagline; on
-        desktop it centres on the whole row. */}
     <div class="absolute end-3 top-3.5 flex items-center lg:top-0 lg:bottom-0 lg:end-6">
       <LanguagePicker locale={locale} available={available} fallbackPath={fallbackPath} align="end" />
     </div>

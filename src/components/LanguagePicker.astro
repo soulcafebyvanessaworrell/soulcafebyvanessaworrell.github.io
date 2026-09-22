@@ -1,6 +1,7 @@
 ---
-// Language picker: a no-JS <details> disclosure. The summary is a pill showing
-// a globe and the current language's endonym; below `sm` it collapses to the
+// Language picker: a no-JS <details> disclosure. The summary is a ghost pill
+// (.pill-ghost in styles.css, shared with the header's Home pill) showing a
+// globe and the current language's endonym; below `sm` it collapses to the
 // bare uppercase code in a 44px round control, the same footprint as the
 // other brand-row controls, so the centered logo still clears at 320px. The
 // visible label plus a hidden "Change language" form the accessible name. The panel lists
@@ -51,7 +52,7 @@ const groups: { region: Region; heading: string }[] = [
 
 <details class:list={["language-picker relative", klass]} data-language-picker>
   <summary
-    class="tap inline-flex h-11 w-11 cursor-pointer list-none items-center justify-center gap-1.5 rounded-full border border-ink/10 bg-paper/45 text-xs font-bold text-ink/75 transition-colors hover:bg-paper/80 hover:text-ink sm:h-auto sm:min-h-[2.75rem] sm:w-auto sm:px-3 sm:py-1.5 sm:text-sm lg:min-h-0 [&::-webkit-details-marker]:hidden"
+    class="pill-ghost tap cursor-pointer list-none [&::-webkit-details-marker]:hidden"
   >
     <Icon name="lucide:globe" class="hidden h-4 w-4 shrink-0 sm:block" aria-hidden="true" />
     <span class="hidden sm:inline" lang={current.htmlLang}>{current.label}</span>

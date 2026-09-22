@@ -374,6 +374,59 @@ p {
   }
 }
 
+/* The quiet ghost pill of the brand row's two controls, the Home link and the
+   language picker's summary: a hairline, a translucent paper fill, and ink at
+   three quarters that darkens on hover. Below `sm` it is a 44px round holding
+   an icon or a language code; from `sm` it grows to fit its label. In the
+   components layer so an element's own state utilities (the Home pill's
+   aria-current colours) override these. */
+@layer components {
+  .pill-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    height: 2.75rem;
+    width: 2.75rem;
+    border-radius: 9999px;
+    border: 1px solid color-mix(in oklab, var(--color-ink) 10%, transparent);
+    background-color: color-mix(in oklab, var(--color-paper) 45%, transparent);
+    color: color-mix(in oklab, var(--color-ink) 75%, transparent);
+    /* The theme's text sizes, read through their variables like the text-*
+       utilities do, so the Arabic-script blocks' taller line heights apply. */
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height);
+    font-weight: 700;
+    transition-property: color, background-color, border-color;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+
+  @media (hover: hover) {
+    .pill-ghost:hover {
+      background-color: color-mix(in oklab, var(--color-paper) 80%, transparent);
+      color: var(--color-ink);
+    }
+  }
+
+  @media (width >= 40rem) {
+    .pill-ghost {
+      height: auto;
+      min-height: 2.75rem;
+      width: auto;
+      padding: 0.375rem 0.75rem;
+      font-size: var(--text-sm);
+      line-height: var(--text-sm--line-height);
+    }
+  }
+
+  @media (width >= 64rem) {
+    .pill-ghost {
+      min-height: 0;
+    }
+  }
+}
+
 @media (hover: hover) and (pointer: fine) {
   .pill:hover {
     transform: translateY(-2px);
