@@ -349,6 +349,8 @@ export const dict = {
           "Nasz formularz kontaktowy trafia do naszej skrzynki przez FormSubmit, zewnętrzną usługę, która odbiera Twoją wiadomość i załączniki, a następnie przekazuje je nam. Tego, co wysyłasz, używamy tylko po to, by Ci odpowiedzieć. Nie sprzedajemy tych danych i nie udostępniamy ich nikomu poza FormSubmit. Własna ",
         linkLabel: "polityka prywatności",
         bodyAfter: " tej usługi wyjaśnia, jak obchodzi się ona z tym, co przez nią przechodzi.",
+        captcha:
+          "Zanim Twoja wiadomość zostanie przekazana, FormSubmit może poprosić Cię o rozwiązanie captchy Google.",
       },
       bookings: {
         heading: "Rezerwacje",

@@ -42,7 +42,11 @@ const fileAccept = ".pdf,.doc,.docx,.txt,.rtf,.odt,image/png,image/jpeg,image/we
     {/* FormSubmit control fields (not shown to the visitor). */}
     <input type="hidden" name="_subject" value="New message from thesoulcafe website" />
     <input type="hidden" name="_template" value="table" />
-    <input type="hidden" name="_captcha" value="false" />
+    {/* FormSubmit shows its own Google captcha page after Send. Once the owner
+        has activated the endpoint, FormSubmit offers a random alias for the
+        address; put that alias in FORMSUBMIT_ENDPOINT to keep the inbox out
+        of the page source. */}
+    <input type="hidden" name="_captcha" value="true" />
     <input type="hidden" name="_next" value={nextUrl} />
 
     {/* Honeypot: a real field bots tend to fill and humans never see. Hidden

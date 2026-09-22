@@ -348,6 +348,8 @@ export const dict = {
           "I messaggi del modulo di contatto arrivano alla nostra casella attraverso FormSubmit, un servizio di terze parti che riceve il tuo messaggio e gli eventuali allegati e ce li recapita. Usiamo ciò che ci invii solo per risponderti. Non lo vendiamo e non lo condividiamo con nessuno oltre a FormSubmit, la cui ",
         linkLabel: "informativa sulla privacy",
         bodyAfter: " spiega come gestisce ciò che passa attraverso il servizio.",
+        captcha:
+          "Prima di trasmettere il tuo messaggio, FormSubmit può chiederti di completare un captcha di Google.",
       },
       bookings: {
         heading: "Prenotazioni",

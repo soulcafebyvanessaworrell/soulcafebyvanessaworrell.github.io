@@ -349,6 +349,8 @@ export const dict = {
           "Les messages envoyés via notre formulaire de contact nous parviennent par FormSubmit, un service tiers qui reçoit votre message et vos éventuelles pièces jointes et nous les transmet. Nous utilisons ce que vous nous envoyez uniquement pour vous répondre. Nous ne le vendons pas et ne le partageons avec personne d’autre que FormSubmit, dont la ",
         linkLabel: "politique de confidentialité",
         bodyAfter: " explique comment ce service traite ce qui transite par lui.",
+        captcha:
+          "Avant de transmettre votre message, FormSubmit peut vous demander de résoudre un captcha Google.",
       },
       bookings: {
         heading: "Réservations",

@@ -347,6 +347,8 @@ export const dict = {
           "Formularul nostru de contact ajunge în căsuța noastră de e-mail prin FormSubmit, un serviciu terț care primește mesajul și eventualele atașamente și ni le transmite. Folosim ceea ce ne trimiteți doar pentru a vă răspunde. Nu îl vindem și nu îl transmitem nimănui în afară de FormSubmit, a cărui ",
         linkLabel: "politică de confidențialitate",
         bodyAfter: " explică modul în care gestionează ceea ce trece prin serviciul lor.",
+        captcha:
+          "Înainte ca mesajul dumneavoastră să fie transmis, FormSubmit vă poate cere să completați un captcha Google.",
       },
       bookings: {
         heading: "Programări",

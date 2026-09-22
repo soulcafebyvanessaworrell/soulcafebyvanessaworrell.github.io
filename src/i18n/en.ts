@@ -356,6 +356,8 @@ export const en = {
           "Our contact form reaches our inbox through FormSubmit, a third-party service that receives your message and any attachments and passes them on to us. We use what you send only to reply to you. We don't sell it, and we don't share it with anyone beyond FormSubmit, whose own ",
         linkLabel: "privacy policy",
         bodyAfter: " explains how they handle what passes through them.",
+        captcha:
+          "Before your message is passed on, FormSubmit may ask you to complete a Google captcha.",
       },
       bookings: {
         heading: "Bookings",

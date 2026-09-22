@@ -348,6 +348,8 @@ export const dict = {
           "Nuestro formulario de contacto llega a nuestra bandeja de entrada a través de FormSubmit, un servicio externo que recibe tu mensaje y los archivos adjuntos y nos los hace llegar. Usamos lo que nos envías solo para responderte. No lo vendemos ni lo compartimos con nadie más allá de FormSubmit, cuya propia ",
         linkLabel: "política de privacidad",
         bodyAfter: " explica cómo tratan lo que pasa por sus manos.",
+        captcha:
+          "Antes de transmitir tu mensaje, FormSubmit puede pedirte que completes un captcha de Google.",
       },
       bookings: {
         heading: "Reservas",

@@ -350,6 +350,8 @@ export const dict = {
         linkLabel: "Datenschutzerklärung",
         bodyAfter:
           " beschreibt, wie dort mit den Daten umgegangen wird, die durch den Dienst laufen.",
+        captcha:
+          "Bevor Ihre Nachricht weitergeleitet wird, kann FormSubmit Sie bitten, ein Google-Captcha zu lösen.",
       },
       bookings: {
         heading: "Buchungen",

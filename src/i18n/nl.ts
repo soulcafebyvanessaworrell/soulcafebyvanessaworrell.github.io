@@ -348,6 +348,8 @@ export const dict = {
           "Ons contactformulier bereikt onze inbox via FormSubmit, een externe dienst die je bericht en eventuele bijlagen ontvangt en aan ons doorgeeft. We gebruiken wat je stuurt alleen om je te antwoorden. We verkopen het niet en delen het met niemand buiten FormSubmit, waarvan het eigen ",
         linkLabel: "privacybeleid",
         bodyAfter: " uitlegt hoe zij omgaan met wat via hen loopt.",
+        captcha:
+          "Voordat je bericht wordt doorgestuurd, kan FormSubmit je vragen een Google-captcha op te lossen.",
       },
       bookings: {
         heading: "Boekingen",
