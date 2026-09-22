@@ -690,6 +690,24 @@ for (const row of SAMPLE_LOCALES.slice(0, 3)) {
   });
 }
 
+// Without this, the phone header could grow back past the first screen: at
+// 390 x 844 it once stood 401px tall, and with the founder photo above the
+// text on phones the hero heading began at 808px, so the first screen said
+// nothing about the practice. The heading's top must sit inside the first
+// viewport in the default locale, in Hindi, and in the right-to-left locale,
+// whose Nastaliq pills run taller.
+for (const row of SAMPLE_LOCALES.slice(0, 3)) {
+  test(`the hero heading starts within the first phone screen: ${row.code}`, async ({ page }) => {
+    const viewport = page.viewportSize();
+    test.skip((viewport?.width ?? 0) > 500, "mobile viewport only");
+    await page.goto(`${localeBase(row)}/`, { waitUntil: "load" });
+    await page.evaluate(() => document.fonts.ready);
+    const heading = await page.locator("main h1").first().boundingBox();
+    expect(heading, "hero heading").not.toBeNull();
+    expect(heading?.y ?? Infinity, "hero heading top").toBeLessThan(viewport?.height ?? 0);
+  });
+}
+
 // Without this, a phone number, email, URL, handle, or copyright line added
 // without dir="ltr" renders reordered on right-to-left pages and nothing else
 // notices (AGENTS.md, rule 5). Text runs are matched by shape, so a

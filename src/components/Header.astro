@@ -45,11 +45,11 @@ const contactHref = localizePath("contact/", locale);
 const bookHref = localizePath("book/", locale);
 const merchHref = localizePath("merch/", locale);
 
-// The logo renders at 120px below `lg` and 192px from `lg`; the candidates
-// cover each at 1x and 2x so a phone never downloads the desktop file. The
-// source is 500px, so nothing is upscaled.
-const LOGO_WIDTHS = [120, 192, 240, 384];
-const LOGO_SIZES = "(min-width: 1024px) 12rem, 7.5rem";
+// The logo renders at 96px on phones, 120px from `sm`, and 192px from `lg`;
+// the candidates cover each of the three at 1x and 2x so a phone never
+// downloads the desktop file. The source is 500px, so nothing is upscaled.
+const LOGO_WIDTHS = [96, 120, 192, 240, 384];
+const LOGO_SIZES = "(min-width: 1024px) 12rem, (min-width: 640px) 7.5rem, 6rem";
 
 const ghostControl =
   "tap inline-flex h-11 w-11 items-center justify-center rounded-full border border-ink/10 bg-paper/45 text-ink/70 transition-colors hover:bg-paper/80 hover:text-ink lg:h-9 lg:w-9";
@@ -65,7 +65,7 @@ const ghostControl =
       inline end, so its width cannot push the logo off-centre. Centred with
       flex, not a translate: a transform would make the wrapper a stacking
       context and trap the open menu's z-index under page content. */}
-  <div class="relative mx-auto flex max-w-7xl justify-center px-4 pt-2.5 pb-2 lg:px-6 lg:pt-4 lg:pb-3">
+  <div class="relative mx-auto flex max-w-7xl justify-center px-4 pt-2 pb-1.5 lg:px-6 lg:pt-4 lg:pb-3">
     <a href={homeHref} class="flex flex-col items-center gap-0.5 text-center lg:gap-1">
       <span class="sr-only">{t(locale, "home")}</span>
       <Image
@@ -75,7 +75,7 @@ const ghostControl =
         height={192}
         widths={LOGO_WIDTHS}
         sizes={LOGO_SIZES}
-        class="h-30 w-30 rounded-full lg:h-48 lg:w-48"
+        class="h-24 w-24 rounded-full sm:h-30 sm:w-30 lg:h-48 lg:w-48"
         loading="eager"
       />
       <span
@@ -117,7 +117,7 @@ const ghostControl =
   {/* ---- Action bar ------------------------------------------------------- */}
   <div class="border-t border-ink/10 bg-mint-deep/25">
     <div
-      class="mx-auto flex max-w-7xl flex-col items-center gap-3 px-4 pt-3 pb-4 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:gap-4 lg:px-6 lg:py-2.5"
+      class="mx-auto flex max-w-7xl flex-col items-center gap-2 px-4 pt-2 pb-2.5 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:gap-4 lg:px-6 lg:py-2.5"
     >
       {/* The owner fixed this order; the file comment above spells it out. */}
       <div class="flex items-center gap-2.5 lg:justify-self-start">

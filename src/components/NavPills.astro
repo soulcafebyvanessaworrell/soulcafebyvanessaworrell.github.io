@@ -18,10 +18,10 @@ interface Props {
 
 const { active, locale, class: klass = "" } = Astro.props;
 
-// The type stays at text-lg (18px) at every width: Dancing Script turns
-// illegible below that. Desktop only trims horizontal padding so the action bar
-// fits; if it must, the row wraps rather than shrinking the type.
-const sizeClass = "px-5 py-2 text-lg lg:px-3.5";
+// The type stays at text-lg (18px): Dancing Script turns illegible below that.
+// The padding is trimmed instead, so the desktop bar fits and the phone stack
+// stays short; if it must, the row wraps rather than shrinking the type.
+const sizeClass = "px-3.5 py-2 text-lg";
 ---
 
 <nav aria-label={t(locale, "primary_navigation")} class:list={[klass]}>
