@@ -94,7 +94,7 @@ export const dict = {
       meta: {
         title: "Psychotherapie bei Vanessa Worrell",
         description:
-          "Ein warmer, wertfreier Raum für Psychotherapie, um zu erkunden, zu heilen und zu wachsen. Begleitung für Jugendliche, Erwachsene und Familien von einer international ausgebildeten Psychologin.",
+          "Ein warmer, wertfreier Raum für Psychotherapie, um zu erkunden, zu heilen und zu wachsen. Begleitung für Jugendliche, Erwachsene und Familien.",
       },
       hero: {
         heading: "Willkommen bei The Soul Cafe!",
@@ -143,7 +143,7 @@ export const dict = {
       meta: {
         title: "Über uns",
         description:
-          "Vanessa Worrell, Gründerin von The Soul Cafe, ist eine in den USA, in Großbritannien und in Indien ausgebildete Psychologin. Ihre Arbeit ist humanistisch und existenziell und greift auf KVT zurück, wenn es hilft.",
+          "Vanessa Worrell, Gründerin von The Soul Cafe, ist eine in den USA, in Großbritannien und in Indien ausgebildete Psychologin.",
       },
       heading: "Über unsere Gründerin und Psychotherapeutin",
       photoAlt: "Vanessa Worrell, Gründerin von The Soul Cafe",
@@ -192,7 +192,7 @@ export const dict = {
       meta: {
         title: "Sitzung buchen",
         description:
-          "Buchen Sie eine Online-Psychotherapiesitzung mit Vanessa Worrell, M.A., bei The Soul Cafe, oder beginnen Sie mit einem kostenlosen {minutes}-Minuten-Erstgespräch, um zu sehen, ob es passt.",
+          "Buchen Sie eine Psychotherapiesitzung mit Vanessa Worrell, M.A., bei The Soul Cafe, oder beginnen Sie mit einem kostenlosen {minutes}-Minuten-Erstgespräch.",
       },
       title: "Sitzung buchen",
       description:
@@ -233,7 +233,7 @@ export const dict = {
       meta: {
         title: "Pakete",
         description:
-          "Einzeltherapiesitzungen ab {price}, dazu Paar- und Familientherapie. Ein Paket mit sechs Sitzungen spart Ihnen eine. Ermäßigungen für junge Erwachsene, Studierende, Angehörige der Streitkräfte, Veteranen und Senioren.",
+          "Einzeltherapiesitzungen ab {price}, dazu Paar- und Familientherapie. Ermäßigungen für junge Erwachsene, Studierende und Senioren.",
       },
       heading: "Pakete",
       intro:
@@ -272,7 +272,7 @@ export const dict = {
       meta: {
         title: "Kontakt",
         description:
-          "Nehmen Sie Kontakt mit The Soul Cafe auf: zu Buchungen, Jobs und Praktika oder zur Zusammenarbeit bei Workshops und Fortbildungen. Wir antworten meist innerhalb weniger Tage.",
+          "Nehmen Sie Kontakt mit The Soul Cafe auf: zu Buchungen, Jobs und Praktika oder zur Zusammenarbeit bei Workshops und Fortbildungen.",
       },
       title: "Kontakt aufnehmen",
       intro:
@@ -311,7 +311,7 @@ export const dict = {
       meta: {
         title: "The Soul Food Supper Club",
         description:
-          "Ein Abend mit gutem Essen, offenen Gesprächen und guter Gesellschaft von The Soul Cafe. Bald verfügbar. Folgen Sie uns auf Instagram oder melden Sie sich, um mehr zu erfahren.",
+          "Ein Abend mit gutem Essen, offenen Gesprächen und guter Gesellschaft von The Soul Cafe. Bald verfügbar. Folgen Sie uns auf Instagram.",
       },
       title: "The Soul Food Supper Club",
       intro:
@@ -322,7 +322,7 @@ export const dict = {
       meta: {
         title: "Merch",
         description:
-          "Gemütlicher, tröstlicher Merch von The Soul Cafe ist in Vorbereitung. Folgen Sie uns auf Instagram oder melden Sie sich, und wir sagen Ihnen Bescheid, wenn es losgeht.",
+          "Gemütlicher, tröstlicher Merch von The Soul Cafe ist in Vorbereitung. Folgen Sie uns auf Instagram oder melden Sie sich.",
       },
       title: "Merch",
       intro:
@@ -333,7 +333,7 @@ export const dict = {
       meta: {
         title: "Datenschutz",
         description:
-          "Wie The Soul Cafe mit Ihren Daten umgeht: keine Cookies oder Tracker, ein Kontaktformular, das nur für unsere Antwort genutzt wird, und Buchungen direkt auf Googles eigener Seite.",
+          "Wie The Soul Cafe mit Ihren Daten umgeht: keine Cookies oder Tracker, ein Kontaktformular, das nur für unsere Antwort genutzt wird.",
       },
       title: "Datenschutz",
       updated: "Zuletzt aktualisiert: {date}",
