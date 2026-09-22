@@ -464,10 +464,10 @@ export function localizePath(path: string, locale: SiteLocale): string {
  *  Absolute, for the <head>. */
 export function alternateUrls(
   path: string,
-  site: URL | undefined,
+  site: URL,
   available: readonly SiteLocale[] = LOCALES,
 ): { hreflang: string; href: string }[] {
-  if (!site || available.length === 0) return [];
+  if (available.length === 0) return [];
   const alts = available.map((locale) => ({
     hreflang: htmlLang(locale),
     href: new URL(localizePath(path, locale), site).href,
