@@ -68,7 +68,7 @@ export const dict = {
     attachment: "Archivo adjunto",
     attachmentHelp: "Opcional. Un documento o una imagen de hasta unos 10 MB.",
     message: "Mensaje",
-    messagePlaceholder: "Cuéntanos un poco qué te trae por aquí…",
+    messagePlaceholder: "Cuéntanos un poco qué te trae por aquí...",
     send: "Enviar mensaje",
     required: "obligatorio",
     optional: "(opcional)",

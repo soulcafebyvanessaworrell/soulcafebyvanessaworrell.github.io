@@ -68,7 +68,7 @@ export const dict = {
     attachment: "এটাচমেণ্ট",
     attachmentHelp: "বৈকল্পিক। এখন নথি বা ছবি, প্ৰায় 10 MB পৰ্যন্ত।",
     message: "বাৰ্তা",
-    messagePlaceholder: "আপুনি কি বিষয়ে কথা পাতিব খোজে, অলপ কওকচোন…",
+    messagePlaceholder: "আপুনি কি বিষয়ে কথা পাতিব খোজে, অলপ কওকচোন...",
     send: "বাৰ্তা পঠিয়াওক",
     required: "আৱশ্যক",
     optional: "(বৈকল্পিক)",

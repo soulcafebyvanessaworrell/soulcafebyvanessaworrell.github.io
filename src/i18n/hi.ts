@@ -68,7 +68,7 @@ export const dict = {
     attachment: "अटैचमेंट",
     attachmentHelp: "वैकल्पिक। कोई दस्तावेज़ या छवि, लगभग 10 MB तक।",
     message: "संदेश",
-    messagePlaceholder: "थोड़ा बताएं कि आप किस बारे में संपर्क कर रहे हैं…",
+    messagePlaceholder: "थोड़ा बताएं कि आप किस बारे में संपर्क कर रहे हैं...",
     send: "संदेश भेजें",
     required: "आवश्यक",
     optional: "(वैकल्पिक)",

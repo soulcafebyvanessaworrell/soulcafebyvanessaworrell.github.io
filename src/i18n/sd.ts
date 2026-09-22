@@ -69,7 +69,7 @@ export const dict = {
     attachment: "منسلڪ فائل",
     attachmentHelp: "اختياري. ڪو دستاويز يا تصوير، اٽڪل 10 MB تائين.",
     message: "پيغام",
-    messagePlaceholder: "ٿورو ٻڌايو ته توهان ڪهڙي ڳالهه لاءِ اسان تائين آيا آهيو…",
+    messagePlaceholder: "ٿورو ٻڌايو ته توهان ڪهڙي ڳالهه لاءِ اسان تائين آيا آهيو...",
     send: "پيغام موڪليو",
     required: "لازمي",
     optional: "(اختياري)",

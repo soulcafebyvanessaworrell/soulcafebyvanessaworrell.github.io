@@ -68,7 +68,7 @@ export const dict = {
     attachment: "اٹیچمینٹ",
     attachmentHelp: "اختیٲری۔ اکھ دستاویز یا تصویر، تقریباً 10 MB تام۔",
     message: "پیغام",
-    messagePlaceholder: "کینٛہہ ونِو، تۅہہِ کیا چھُ یٮ۪تہِ اننان…",
+    messagePlaceholder: "کینٛہہ ونِو، تۅہہِ کیا چھُ یٮ۪تہِ اننان...",
     send: "پیغام سۄزِو",
     required: "ضروری",
     optional: "(اختیٲری)",

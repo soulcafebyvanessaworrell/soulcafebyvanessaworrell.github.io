@@ -86,16 +86,18 @@ describe("privacy.updated keeps its {date} placeholder", () => {
   }
 });
 
-// The brand voice bans em and en dashes in visible text. Prose is authored in
-// many files by many hands, so the check runs over every dictionary and every
-// blog post body rather than trusting each author.
-const DASHES = /[\u2013\u2014]/;
+// The brand voice bans em and en dashes in visible text, and writes an
+// ellipsis as three full stops, never the U+2026 character, so every locale
+// trails off the same way. Prose is authored in many files by many hands, so
+// the check runs over every dictionary and every blog post body rather than
+// trusting each author.
+const BANNED_PUNCTUATION = /[\u2013\u2014\u2026]/;
 
-describe("no em or en dash in any visible string", () => {
+describe("no em dash, en dash, or ellipsis character in any visible string", () => {
   for (const locale of LOCALES) {
     test(`${locale} dictionary`, () => {
       const bad = leaves(prose(locale))
-        .filter((leaf) => typeof leaf.value === "string" && DASHES.test(leaf.value))
+        .filter((leaf) => typeof leaf.value === "string" && BANNED_PUNCTUATION.test(leaf.value))
         .map((leaf) => leaf.path);
       expect(bad).toEqual([]);
     });
@@ -116,7 +118,7 @@ describe("no em or en dash in any visible string", () => {
       const lines = text
         .split("\n")
         .map((line, index) => ({ line, number: index + 1 }))
-        .filter(({ line }) => DASHES.test(line))
+        .filter(({ line }) => BANNED_PUNCTUATION.test(line))
         .map(({ number }) => number);
       expect(lines).toEqual([]);
     });

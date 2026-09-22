@@ -68,7 +68,7 @@ export const dict = {
     attachment: "অ্যাটাচমেন্ট",
     attachmentHelp: "ঐচ্ছিক। কোনও নথি বা ছবি, প্রায় 10 MB পর্যন্ত।",
     message: "বার্তা",
-    messagePlaceholder: "কী কারণে আমাদের কাছে এসেছেন, একটু বলুন…",
+    messagePlaceholder: "কী কারণে আমাদের কাছে এসেছেন, একটু বলুন...",
     send: "বার্তা পাঠান",
     required: "আবশ্যক",
     optional: "(ঐচ্ছিক)",

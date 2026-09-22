@@ -69,7 +69,7 @@ export const dict = {
     attachment: "Bijlage",
     attachmentHelp: "Optioneel. Een document of afbeelding, tot ongeveer 10 MB.",
     message: "Bericht",
-    messagePlaceholder: "Vertel ons kort wat je hier brengt…",
+    messagePlaceholder: "Vertel ons kort wat je hier brengt...",
     send: "Bericht versturen",
     required: "verplicht",
     optional: "(optioneel)",

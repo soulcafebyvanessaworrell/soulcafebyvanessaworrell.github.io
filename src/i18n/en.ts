@@ -78,7 +78,7 @@ export const en = {
     attachment: "Attachment",
     attachmentHelp: "Optional. A document or image, up to about 10 MB.",
     message: "Message",
-    messagePlaceholder: "Tell us a little about what brings you here…",
+    messagePlaceholder: "Tell us a little about what brings you here...",
     send: "Send message",
     required: "required",
     optional: "(optional)",

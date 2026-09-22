@@ -69,7 +69,7 @@ export const dict = {
     attachment: "ᱡᱚᱲᱟᱣ ᱯᱷᱟᱭᱤᱞ",
     attachmentHelp: "ᱞᱟᱹᱠᱛᱤ ᱵᱟᱝ ᱠᱟᱱᱟ᱾ ᱢᱤᱫ ᱠᱟᱜᱚᱡ ᱥᱮ ᱪᱤᱛᱟᱹᱨ, 10 MB ᱫᱷᱟᱹᱵᱤᱡ᱾",
     message: "ᱠᱷᱚᱵᱚᱨ",
-    messagePlaceholder: "ᱟᱯᱮ ᱪᱮᱫ ᱞᱟᱹᱜᱤᱫ ᱱᱚᱸᱰᱮ ᱦᱮᱡ ᱟᱠᱟᱱ ᱯᱮ, ᱠᱟᱹᱴᱤᱡ ᱞᱟᱹᱭ ᱟᱞᱮ ᱯᱮ…",
+    messagePlaceholder: "ᱟᱯᱮ ᱪᱮᱫ ᱞᱟᱹᱜᱤᱫ ᱱᱚᱸᱰᱮ ᱦᱮᱡ ᱟᱠᱟᱱ ᱯᱮ, ᱠᱟᱹᱴᱤᱡ ᱞᱟᱹᱭ ᱟᱞᱮ ᱯᱮ...",
     send: "ᱠᱷᱚᱵᱚᱨ ᱠᱩᱞ ᱯᱮ",
     required: "ᱞᱟᱹᱠᱛᱤ",
     optional: "(ᱞᱟᱹᱠᱛᱤ ᱵᱟᱝ)",
