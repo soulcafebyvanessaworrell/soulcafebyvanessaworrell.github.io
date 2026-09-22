@@ -22,13 +22,14 @@ test("every offer prices every currency as a positive whole number", () => {
 // under Node). A locale whose table row names a non-Latin numbering system
 // (Marathi, Bengali) shows its own digits first and the Western digits in
 // brackets after a space; a Latin-digit locale (German) shows the amount
-// once. The Western repeat keeps the locale's own symbols, so Kashmiri
-// groups it with the Arabic comma (U+060C) its CLDR data pairs with Latin
-// digits, where Urdu uses the ASCII comma: pinned here so the difference is
-// a recorded choice. This pins Bun's ICU, which `bun test` runs under (it
-// puts a no-break space after the Urdu rupee sign; Node's ICU does not); the
-// build runs `astro build` under Node, whose ICU is pinned by the smoke
-// test's English literals against the built HTML.
+// once. The Western repeat is formatted through the default locale's row, not
+// the page locale's, so it reads "₹1,500" everywhere: Kashmiri would otherwise
+// group it with the Arabic comma (U+060C) its CLDR data pairs with Latin
+// digits, and Sindhi would put the symbol after the amount with a no-break
+// space, as their native renderings here do. This pins Bun's ICU, which
+// `bun test` runs under (it puts a no-break space after the Urdu rupee sign;
+// Node's ICU does not); the build runs `astro build` under Node, whose ICU is
+// pinned by the smoke test's English literals against the built HTML.
 describe("formatPrice per locale", () => {
   const cases: readonly [SiteLocale, (typeof CURRENCIES)[number], number, string][] = [
     ["en", "INR", 1500, "₹1,500"],
@@ -46,8 +47,9 @@ describe("formatPrice per locale", () => {
     ["mr", "INR", 12500, "₹१२,५०० (₹12,500)"],
     ["mr", "USD", 30, "$३० ($30)"],
     ["ur", "INR", 1500, "₹\u00a0۱٬۵۰۰ (₹1,500)"],
-    ["ks", "INR", 1500, "₹۱٬۵۰۰ (₹1\u060c500)"],
-    ["sd", "INR", 1500, "١٬٥٠٠\u00a0₹ (₹\u00a01,500)"],
+    ["ur", "INR", 12500, "₹\u00a0۱۲٬۵۰۰ (₹12,500)"],
+    ["ks", "INR", 1500, "₹۱٬۵۰۰ (₹1,500)"],
+    ["sd", "INR", 1500, "١٬٥٠٠\u00a0₹ (₹1,500)"],
   ];
   for (const [locale, currency, amount, expected] of cases) {
     test(`${amount} ${currency} in ${locale} is ${expected}`, () => {

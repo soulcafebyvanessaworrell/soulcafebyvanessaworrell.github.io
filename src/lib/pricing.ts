@@ -6,6 +6,7 @@
 // Base.astro reads OFFERS for the structured-data offers.
 
 import {
+  DEFAULT_LOCALE,
   type LocaleMeta,
   localeMeta,
   type NumberingSystem,
@@ -85,9 +86,16 @@ export const OFFERS: readonly Offer[] = SESSION_TYPES.flatMap((type) => {
   ];
 });
 
+/** The row whose separators and symbol placement the Western repeat follows:
+ *  the default locale's, so the repeat reads the same in every language
+ *  ("₹1,500", "1,500") instead of taking the page locale's own punctuation
+ *  around Latin digits (Kashmiri's Arabic comma, Sindhi's trailing symbol). */
+const WESTERN = localeMeta(DEFAULT_LOCALE);
+
 /** Formats `amount` through `render` in the digits the locale row names and,
- *  when those are not Western, again in Western digits in round brackets after
- *  a space ("₹१,५०० (₹1,500)"), so a reader of either system finds the number. */
+ *  when those are not Western, again through the default locale's row in
+ *  round brackets after a space ("₹१,५०० (₹1,500)"), so a reader of either
+ *  system finds the number. */
 function dualDigits(
   amount: number,
   { dateLocale, numberingSystem }: LocaleMeta,
@@ -95,7 +103,7 @@ function dualDigits(
 ): string {
   const native = render(dateLocale, numberingSystem).format(amount);
   if (numberingSystem === "latn") return native;
-  return `${native} (${render(dateLocale, "latn").format(amount)})`;
+  return `${native} (${render(WESTERN.dateLocale, "latn").format(amount)})`;
 }
 
 /** A whole-unit price in the reader's own numerals and symbol placement, always
