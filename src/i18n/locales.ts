@@ -4,6 +4,8 @@
 // adding a language is one row plus one dictionary file. No locale code is
 // written as a literal anywhere in src/ outside this table.
 
+import { BRAND } from "../lib/constants";
+
 export type Script =
   | "latin"
   | "devanagari"
@@ -24,6 +26,12 @@ export type Region = "india" | "europe";
 
 /** The CLDR numbering systems Intl picks for the table's dateLocales. */
 export type NumberingSystem = "latn" | "deva" | "beng" | "arabext" | "arab" | "olck";
+
+/** The brand names the translation contract keeps verbatim or transliterates
+ *  by sound. `BRAND` is the practice; the supper club is its one named event. */
+export const BRAND_NAMES = [BRAND, "The Soul Food Supper Club"] as const;
+export type BrandName = (typeof BRAND_NAMES)[number];
+
 export interface LocaleMeta {
   /** URL segment and dictionary key. */
   readonly code: string;
@@ -47,6 +55,10 @@ export interface LocaleMeta {
   readonly script: Script;
   /** Which heading the language picker lists it under. */
   readonly region: Region;
+  /** Same-sound transliterations of the brand names this locale's dictionary
+   *  uses in place of the English string. Absent where the dictionary keeps
+   *  English; i18n.test.ts accepts only the English string or this spelling. */
+  readonly brand?: Partial<Readonly<Record<BrandName, string>>>;
 }
 
 export const LOCALE_TABLE = [
@@ -69,6 +81,10 @@ export const LOCALE_TABLE = [
     numberingSystem: "latn",
     script: "devanagari",
     region: "india",
+    brand: {
+      "The Soul Cafe": "द सोल कैफ़े",
+      "The Soul Food Supper Club": "द सोल फ़ूड सपर क्लब",
+    },
   },
   {
     code: "bn",
@@ -119,6 +135,7 @@ export const LOCALE_TABLE = [
     numberingSystem: "latn",
     script: "gujarati",
     region: "india",
+    brand: { "The Soul Food Supper Club": "ધ સોલ ફૂડ સપર ક્લબ" },
   },
   {
     code: "ur",
@@ -239,6 +256,7 @@ export const LOCALE_TABLE = [
     numberingSystem: "latn",
     script: "devanagari",
     region: "india",
+    brand: { "The Soul Food Supper Club": "द सोल फूड सपर क्लब" },
   },
   {
     code: "kok",

@@ -7,7 +7,7 @@
 import { describe, expect, test } from "bun:test";
 import { readdirSync, readFileSync } from "node:fs";
 import { basename, join } from "node:path";
-import { DEFAULT_LOCALE, LOCALES } from "./locales";
+import { BRAND_NAMES, DEFAULT_LOCALE, LOCALES, localeMeta } from "./locales";
 import { dictionaries, type LocaleDict, PLACEHOLDER } from "./ui";
 
 interface Leaf {
@@ -102,6 +102,47 @@ describe("crisis_note keeps {short} before {full}", () => {
       const note = dictionaries[locale].ui.crisis_note;
       expect(note.indexOf("{short}")).toBeLessThan(note.indexOf("{full}"));
     });
+  }
+});
+
+// The brand names are never translated by meaning: a leaf carries the English
+// string or the same-sound transliteration the locale table records for that
+// locale, and nothing else. Without this, a translator could render "The Soul
+// Cafe" as the local words for soul and cafe and the site would name a
+// different business in that language.
+describe("brand names stay English or take the recorded transliteration", () => {
+  const enLeaves = leaves(prose(DEFAULT_LOCALE));
+  for (const brand of BRAND_NAMES) {
+    const paths = enLeaves.filter((leaf) => String(leaf.value).includes(brand)).map((l) => l.path);
+    test(`'${brand}' appears in at least one English leaf`, () => {
+      expect(paths.length).toBeGreaterThan(0);
+    });
+    for (const locale of LOCALES) {
+      test(`${locale} keeps '${brand}' in ${paths.length} leaves`, () => {
+        const accepted = [brand, localeMeta(locale).brand?.[brand]].filter(
+          (name): name is string => name !== undefined,
+        );
+        const byPath = new Map(
+          leaves(prose(locale)).map((leaf) => [leaf.path, String(leaf.value)]),
+        );
+        const drift = paths.filter(
+          (path) => !accepted.some((name) => (byPath.get(path) ?? "").includes(name)),
+        );
+        expect(drift).toEqual([]);
+      });
+    }
+  }
+
+  // A recorded transliteration nothing uses is a stale row: the dictionary was
+  // reworded to English and the table still claims the spelling.
+  for (const locale of LOCALES) {
+    const recorded = Object.entries(localeMeta(locale).brand ?? {});
+    for (const [brand, spelling] of recorded) {
+      test(`${locale} uses its recorded spelling of '${brand}'`, () => {
+        const used = leaves(prose(locale)).some((leaf) => String(leaf.value).includes(spelling));
+        expect(used).toBe(true);
+      });
+    }
   }
 });
 
