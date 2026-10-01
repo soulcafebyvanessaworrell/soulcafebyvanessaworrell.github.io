@@ -46,7 +46,7 @@
     "@tailwindcss/typography": "^0.5.20",
     "@tailwindcss/vite": "^4.3.3",
     "@types/bun": "^1.4.2",
-    "astro": "^7.3.3",
+    "astro": "^7.3.4",
     "astro-icon": "^1.2.0",
     "husky": "^9.1.7",
     "lint-staged": "^17.5.1",
