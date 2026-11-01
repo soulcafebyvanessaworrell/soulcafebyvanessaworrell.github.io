@@ -23,7 +23,7 @@
         "@fontsource/noto-sans-tamil": "^5.3.0",
         "@fontsource/noto-sans-telugu": "^5.3.0",
         "@fontsource/pt-sans": "^5.3.0",
-        "@iconify-json/lucide": "^1.2.135",
+        "@iconify-json/lucide": "^1.2.147",
         "@iconify-json/simple-icons": "^1.2.97",
         "@lhci/cli": "^0.15.1",
         "@playwright/test": "^1.63.0",
@@ -250,7 +250,7 @@
 
     "@formatjs/intl-localematcher": ["@formatjs/intl-localematcher@0.6.2", "", { "dependencies": { "tslib": "^2.8.0" } }, "sha512-XOMO2Hupl0wdd172Y06h6kLpBz6Dv+J4okPLl4LPtzbr8f66WbIoy4ev98EBuZ6ZK4h5ydTN6XneT4QVpD7cdA=="],
 
-    "@iconify-json/lucide": ["@iconify-json/lucide@1.2.135", "", { "dependencies": { "@iconify/types": "*" } }, "sha512-M2RbCJMe/ZwRzGBxNGbqP3kEQ74iJjQyJsw5FgVQw+Kp8eJPQF1S19fiGJChG4yYLg73c8Z/fMnm07GTXUxmQA=="],
+    "@iconify-json/lucide": ["@iconify-json/lucide@1.2.147", "", { "dependencies": { "@iconify/types": "*" } }, "sha512-7Qqa/joSBeUxihWsQJx5nKcqMWtV3YrH90Jldxcx4J9ciTLavRUlpexQwRTcx9dcb7CJpISfjZTj42zD/30sqA=="],
 
     "@iconify-json/simple-icons": ["@iconify-json/simple-icons@1.2.97", "", { "dependencies": { "@iconify/types": "*" } }, "sha512-Z6PmM6jvWVU7rmLzqbxCLJA7SeqCnK6lMHXtjyzHPLZebwuoojBEcHHycppahDzEeN9xujRkrV5J8QpOhMyNrg=="],
 
