@@ -55,6 +55,6 @@
     "typescript": "6"
   },
   "lint-staged": {
-    "*.{ts,tsx,js,mjs,json,astro}": "biome check --write"
+    "*.{ts,tsx,js,mjs,json,astro,md}": "biome check --write"
   }
 }
