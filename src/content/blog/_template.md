@@ -11,9 +11,9 @@
 #    A plain subject on a direct push publishes to /latest/ only, until then.
 title: Your post title goes here
 description: One plain sentence. It shows in the blog list and in search results.
-pubDate: 2026-07-16      # the date you publish, written as YYYY-MM-DD
-locale: en               # the same language code as in the file name
-draft: true              # true hides the post while you work; false publishes it
+pubDate: 2026-07-16 # the date you publish, written as YYYY-MM-DD
+locale: en # the same language code as in the file name
+draft: true # true hides the post while you work; false publishes it
 ---
 
 Write your post here, in Markdown.
